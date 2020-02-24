@@ -9,18 +9,12 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
 public class ConsensusFuture {
-    private final ByteString correlationId;
     private final Message.MessageType requestType;
     private CompletableFuture<ConsensusFutureResponse> future = null;
 
-    public ConsensusFuture(ByteString correlationId, Message.MessageType requestType) {
-        this.correlationId = correlationId;
+    public ConsensusFuture(Message.MessageType requestType) {
+        future = new CompletableFuture<>();
         this.requestType = requestType;
-    }
-
-    public ConsensusFuture(ByteString correlationId) {
-        this.correlationId = correlationId;
-        this.requestType = null;
     }
 
     public boolean done() {
@@ -48,21 +42,25 @@ public class ConsensusFuture {
     }
 
 
-    void setResponse(byte[] content, Message.MessageType messageType) {
+    public void setResponse(byte[] content, Message.MessageType messageType) {
         this.future.complete(new ConsensusFutureResponse(content, messageType));
     }
 
-    public ByteString getCorrelationId() {
-        return correlationId;
-    }
-
-    private static class ConsensusFutureResponse {
+    public static class ConsensusFutureResponse {
         private final byte[] content;
         private final Message.MessageType messageType;
 
         private ConsensusFutureResponse(byte[] content, Message.MessageType messageType) {
             this.content = content;
             this.messageType = messageType;
+        }
+
+        public byte[] getContent() {
+            return content;
+        }
+
+        public Message.MessageType getMessageType() {
+            return messageType;
         }
     }
 }
