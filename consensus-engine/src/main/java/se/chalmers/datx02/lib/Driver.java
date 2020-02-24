@@ -1,4 +1,4 @@
-package se.chalmers.datx02;
+package se.chalmers.datx02.lib;
 
 public interface Driver {
 

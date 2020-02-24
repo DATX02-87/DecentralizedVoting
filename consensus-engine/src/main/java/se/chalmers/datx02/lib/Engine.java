@@ -1,7 +1,6 @@
-package se.chalmers.datx02;
+package se.chalmers.datx02.lib;
 
 import java.util.Map;
-import java.util.Queue;
 import java.util.concurrent.BlockingQueue;
 
 public interface Engine {
