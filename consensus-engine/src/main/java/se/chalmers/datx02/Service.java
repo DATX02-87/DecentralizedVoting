@@ -1,35 +1,35 @@
 package se.chalmers.datx02;
 
-import com.sun.istack.internal.NotNull;
-import com.sun.istack.internal.Nullable;
+
+import sawtooth.sdk.protobuf.ConsensusBlock;
 
 import java.util.List;
 import java.util.Map;
 
 public interface Service {
-    void sendTo(@NotNull byte[] receiverId, @NotNull String messageType, @NotNull byte[] payload);
+    void sendTo(byte[] receiverId, String messageType, byte[] payload);
 
-    void broadcast(@NotNull String messageType, @NotNull byte[] payload);
+    void broadcast(String messageType, byte[] payload);
 
-    void initializeBlock(@Nullable byte[] previousId);
+    void initializeBlock(byte[] previousId);
 
     byte[] summarizeBlock();
 
-    byte[] finalizeBlock(@NotNull byte[] data);
+    byte[] finalizeBlock(byte[] data);
 
     void cancelBlock();
 
-    void checkBlocks(@NotNull List<Byte[]> priority);
+    void checkBlocks(List<Byte[]> priority);
 
-    void commitBlock(@NotNull byte[] blockId);
+    void commitBlock(byte[] blockId);
 
-    void ignoreBlock(@NotNull byte[] blockId);
+    void ignoreBlock(byte[] blockId);
 
-    void failBlock(@NotNull byte[] blockId);
+    void failBlock(byte[] blockId);
 
-    Map<Byte[], Consensus.ConsensusBlock> getBlocks(@NotNull  List<Byte[]> blockIds);
+    Map<Byte[], ConsensusBlock> getBlocks( List<Byte[]> blockIds);
 
-    Consensus.ConsensusBlock getChainHead();
+    ConsensusBlock getChainHead();
 
     Map<String, String> getSettings(byte[] blockId, List<String> settings);
 
