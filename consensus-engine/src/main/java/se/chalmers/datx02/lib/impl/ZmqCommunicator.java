@@ -86,7 +86,13 @@ public class ZmqCommunicator implements Communicator {
 
     @Override
     public Future<Message> receive() {
-        return new FutureTask<>(receiveQueue::take);
+        return CompletableFuture.supplyAsync(() -> {
+            try {
+                return receiveQueue.take();
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+        });
     }
 
     @Override
@@ -163,7 +169,7 @@ public class ZmqCommunicator implements Communicator {
             try {
                 Message received = Message.parseFrom(recv);
                 ConsensusFuture consensusFuture = futures.get(received.getCorrelationId());
-                if(consensusFuture == null) {
+                if(consensusFuture != null) {
                     consensusFuture.setResponse(received.getContent().toByteArray(), received.getMessageType());
                     futures.remove(received.getCorrelationId());
                 } else {
