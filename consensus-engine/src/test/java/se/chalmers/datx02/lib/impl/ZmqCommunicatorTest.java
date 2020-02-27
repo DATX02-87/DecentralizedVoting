@@ -1,27 +1,30 @@
 package se.chalmers.datx02.lib.impl;
 
+import com.google.protobuf.ByteString;
 import com.google.protobuf.InvalidProtocolBufferException;
+import com.google.protobuf.Parser;
 import org.junit.jupiter.api.*;
 import org.zeromq.SocketType;
 import org.zeromq.ZContext;
 import org.zeromq.ZMQ;
-import sawtooth.sdk.protobuf.Consensus;
-import sawtooth.sdk.protobuf.ConsensusRegisterRequest;
-import sawtooth.sdk.protobuf.Message;
+import sawtooth.sdk.protobuf.*;
 import se.chalmers.datx02.lib.Communicator;
 import se.chalmers.datx02.lib.Util;
 import se.chalmers.datx02.lib.models.ConsensusFuture;
 
 import java.util.UUID;
+import java.util.concurrent.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 class ZmqCommunicatorTest {
-    ZContext ctx;
+    private ZContext ctx;
 
-    ZMQ.Socket socket;
+    private ZMQ.Socket socket;
 
-    String url = "tcp://*:5671";
+    private String url = "tcp://*:5671";
+
+    private byte[] connectionId;
 
     @BeforeEach
     void before() {
@@ -31,40 +34,108 @@ class ZmqCommunicatorTest {
         socket.bind(url);
     }
 
-    @Test
-    void testComms() throws InvalidProtocolBufferException {
+    @Test()
+    @Timeout(value = 2)
+    void testSend() throws InvalidProtocolBufferException {
+        // prepare the data
+        ConsensusRegisterRequest registerRequest = ConsensusRegisterRequest.newBuilder()
+                .setName("Mock engine")
+                .setVersion("0.1")
+                .build();
+        ByteString toSend = registerRequest.toByteString();
 
         new Thread(() -> {
             Communicator c = new ZmqCommunicator("tcp://localhost:5671");
-            try {
-                Thread.sleep(200);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-            ConsensusRegisterRequest registerRequest = ConsensusRegisterRequest.newBuilder()
-                    .setName("Mock engine")
-                    .setVersion("0.1")
-                    .build();
-            ConsensusFuture future = c.send(registerRequest.toByteArray(), Message.MessageType.CONSENSUS_REGISTER_REQUEST);
-            try {
-                Thread.sleep(1000);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-            ConsensusFuture.ConsensusFutureResponse result = future.result();
-            System.out.println(result.getMessageType());
-
+            c.waitForReady();
+            ConsensusFuture future = c.send(toSend.toByteArray(), Message.MessageType.CONSENSUS_REGISTER_REQUEST);
         }).start();
-        System.out.println("receiving");
-
         byte[] identity = socket.recv();
-        System.out.println(UUID.nameUUIDFromBytes(identity));
         socket.sendMore(identity);
         byte[] data = socket.recv(0);
         Message msg = Message.parseFrom(data);
-        ConsensusRegisterRequest registerRequest = ConsensusRegisterRequest.parseFrom(msg.getContent());
-        System.out.println(String.format("Received: %s, %s", registerRequest.getName(), registerRequest.getVersion()));
+        ConsensusRegisterRequest response = ConsensusRegisterRequest.parseFrom(msg.getContent());
+        ByteString received = response.toByteString();
+        assertEquals(toSend, received);
     }
+
+   @Test()
+   @Timeout(value = 2)
+   void testSendReceive() throws Exception {
+        String url = "tcp://localhost:5671";
+        final String engineName = "Mock engine";
+        final String version = "0.1";
+        new Thread(() -> {
+            Communicator c = new ZmqCommunicator(url);
+            c.waitForReady();
+            ConsensusRegisterRequest registerRequest = ConsensusRegisterRequest.newBuilder()
+                    .setName(engineName)
+                    .setVersion(version)
+                    .build();
+            ByteString toSend = registerRequest.toByteString();
+            ConsensusFuture send = c.send(toSend.toByteArray(), Message.MessageType.CONSENSUS_REGISTER_REQUEST);
+            byte[] content = send.result().getContent();
+
+            try {
+                ConsensusRegisterResponse registerResponse = ConsensusRegisterResponse.parseFrom(
+                       content
+                );
+                assertEquals(ConsensusRegisterResponse.Status.OK, registerResponse.getStatus());
+                Future<Message> messageFuture = c.receive();
+                Message message = messageFuture.get();
+                c.sendBack(ConsensusNotifyAck.newBuilder().build().toByteArray(), message.getCorrelationId(), Message.MessageType.CONSENSUS_NOTIFY_ACK);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }).start();
+
+       ConsensusRegisterResponse registerResponse = ConsensusRegisterResponse.newBuilder()
+               .setStatus(ConsensusRegisterResponse.Status.OK)
+               .build();
+       ConsensusRegisterRequest registerRequest = recvResp(registerResponse.toByteArray(), Message.MessageType.CONSENSUS_REGISTER_RESPONSE, ConsensusRegisterRequest.parser());
+
+       assertEquals(engineName, registerRequest.getName());
+       assertEquals(version, registerRequest.getVersion());
+
+       // test send
+       sendReqResp(PingRequest.newBuilder().build().toByteArray(), Message.MessageType.PING_REQUEST);
+
+   }
+
+    private <T> T recvResp(byte[] response, Message.MessageType responseType, Parser<T> requestParser) throws Exception {
+        this.connectionId = socket.recv();
+        byte[] data = socket.recv();
+        Message requestMsg = Message.parseFrom(data);
+        T request = requestParser.parseFrom(requestMsg.getContent());
+
+        Message responseMsg = Message.newBuilder()
+                .setContent(ByteString.copyFrom(response))
+                .setMessageType(responseType)
+                .setCorrelationId(requestMsg.getCorrelationId())
+                .build();
+        socket.sendMore(this.connectionId);
+        socket.send(responseMsg.toByteArray());
+
+        return request;
+    }
+
+
+    private byte[] sendReqResp(byte[] request, Message.MessageType requestType) throws Exception {
+        Message requestMsg = Message.newBuilder()
+                .setContent(ByteString.copyFrom(request))
+                .setCorrelationId(UUID.randomUUID().toString())
+                .setMessageType(requestType)
+                .build();
+
+        socket.sendMore(this.connectionId);
+        socket.send(requestMsg.toByteArray());
+
+        socket.recv(); // the id
+        byte[] replyData = socket.recv();
+        Message replyMsg = Message.parseFrom(replyData);
+        assertEquals(replyMsg.getMessageType(), Message.MessageType.CONSENSUS_NOTIFY_ACK);
+        return replyMsg.getContent().toByteArray();
+    }
+
 
     @AfterEach
     void after() {
