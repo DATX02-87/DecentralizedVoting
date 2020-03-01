@@ -22,6 +22,7 @@ private static final long serialVersionUID = 0L;
   private ConsensusRegisterRequest() {
     name_ = "";
     version_ = "";
+    additionalProtocols_ = java.util.Collections.emptyList();
   }
 
   @java.lang.Override
@@ -60,6 +61,15 @@ private static final long serialVersionUID = 0L;
             version_ = s;
             break;
           }
+          case 26: {
+            if (!((mutable_bitField0_ & 0x00000004) == 0x00000004)) {
+              additionalProtocols_ = new java.util.ArrayList<sawtooth.sdk.protobuf.ConsensusRegisterRequest.Protocol>();
+              mutable_bitField0_ |= 0x00000004;
+            }
+            additionalProtocols_.add(
+                input.readMessage(sawtooth.sdk.protobuf.ConsensusRegisterRequest.Protocol.parser(), extensionRegistry));
+            break;
+          }
           default: {
             if (!parseUnknownFieldProto3(
                 input, unknownFields, extensionRegistry, tag)) {
@@ -75,6 +85,9 @@ private static final long serialVersionUID = 0L;
       throw new com.google.protobuf.InvalidProtocolBufferException(
           e).setUnfinishedMessage(this);
     } finally {
+      if (((mutable_bitField0_ & 0x00000004) == 0x00000004)) {
+        additionalProtocols_ = java.util.Collections.unmodifiableList(additionalProtocols_);
+      }
       this.unknownFields = unknownFields.build();
       makeExtensionsImmutable();
     }
@@ -92,6 +105,694 @@ private static final long serialVersionUID = 0L;
             sawtooth.sdk.protobuf.ConsensusRegisterRequest.class, sawtooth.sdk.protobuf.ConsensusRegisterRequest.Builder.class);
   }
 
+  public interface ProtocolOrBuilder extends
+      // @@protoc_insertion_point(interface_extends:ConsensusRegisterRequest.Protocol)
+      com.google.protobuf.MessageOrBuilder {
+
+    /**
+     * <code>string name = 1;</code>
+     */
+    java.lang.String getName();
+    /**
+     * <code>string name = 1;</code>
+     */
+    com.google.protobuf.ByteString
+        getNameBytes();
+
+    /**
+     * <code>string version = 2;</code>
+     */
+    java.lang.String getVersion();
+    /**
+     * <code>string version = 2;</code>
+     */
+    com.google.protobuf.ByteString
+        getVersionBytes();
+  }
+  /**
+   * Protobuf type {@code ConsensusRegisterRequest.Protocol}
+   */
+  public  static final class Protocol extends
+      com.google.protobuf.GeneratedMessageV3 implements
+      // @@protoc_insertion_point(message_implements:ConsensusRegisterRequest.Protocol)
+      ProtocolOrBuilder {
+  private static final long serialVersionUID = 0L;
+    // Use Protocol.newBuilder() to construct.
+    private Protocol(com.google.protobuf.GeneratedMessageV3.Builder<?> builder) {
+      super(builder);
+    }
+    private Protocol() {
+      name_ = "";
+      version_ = "";
+    }
+
+    @java.lang.Override
+    public final com.google.protobuf.UnknownFieldSet
+    getUnknownFields() {
+      return this.unknownFields;
+    }
+    private Protocol(
+        com.google.protobuf.CodedInputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      this();
+      if (extensionRegistry == null) {
+        throw new java.lang.NullPointerException();
+      }
+      int mutable_bitField0_ = 0;
+      com.google.protobuf.UnknownFieldSet.Builder unknownFields =
+          com.google.protobuf.UnknownFieldSet.newBuilder();
+      try {
+        boolean done = false;
+        while (!done) {
+          int tag = input.readTag();
+          switch (tag) {
+            case 0:
+              done = true;
+              break;
+            case 10: {
+              java.lang.String s = input.readStringRequireUtf8();
+
+              name_ = s;
+              break;
+            }
+            case 18: {
+              java.lang.String s = input.readStringRequireUtf8();
+
+              version_ = s;
+              break;
+            }
+            default: {
+              if (!parseUnknownFieldProto3(
+                  input, unknownFields, extensionRegistry, tag)) {
+                done = true;
+              }
+              break;
+            }
+          }
+        }
+      } catch (com.google.protobuf.InvalidProtocolBufferException e) {
+        throw e.setUnfinishedMessage(this);
+      } catch (java.io.IOException e) {
+        throw new com.google.protobuf.InvalidProtocolBufferException(
+            e).setUnfinishedMessage(this);
+      } finally {
+        this.unknownFields = unknownFields.build();
+        makeExtensionsImmutable();
+      }
+    }
+    public static final com.google.protobuf.Descriptors.Descriptor
+        getDescriptor() {
+      return sawtooth.sdk.protobuf.Consensus.internal_static_ConsensusRegisterRequest_Protocol_descriptor;
+    }
+
+    @java.lang.Override
+    protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
+        internalGetFieldAccessorTable() {
+      return sawtooth.sdk.protobuf.Consensus.internal_static_ConsensusRegisterRequest_Protocol_fieldAccessorTable
+          .ensureFieldAccessorsInitialized(
+              sawtooth.sdk.protobuf.ConsensusRegisterRequest.Protocol.class, sawtooth.sdk.protobuf.ConsensusRegisterRequest.Protocol.Builder.class);
+    }
+
+    public static final int NAME_FIELD_NUMBER = 1;
+    private volatile java.lang.Object name_;
+    /**
+     * <code>string name = 1;</code>
+     */
+    public java.lang.String getName() {
+      java.lang.Object ref = name_;
+      if (ref instanceof java.lang.String) {
+        return (java.lang.String) ref;
+      } else {
+        com.google.protobuf.ByteString bs = 
+            (com.google.protobuf.ByteString) ref;
+        java.lang.String s = bs.toStringUtf8();
+        name_ = s;
+        return s;
+      }
+    }
+    /**
+     * <code>string name = 1;</code>
+     */
+    public com.google.protobuf.ByteString
+        getNameBytes() {
+      java.lang.Object ref = name_;
+      if (ref instanceof java.lang.String) {
+        com.google.protobuf.ByteString b = 
+            com.google.protobuf.ByteString.copyFromUtf8(
+                (java.lang.String) ref);
+        name_ = b;
+        return b;
+      } else {
+        return (com.google.protobuf.ByteString) ref;
+      }
+    }
+
+    public static final int VERSION_FIELD_NUMBER = 2;
+    private volatile java.lang.Object version_;
+    /**
+     * <code>string version = 2;</code>
+     */
+    public java.lang.String getVersion() {
+      java.lang.Object ref = version_;
+      if (ref instanceof java.lang.String) {
+        return (java.lang.String) ref;
+      } else {
+        com.google.protobuf.ByteString bs = 
+            (com.google.protobuf.ByteString) ref;
+        java.lang.String s = bs.toStringUtf8();
+        version_ = s;
+        return s;
+      }
+    }
+    /**
+     * <code>string version = 2;</code>
+     */
+    public com.google.protobuf.ByteString
+        getVersionBytes() {
+      java.lang.Object ref = version_;
+      if (ref instanceof java.lang.String) {
+        com.google.protobuf.ByteString b = 
+            com.google.protobuf.ByteString.copyFromUtf8(
+                (java.lang.String) ref);
+        version_ = b;
+        return b;
+      } else {
+        return (com.google.protobuf.ByteString) ref;
+      }
+    }
+
+    private byte memoizedIsInitialized = -1;
+    @java.lang.Override
+    public final boolean isInitialized() {
+      byte isInitialized = memoizedIsInitialized;
+      if (isInitialized == 1) return true;
+      if (isInitialized == 0) return false;
+
+      memoizedIsInitialized = 1;
+      return true;
+    }
+
+    @java.lang.Override
+    public void writeTo(com.google.protobuf.CodedOutputStream output)
+                        throws java.io.IOException {
+      if (!getNameBytes().isEmpty()) {
+        com.google.protobuf.GeneratedMessageV3.writeString(output, 1, name_);
+      }
+      if (!getVersionBytes().isEmpty()) {
+        com.google.protobuf.GeneratedMessageV3.writeString(output, 2, version_);
+      }
+      unknownFields.writeTo(output);
+    }
+
+    @java.lang.Override
+    public int getSerializedSize() {
+      int size = memoizedSize;
+      if (size != -1) return size;
+
+      size = 0;
+      if (!getNameBytes().isEmpty()) {
+        size += com.google.protobuf.GeneratedMessageV3.computeStringSize(1, name_);
+      }
+      if (!getVersionBytes().isEmpty()) {
+        size += com.google.protobuf.GeneratedMessageV3.computeStringSize(2, version_);
+      }
+      size += unknownFields.getSerializedSize();
+      memoizedSize = size;
+      return size;
+    }
+
+    @java.lang.Override
+    public boolean equals(final java.lang.Object obj) {
+      if (obj == this) {
+       return true;
+      }
+      if (!(obj instanceof sawtooth.sdk.protobuf.ConsensusRegisterRequest.Protocol)) {
+        return super.equals(obj);
+      }
+      sawtooth.sdk.protobuf.ConsensusRegisterRequest.Protocol other = (sawtooth.sdk.protobuf.ConsensusRegisterRequest.Protocol) obj;
+
+      boolean result = true;
+      result = result && getName()
+          .equals(other.getName());
+      result = result && getVersion()
+          .equals(other.getVersion());
+      result = result && unknownFields.equals(other.unknownFields);
+      return result;
+    }
+
+    @java.lang.Override
+    public int hashCode() {
+      if (memoizedHashCode != 0) {
+        return memoizedHashCode;
+      }
+      int hash = 41;
+      hash = (19 * hash) + getDescriptor().hashCode();
+      hash = (37 * hash) + NAME_FIELD_NUMBER;
+      hash = (53 * hash) + getName().hashCode();
+      hash = (37 * hash) + VERSION_FIELD_NUMBER;
+      hash = (53 * hash) + getVersion().hashCode();
+      hash = (29 * hash) + unknownFields.hashCode();
+      memoizedHashCode = hash;
+      return hash;
+    }
+
+    public static sawtooth.sdk.protobuf.ConsensusRegisterRequest.Protocol parseFrom(
+        java.nio.ByteBuffer data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data);
+    }
+    public static sawtooth.sdk.protobuf.ConsensusRegisterRequest.Protocol parseFrom(
+        java.nio.ByteBuffer data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data, extensionRegistry);
+    }
+    public static sawtooth.sdk.protobuf.ConsensusRegisterRequest.Protocol parseFrom(
+        com.google.protobuf.ByteString data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data);
+    }
+    public static sawtooth.sdk.protobuf.ConsensusRegisterRequest.Protocol parseFrom(
+        com.google.protobuf.ByteString data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data, extensionRegistry);
+    }
+    public static sawtooth.sdk.protobuf.ConsensusRegisterRequest.Protocol parseFrom(byte[] data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data);
+    }
+    public static sawtooth.sdk.protobuf.ConsensusRegisterRequest.Protocol parseFrom(
+        byte[] data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data, extensionRegistry);
+    }
+    public static sawtooth.sdk.protobuf.ConsensusRegisterRequest.Protocol parseFrom(java.io.InputStream input)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageV3
+          .parseWithIOException(PARSER, input);
+    }
+    public static sawtooth.sdk.protobuf.ConsensusRegisterRequest.Protocol parseFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageV3
+          .parseWithIOException(PARSER, input, extensionRegistry);
+    }
+    public static sawtooth.sdk.protobuf.ConsensusRegisterRequest.Protocol parseDelimitedFrom(java.io.InputStream input)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageV3
+          .parseDelimitedWithIOException(PARSER, input);
+    }
+    public static sawtooth.sdk.protobuf.ConsensusRegisterRequest.Protocol parseDelimitedFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageV3
+          .parseDelimitedWithIOException(PARSER, input, extensionRegistry);
+    }
+    public static sawtooth.sdk.protobuf.ConsensusRegisterRequest.Protocol parseFrom(
+        com.google.protobuf.CodedInputStream input)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageV3
+          .parseWithIOException(PARSER, input);
+    }
+    public static sawtooth.sdk.protobuf.ConsensusRegisterRequest.Protocol parseFrom(
+        com.google.protobuf.CodedInputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageV3
+          .parseWithIOException(PARSER, input, extensionRegistry);
+    }
+
+    @java.lang.Override
+    public Builder newBuilderForType() { return newBuilder(); }
+    public static Builder newBuilder() {
+      return DEFAULT_INSTANCE.toBuilder();
+    }
+    public static Builder newBuilder(sawtooth.sdk.protobuf.ConsensusRegisterRequest.Protocol prototype) {
+      return DEFAULT_INSTANCE.toBuilder().mergeFrom(prototype);
+    }
+    @java.lang.Override
+    public Builder toBuilder() {
+      return this == DEFAULT_INSTANCE
+          ? new Builder() : new Builder().mergeFrom(this);
+    }
+
+    @java.lang.Override
+    protected Builder newBuilderForType(
+        com.google.protobuf.GeneratedMessageV3.BuilderParent parent) {
+      Builder builder = new Builder(parent);
+      return builder;
+    }
+    /**
+     * Protobuf type {@code ConsensusRegisterRequest.Protocol}
+     */
+    public static final class Builder extends
+        com.google.protobuf.GeneratedMessageV3.Builder<Builder> implements
+        // @@protoc_insertion_point(builder_implements:ConsensusRegisterRequest.Protocol)
+        sawtooth.sdk.protobuf.ConsensusRegisterRequest.ProtocolOrBuilder {
+      public static final com.google.protobuf.Descriptors.Descriptor
+          getDescriptor() {
+        return sawtooth.sdk.protobuf.Consensus.internal_static_ConsensusRegisterRequest_Protocol_descriptor;
+      }
+
+      @java.lang.Override
+      protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
+          internalGetFieldAccessorTable() {
+        return sawtooth.sdk.protobuf.Consensus.internal_static_ConsensusRegisterRequest_Protocol_fieldAccessorTable
+            .ensureFieldAccessorsInitialized(
+                sawtooth.sdk.protobuf.ConsensusRegisterRequest.Protocol.class, sawtooth.sdk.protobuf.ConsensusRegisterRequest.Protocol.Builder.class);
+      }
+
+      // Construct using sawtooth.sdk.protobuf.ConsensusRegisterRequest.Protocol.newBuilder()
+      private Builder() {
+        maybeForceBuilderInitialization();
+      }
+
+      private Builder(
+          com.google.protobuf.GeneratedMessageV3.BuilderParent parent) {
+        super(parent);
+        maybeForceBuilderInitialization();
+      }
+      private void maybeForceBuilderInitialization() {
+        if (com.google.protobuf.GeneratedMessageV3
+                .alwaysUseFieldBuilders) {
+        }
+      }
+      @java.lang.Override
+      public Builder clear() {
+        super.clear();
+        name_ = "";
+
+        version_ = "";
+
+        return this;
+      }
+
+      @java.lang.Override
+      public com.google.protobuf.Descriptors.Descriptor
+          getDescriptorForType() {
+        return sawtooth.sdk.protobuf.Consensus.internal_static_ConsensusRegisterRequest_Protocol_descriptor;
+      }
+
+      @java.lang.Override
+      public sawtooth.sdk.protobuf.ConsensusRegisterRequest.Protocol getDefaultInstanceForType() {
+        return sawtooth.sdk.protobuf.ConsensusRegisterRequest.Protocol.getDefaultInstance();
+      }
+
+      @java.lang.Override
+      public sawtooth.sdk.protobuf.ConsensusRegisterRequest.Protocol build() {
+        sawtooth.sdk.protobuf.ConsensusRegisterRequest.Protocol result = buildPartial();
+        if (!result.isInitialized()) {
+          throw newUninitializedMessageException(result);
+        }
+        return result;
+      }
+
+      @java.lang.Override
+      public sawtooth.sdk.protobuf.ConsensusRegisterRequest.Protocol buildPartial() {
+        sawtooth.sdk.protobuf.ConsensusRegisterRequest.Protocol result = new sawtooth.sdk.protobuf.ConsensusRegisterRequest.Protocol(this);
+        result.name_ = name_;
+        result.version_ = version_;
+        onBuilt();
+        return result;
+      }
+
+      @java.lang.Override
+      public Builder clone() {
+        return (Builder) super.clone();
+      }
+      @java.lang.Override
+      public Builder setField(
+          com.google.protobuf.Descriptors.FieldDescriptor field,
+          java.lang.Object value) {
+        return (Builder) super.setField(field, value);
+      }
+      @java.lang.Override
+      public Builder clearField(
+          com.google.protobuf.Descriptors.FieldDescriptor field) {
+        return (Builder) super.clearField(field);
+      }
+      @java.lang.Override
+      public Builder clearOneof(
+          com.google.protobuf.Descriptors.OneofDescriptor oneof) {
+        return (Builder) super.clearOneof(oneof);
+      }
+      @java.lang.Override
+      public Builder setRepeatedField(
+          com.google.protobuf.Descriptors.FieldDescriptor field,
+          int index, java.lang.Object value) {
+        return (Builder) super.setRepeatedField(field, index, value);
+      }
+      @java.lang.Override
+      public Builder addRepeatedField(
+          com.google.protobuf.Descriptors.FieldDescriptor field,
+          java.lang.Object value) {
+        return (Builder) super.addRepeatedField(field, value);
+      }
+      @java.lang.Override
+      public Builder mergeFrom(com.google.protobuf.Message other) {
+        if (other instanceof sawtooth.sdk.protobuf.ConsensusRegisterRequest.Protocol) {
+          return mergeFrom((sawtooth.sdk.protobuf.ConsensusRegisterRequest.Protocol)other);
+        } else {
+          super.mergeFrom(other);
+          return this;
+        }
+      }
+
+      public Builder mergeFrom(sawtooth.sdk.protobuf.ConsensusRegisterRequest.Protocol other) {
+        if (other == sawtooth.sdk.protobuf.ConsensusRegisterRequest.Protocol.getDefaultInstance()) return this;
+        if (!other.getName().isEmpty()) {
+          name_ = other.name_;
+          onChanged();
+        }
+        if (!other.getVersion().isEmpty()) {
+          version_ = other.version_;
+          onChanged();
+        }
+        this.mergeUnknownFields(other.unknownFields);
+        onChanged();
+        return this;
+      }
+
+      @java.lang.Override
+      public final boolean isInitialized() {
+        return true;
+      }
+
+      @java.lang.Override
+      public Builder mergeFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws java.io.IOException {
+        sawtooth.sdk.protobuf.ConsensusRegisterRequest.Protocol parsedMessage = null;
+        try {
+          parsedMessage = PARSER.parsePartialFrom(input, extensionRegistry);
+        } catch (com.google.protobuf.InvalidProtocolBufferException e) {
+          parsedMessage = (sawtooth.sdk.protobuf.ConsensusRegisterRequest.Protocol) e.getUnfinishedMessage();
+          throw e.unwrapIOException();
+        } finally {
+          if (parsedMessage != null) {
+            mergeFrom(parsedMessage);
+          }
+        }
+        return this;
+      }
+
+      private java.lang.Object name_ = "";
+      /**
+       * <code>string name = 1;</code>
+       */
+      public java.lang.String getName() {
+        java.lang.Object ref = name_;
+        if (!(ref instanceof java.lang.String)) {
+          com.google.protobuf.ByteString bs =
+              (com.google.protobuf.ByteString) ref;
+          java.lang.String s = bs.toStringUtf8();
+          name_ = s;
+          return s;
+        } else {
+          return (java.lang.String) ref;
+        }
+      }
+      /**
+       * <code>string name = 1;</code>
+       */
+      public com.google.protobuf.ByteString
+          getNameBytes() {
+        java.lang.Object ref = name_;
+        if (ref instanceof String) {
+          com.google.protobuf.ByteString b = 
+              com.google.protobuf.ByteString.copyFromUtf8(
+                  (java.lang.String) ref);
+          name_ = b;
+          return b;
+        } else {
+          return (com.google.protobuf.ByteString) ref;
+        }
+      }
+      /**
+       * <code>string name = 1;</code>
+       */
+      public Builder setName(
+          java.lang.String value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  
+        name_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>string name = 1;</code>
+       */
+      public Builder clearName() {
+        
+        name_ = getDefaultInstance().getName();
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>string name = 1;</code>
+       */
+      public Builder setNameBytes(
+          com.google.protobuf.ByteString value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  checkByteStringIsUtf8(value);
+        
+        name_ = value;
+        onChanged();
+        return this;
+      }
+
+      private java.lang.Object version_ = "";
+      /**
+       * <code>string version = 2;</code>
+       */
+      public java.lang.String getVersion() {
+        java.lang.Object ref = version_;
+        if (!(ref instanceof java.lang.String)) {
+          com.google.protobuf.ByteString bs =
+              (com.google.protobuf.ByteString) ref;
+          java.lang.String s = bs.toStringUtf8();
+          version_ = s;
+          return s;
+        } else {
+          return (java.lang.String) ref;
+        }
+      }
+      /**
+       * <code>string version = 2;</code>
+       */
+      public com.google.protobuf.ByteString
+          getVersionBytes() {
+        java.lang.Object ref = version_;
+        if (ref instanceof String) {
+          com.google.protobuf.ByteString b = 
+              com.google.protobuf.ByteString.copyFromUtf8(
+                  (java.lang.String) ref);
+          version_ = b;
+          return b;
+        } else {
+          return (com.google.protobuf.ByteString) ref;
+        }
+      }
+      /**
+       * <code>string version = 2;</code>
+       */
+      public Builder setVersion(
+          java.lang.String value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  
+        version_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>string version = 2;</code>
+       */
+      public Builder clearVersion() {
+        
+        version_ = getDefaultInstance().getVersion();
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>string version = 2;</code>
+       */
+      public Builder setVersionBytes(
+          com.google.protobuf.ByteString value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  checkByteStringIsUtf8(value);
+        
+        version_ = value;
+        onChanged();
+        return this;
+      }
+      @java.lang.Override
+      public final Builder setUnknownFields(
+          final com.google.protobuf.UnknownFieldSet unknownFields) {
+        return super.setUnknownFieldsProto3(unknownFields);
+      }
+
+      @java.lang.Override
+      public final Builder mergeUnknownFields(
+          final com.google.protobuf.UnknownFieldSet unknownFields) {
+        return super.mergeUnknownFields(unknownFields);
+      }
+
+
+      // @@protoc_insertion_point(builder_scope:ConsensusRegisterRequest.Protocol)
+    }
+
+    // @@protoc_insertion_point(class_scope:ConsensusRegisterRequest.Protocol)
+    private static final sawtooth.sdk.protobuf.ConsensusRegisterRequest.Protocol DEFAULT_INSTANCE;
+    static {
+      DEFAULT_INSTANCE = new sawtooth.sdk.protobuf.ConsensusRegisterRequest.Protocol();
+    }
+
+    public static sawtooth.sdk.protobuf.ConsensusRegisterRequest.Protocol getDefaultInstance() {
+      return DEFAULT_INSTANCE;
+    }
+
+    private static final com.google.protobuf.Parser<Protocol>
+        PARSER = new com.google.protobuf.AbstractParser<Protocol>() {
+      @java.lang.Override
+      public Protocol parsePartialFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws com.google.protobuf.InvalidProtocolBufferException {
+        return new Protocol(input, extensionRegistry);
+      }
+    };
+
+    public static com.google.protobuf.Parser<Protocol> parser() {
+      return PARSER;
+    }
+
+    @java.lang.Override
+    public com.google.protobuf.Parser<Protocol> getParserForType() {
+      return PARSER;
+    }
+
+    @java.lang.Override
+    public sawtooth.sdk.protobuf.ConsensusRegisterRequest.Protocol getDefaultInstanceForType() {
+      return DEFAULT_INSTANCE;
+    }
+
+  }
+
+  private int bitField0_;
   public static final int NAME_FIELD_NUMBER = 1;
   private volatile java.lang.Object name_;
   /**
@@ -176,6 +877,61 @@ private static final long serialVersionUID = 0L;
     }
   }
 
+  public static final int ADDITIONAL_PROTOCOLS_FIELD_NUMBER = 3;
+  private java.util.List<sawtooth.sdk.protobuf.ConsensusRegisterRequest.Protocol> additionalProtocols_;
+  /**
+   * <pre>
+   * Any additional name/version pairs the consensus engine supports
+   * </pre>
+   *
+   * <code>repeated .ConsensusRegisterRequest.Protocol additional_protocols = 3;</code>
+   */
+  public java.util.List<sawtooth.sdk.protobuf.ConsensusRegisterRequest.Protocol> getAdditionalProtocolsList() {
+    return additionalProtocols_;
+  }
+  /**
+   * <pre>
+   * Any additional name/version pairs the consensus engine supports
+   * </pre>
+   *
+   * <code>repeated .ConsensusRegisterRequest.Protocol additional_protocols = 3;</code>
+   */
+  public java.util.List<? extends sawtooth.sdk.protobuf.ConsensusRegisterRequest.ProtocolOrBuilder> 
+      getAdditionalProtocolsOrBuilderList() {
+    return additionalProtocols_;
+  }
+  /**
+   * <pre>
+   * Any additional name/version pairs the consensus engine supports
+   * </pre>
+   *
+   * <code>repeated .ConsensusRegisterRequest.Protocol additional_protocols = 3;</code>
+   */
+  public int getAdditionalProtocolsCount() {
+    return additionalProtocols_.size();
+  }
+  /**
+   * <pre>
+   * Any additional name/version pairs the consensus engine supports
+   * </pre>
+   *
+   * <code>repeated .ConsensusRegisterRequest.Protocol additional_protocols = 3;</code>
+   */
+  public sawtooth.sdk.protobuf.ConsensusRegisterRequest.Protocol getAdditionalProtocols(int index) {
+    return additionalProtocols_.get(index);
+  }
+  /**
+   * <pre>
+   * Any additional name/version pairs the consensus engine supports
+   * </pre>
+   *
+   * <code>repeated .ConsensusRegisterRequest.Protocol additional_protocols = 3;</code>
+   */
+  public sawtooth.sdk.protobuf.ConsensusRegisterRequest.ProtocolOrBuilder getAdditionalProtocolsOrBuilder(
+      int index) {
+    return additionalProtocols_.get(index);
+  }
+
   private byte memoizedIsInitialized = -1;
   @java.lang.Override
   public final boolean isInitialized() {
@@ -196,6 +952,9 @@ private static final long serialVersionUID = 0L;
     if (!getVersionBytes().isEmpty()) {
       com.google.protobuf.GeneratedMessageV3.writeString(output, 2, version_);
     }
+    for (int i = 0; i < additionalProtocols_.size(); i++) {
+      output.writeMessage(3, additionalProtocols_.get(i));
+    }
     unknownFields.writeTo(output);
   }
 
@@ -210,6 +969,10 @@ private static final long serialVersionUID = 0L;
     }
     if (!getVersionBytes().isEmpty()) {
       size += com.google.protobuf.GeneratedMessageV3.computeStringSize(2, version_);
+    }
+    for (int i = 0; i < additionalProtocols_.size(); i++) {
+      size += com.google.protobuf.CodedOutputStream
+        .computeMessageSize(3, additionalProtocols_.get(i));
     }
     size += unknownFields.getSerializedSize();
     memoizedSize = size;
@@ -231,6 +994,8 @@ private static final long serialVersionUID = 0L;
         .equals(other.getName());
     result = result && getVersion()
         .equals(other.getVersion());
+    result = result && getAdditionalProtocolsList()
+        .equals(other.getAdditionalProtocolsList());
     result = result && unknownFields.equals(other.unknownFields);
     return result;
   }
@@ -246,6 +1011,10 @@ private static final long serialVersionUID = 0L;
     hash = (53 * hash) + getName().hashCode();
     hash = (37 * hash) + VERSION_FIELD_NUMBER;
     hash = (53 * hash) + getVersion().hashCode();
+    if (getAdditionalProtocolsCount() > 0) {
+      hash = (37 * hash) + ADDITIONAL_PROTOCOLS_FIELD_NUMBER;
+      hash = (53 * hash) + getAdditionalProtocolsList().hashCode();
+    }
     hash = (29 * hash) + unknownFields.hashCode();
     memoizedHashCode = hash;
     return hash;
@@ -378,6 +1147,7 @@ private static final long serialVersionUID = 0L;
     private void maybeForceBuilderInitialization() {
       if (com.google.protobuf.GeneratedMessageV3
               .alwaysUseFieldBuilders) {
+        getAdditionalProtocolsFieldBuilder();
       }
     }
     @java.lang.Override
@@ -387,6 +1157,12 @@ private static final long serialVersionUID = 0L;
 
       version_ = "";
 
+      if (additionalProtocolsBuilder_ == null) {
+        additionalProtocols_ = java.util.Collections.emptyList();
+        bitField0_ = (bitField0_ & ~0x00000004);
+      } else {
+        additionalProtocolsBuilder_.clear();
+      }
       return this;
     }
 
@@ -413,8 +1189,20 @@ private static final long serialVersionUID = 0L;
     @java.lang.Override
     public sawtooth.sdk.protobuf.ConsensusRegisterRequest buildPartial() {
       sawtooth.sdk.protobuf.ConsensusRegisterRequest result = new sawtooth.sdk.protobuf.ConsensusRegisterRequest(this);
+      int from_bitField0_ = bitField0_;
+      int to_bitField0_ = 0;
       result.name_ = name_;
       result.version_ = version_;
+      if (additionalProtocolsBuilder_ == null) {
+        if (((bitField0_ & 0x00000004) == 0x00000004)) {
+          additionalProtocols_ = java.util.Collections.unmodifiableList(additionalProtocols_);
+          bitField0_ = (bitField0_ & ~0x00000004);
+        }
+        result.additionalProtocols_ = additionalProtocols_;
+      } else {
+        result.additionalProtocols_ = additionalProtocolsBuilder_.build();
+      }
+      result.bitField0_ = to_bitField0_;
       onBuilt();
       return result;
     }
@@ -471,6 +1259,32 @@ private static final long serialVersionUID = 0L;
         version_ = other.version_;
         onChanged();
       }
+      if (additionalProtocolsBuilder_ == null) {
+        if (!other.additionalProtocols_.isEmpty()) {
+          if (additionalProtocols_.isEmpty()) {
+            additionalProtocols_ = other.additionalProtocols_;
+            bitField0_ = (bitField0_ & ~0x00000004);
+          } else {
+            ensureAdditionalProtocolsIsMutable();
+            additionalProtocols_.addAll(other.additionalProtocols_);
+          }
+          onChanged();
+        }
+      } else {
+        if (!other.additionalProtocols_.isEmpty()) {
+          if (additionalProtocolsBuilder_.isEmpty()) {
+            additionalProtocolsBuilder_.dispose();
+            additionalProtocolsBuilder_ = null;
+            additionalProtocols_ = other.additionalProtocols_;
+            bitField0_ = (bitField0_ & ~0x00000004);
+            additionalProtocolsBuilder_ = 
+              com.google.protobuf.GeneratedMessageV3.alwaysUseFieldBuilders ?
+                 getAdditionalProtocolsFieldBuilder() : null;
+          } else {
+            additionalProtocolsBuilder_.addAllMessages(other.additionalProtocols_);
+          }
+        }
+      }
       this.mergeUnknownFields(other.unknownFields);
       onChanged();
       return this;
@@ -499,6 +1313,7 @@ private static final long serialVersionUID = 0L;
       }
       return this;
     }
+    private int bitField0_;
 
     private java.lang.Object name_ = "";
     /**
@@ -676,6 +1491,318 @@ private static final long serialVersionUID = 0L;
       version_ = value;
       onChanged();
       return this;
+    }
+
+    private java.util.List<sawtooth.sdk.protobuf.ConsensusRegisterRequest.Protocol> additionalProtocols_ =
+      java.util.Collections.emptyList();
+    private void ensureAdditionalProtocolsIsMutable() {
+      if (!((bitField0_ & 0x00000004) == 0x00000004)) {
+        additionalProtocols_ = new java.util.ArrayList<sawtooth.sdk.protobuf.ConsensusRegisterRequest.Protocol>(additionalProtocols_);
+        bitField0_ |= 0x00000004;
+       }
+    }
+
+    private com.google.protobuf.RepeatedFieldBuilderV3<
+        sawtooth.sdk.protobuf.ConsensusRegisterRequest.Protocol, sawtooth.sdk.protobuf.ConsensusRegisterRequest.Protocol.Builder, sawtooth.sdk.protobuf.ConsensusRegisterRequest.ProtocolOrBuilder> additionalProtocolsBuilder_;
+
+    /**
+     * <pre>
+     * Any additional name/version pairs the consensus engine supports
+     * </pre>
+     *
+     * <code>repeated .ConsensusRegisterRequest.Protocol additional_protocols = 3;</code>
+     */
+    public java.util.List<sawtooth.sdk.protobuf.ConsensusRegisterRequest.Protocol> getAdditionalProtocolsList() {
+      if (additionalProtocolsBuilder_ == null) {
+        return java.util.Collections.unmodifiableList(additionalProtocols_);
+      } else {
+        return additionalProtocolsBuilder_.getMessageList();
+      }
+    }
+    /**
+     * <pre>
+     * Any additional name/version pairs the consensus engine supports
+     * </pre>
+     *
+     * <code>repeated .ConsensusRegisterRequest.Protocol additional_protocols = 3;</code>
+     */
+    public int getAdditionalProtocolsCount() {
+      if (additionalProtocolsBuilder_ == null) {
+        return additionalProtocols_.size();
+      } else {
+        return additionalProtocolsBuilder_.getCount();
+      }
+    }
+    /**
+     * <pre>
+     * Any additional name/version pairs the consensus engine supports
+     * </pre>
+     *
+     * <code>repeated .ConsensusRegisterRequest.Protocol additional_protocols = 3;</code>
+     */
+    public sawtooth.sdk.protobuf.ConsensusRegisterRequest.Protocol getAdditionalProtocols(int index) {
+      if (additionalProtocolsBuilder_ == null) {
+        return additionalProtocols_.get(index);
+      } else {
+        return additionalProtocolsBuilder_.getMessage(index);
+      }
+    }
+    /**
+     * <pre>
+     * Any additional name/version pairs the consensus engine supports
+     * </pre>
+     *
+     * <code>repeated .ConsensusRegisterRequest.Protocol additional_protocols = 3;</code>
+     */
+    public Builder setAdditionalProtocols(
+        int index, sawtooth.sdk.protobuf.ConsensusRegisterRequest.Protocol value) {
+      if (additionalProtocolsBuilder_ == null) {
+        if (value == null) {
+          throw new NullPointerException();
+        }
+        ensureAdditionalProtocolsIsMutable();
+        additionalProtocols_.set(index, value);
+        onChanged();
+      } else {
+        additionalProtocolsBuilder_.setMessage(index, value);
+      }
+      return this;
+    }
+    /**
+     * <pre>
+     * Any additional name/version pairs the consensus engine supports
+     * </pre>
+     *
+     * <code>repeated .ConsensusRegisterRequest.Protocol additional_protocols = 3;</code>
+     */
+    public Builder setAdditionalProtocols(
+        int index, sawtooth.sdk.protobuf.ConsensusRegisterRequest.Protocol.Builder builderForValue) {
+      if (additionalProtocolsBuilder_ == null) {
+        ensureAdditionalProtocolsIsMutable();
+        additionalProtocols_.set(index, builderForValue.build());
+        onChanged();
+      } else {
+        additionalProtocolsBuilder_.setMessage(index, builderForValue.build());
+      }
+      return this;
+    }
+    /**
+     * <pre>
+     * Any additional name/version pairs the consensus engine supports
+     * </pre>
+     *
+     * <code>repeated .ConsensusRegisterRequest.Protocol additional_protocols = 3;</code>
+     */
+    public Builder addAdditionalProtocols(sawtooth.sdk.protobuf.ConsensusRegisterRequest.Protocol value) {
+      if (additionalProtocolsBuilder_ == null) {
+        if (value == null) {
+          throw new NullPointerException();
+        }
+        ensureAdditionalProtocolsIsMutable();
+        additionalProtocols_.add(value);
+        onChanged();
+      } else {
+        additionalProtocolsBuilder_.addMessage(value);
+      }
+      return this;
+    }
+    /**
+     * <pre>
+     * Any additional name/version pairs the consensus engine supports
+     * </pre>
+     *
+     * <code>repeated .ConsensusRegisterRequest.Protocol additional_protocols = 3;</code>
+     */
+    public Builder addAdditionalProtocols(
+        int index, sawtooth.sdk.protobuf.ConsensusRegisterRequest.Protocol value) {
+      if (additionalProtocolsBuilder_ == null) {
+        if (value == null) {
+          throw new NullPointerException();
+        }
+        ensureAdditionalProtocolsIsMutable();
+        additionalProtocols_.add(index, value);
+        onChanged();
+      } else {
+        additionalProtocolsBuilder_.addMessage(index, value);
+      }
+      return this;
+    }
+    /**
+     * <pre>
+     * Any additional name/version pairs the consensus engine supports
+     * </pre>
+     *
+     * <code>repeated .ConsensusRegisterRequest.Protocol additional_protocols = 3;</code>
+     */
+    public Builder addAdditionalProtocols(
+        sawtooth.sdk.protobuf.ConsensusRegisterRequest.Protocol.Builder builderForValue) {
+      if (additionalProtocolsBuilder_ == null) {
+        ensureAdditionalProtocolsIsMutable();
+        additionalProtocols_.add(builderForValue.build());
+        onChanged();
+      } else {
+        additionalProtocolsBuilder_.addMessage(builderForValue.build());
+      }
+      return this;
+    }
+    /**
+     * <pre>
+     * Any additional name/version pairs the consensus engine supports
+     * </pre>
+     *
+     * <code>repeated .ConsensusRegisterRequest.Protocol additional_protocols = 3;</code>
+     */
+    public Builder addAdditionalProtocols(
+        int index, sawtooth.sdk.protobuf.ConsensusRegisterRequest.Protocol.Builder builderForValue) {
+      if (additionalProtocolsBuilder_ == null) {
+        ensureAdditionalProtocolsIsMutable();
+        additionalProtocols_.add(index, builderForValue.build());
+        onChanged();
+      } else {
+        additionalProtocolsBuilder_.addMessage(index, builderForValue.build());
+      }
+      return this;
+    }
+    /**
+     * <pre>
+     * Any additional name/version pairs the consensus engine supports
+     * </pre>
+     *
+     * <code>repeated .ConsensusRegisterRequest.Protocol additional_protocols = 3;</code>
+     */
+    public Builder addAllAdditionalProtocols(
+        java.lang.Iterable<? extends sawtooth.sdk.protobuf.ConsensusRegisterRequest.Protocol> values) {
+      if (additionalProtocolsBuilder_ == null) {
+        ensureAdditionalProtocolsIsMutable();
+        com.google.protobuf.AbstractMessageLite.Builder.addAll(
+            values, additionalProtocols_);
+        onChanged();
+      } else {
+        additionalProtocolsBuilder_.addAllMessages(values);
+      }
+      return this;
+    }
+    /**
+     * <pre>
+     * Any additional name/version pairs the consensus engine supports
+     * </pre>
+     *
+     * <code>repeated .ConsensusRegisterRequest.Protocol additional_protocols = 3;</code>
+     */
+    public Builder clearAdditionalProtocols() {
+      if (additionalProtocolsBuilder_ == null) {
+        additionalProtocols_ = java.util.Collections.emptyList();
+        bitField0_ = (bitField0_ & ~0x00000004);
+        onChanged();
+      } else {
+        additionalProtocolsBuilder_.clear();
+      }
+      return this;
+    }
+    /**
+     * <pre>
+     * Any additional name/version pairs the consensus engine supports
+     * </pre>
+     *
+     * <code>repeated .ConsensusRegisterRequest.Protocol additional_protocols = 3;</code>
+     */
+    public Builder removeAdditionalProtocols(int index) {
+      if (additionalProtocolsBuilder_ == null) {
+        ensureAdditionalProtocolsIsMutable();
+        additionalProtocols_.remove(index);
+        onChanged();
+      } else {
+        additionalProtocolsBuilder_.remove(index);
+      }
+      return this;
+    }
+    /**
+     * <pre>
+     * Any additional name/version pairs the consensus engine supports
+     * </pre>
+     *
+     * <code>repeated .ConsensusRegisterRequest.Protocol additional_protocols = 3;</code>
+     */
+    public sawtooth.sdk.protobuf.ConsensusRegisterRequest.Protocol.Builder getAdditionalProtocolsBuilder(
+        int index) {
+      return getAdditionalProtocolsFieldBuilder().getBuilder(index);
+    }
+    /**
+     * <pre>
+     * Any additional name/version pairs the consensus engine supports
+     * </pre>
+     *
+     * <code>repeated .ConsensusRegisterRequest.Protocol additional_protocols = 3;</code>
+     */
+    public sawtooth.sdk.protobuf.ConsensusRegisterRequest.ProtocolOrBuilder getAdditionalProtocolsOrBuilder(
+        int index) {
+      if (additionalProtocolsBuilder_ == null) {
+        return additionalProtocols_.get(index);  } else {
+        return additionalProtocolsBuilder_.getMessageOrBuilder(index);
+      }
+    }
+    /**
+     * <pre>
+     * Any additional name/version pairs the consensus engine supports
+     * </pre>
+     *
+     * <code>repeated .ConsensusRegisterRequest.Protocol additional_protocols = 3;</code>
+     */
+    public java.util.List<? extends sawtooth.sdk.protobuf.ConsensusRegisterRequest.ProtocolOrBuilder> 
+         getAdditionalProtocolsOrBuilderList() {
+      if (additionalProtocolsBuilder_ != null) {
+        return additionalProtocolsBuilder_.getMessageOrBuilderList();
+      } else {
+        return java.util.Collections.unmodifiableList(additionalProtocols_);
+      }
+    }
+    /**
+     * <pre>
+     * Any additional name/version pairs the consensus engine supports
+     * </pre>
+     *
+     * <code>repeated .ConsensusRegisterRequest.Protocol additional_protocols = 3;</code>
+     */
+    public sawtooth.sdk.protobuf.ConsensusRegisterRequest.Protocol.Builder addAdditionalProtocolsBuilder() {
+      return getAdditionalProtocolsFieldBuilder().addBuilder(
+          sawtooth.sdk.protobuf.ConsensusRegisterRequest.Protocol.getDefaultInstance());
+    }
+    /**
+     * <pre>
+     * Any additional name/version pairs the consensus engine supports
+     * </pre>
+     *
+     * <code>repeated .ConsensusRegisterRequest.Protocol additional_protocols = 3;</code>
+     */
+    public sawtooth.sdk.protobuf.ConsensusRegisterRequest.Protocol.Builder addAdditionalProtocolsBuilder(
+        int index) {
+      return getAdditionalProtocolsFieldBuilder().addBuilder(
+          index, sawtooth.sdk.protobuf.ConsensusRegisterRequest.Protocol.getDefaultInstance());
+    }
+    /**
+     * <pre>
+     * Any additional name/version pairs the consensus engine supports
+     * </pre>
+     *
+     * <code>repeated .ConsensusRegisterRequest.Protocol additional_protocols = 3;</code>
+     */
+    public java.util.List<sawtooth.sdk.protobuf.ConsensusRegisterRequest.Protocol.Builder> 
+         getAdditionalProtocolsBuilderList() {
+      return getAdditionalProtocolsFieldBuilder().getBuilderList();
+    }
+    private com.google.protobuf.RepeatedFieldBuilderV3<
+        sawtooth.sdk.protobuf.ConsensusRegisterRequest.Protocol, sawtooth.sdk.protobuf.ConsensusRegisterRequest.Protocol.Builder, sawtooth.sdk.protobuf.ConsensusRegisterRequest.ProtocolOrBuilder> 
+        getAdditionalProtocolsFieldBuilder() {
+      if (additionalProtocolsBuilder_ == null) {
+        additionalProtocolsBuilder_ = new com.google.protobuf.RepeatedFieldBuilderV3<
+            sawtooth.sdk.protobuf.ConsensusRegisterRequest.Protocol, sawtooth.sdk.protobuf.ConsensusRegisterRequest.Protocol.Builder, sawtooth.sdk.protobuf.ConsensusRegisterRequest.ProtocolOrBuilder>(
+                additionalProtocols_,
+                ((bitField0_ & 0x00000004) == 0x00000004),
+                getParentForChildren(),
+                isClean());
+        additionalProtocols_ = null;
+      }
+      return additionalProtocolsBuilder_;
     }
     @java.lang.Override
     public final Builder setUnknownFields(

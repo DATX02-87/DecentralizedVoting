@@ -3,25 +3,16 @@
 
 package sawtooth.sdk.protobuf;
 
-public interface ConsensusRegisterResponseOrBuilder extends
-    // @@protoc_insertion_point(interface_extends:ConsensusRegisterResponse)
+public interface ConsensusNotifyEngineActivatedOrBuilder extends
+    // @@protoc_insertion_point(interface_extends:ConsensusNotifyEngineActivated)
     com.google.protobuf.MessageOrBuilder {
-
-  /**
-   * <code>.ConsensusRegisterResponse.Status status = 1;</code>
-   */
-  int getStatusValue();
-  /**
-   * <code>.ConsensusRegisterResponse.Status status = 1;</code>
-   */
-  sawtooth.sdk.protobuf.ConsensusRegisterResponse.Status getStatus();
 
   /**
    * <pre>
    * Startup Info
    * </pre>
    *
-   * <code>.ConsensusBlock chain_head = 2;</code>
+   * <code>.ConsensusBlock chain_head = 1;</code>
    */
   boolean hasChainHead();
   /**
@@ -29,7 +20,7 @@ public interface ConsensusRegisterResponseOrBuilder extends
    * Startup Info
    * </pre>
    *
-   * <code>.ConsensusBlock chain_head = 2;</code>
+   * <code>.ConsensusBlock chain_head = 1;</code>
    */
   sawtooth.sdk.protobuf.ConsensusBlock getChainHead();
   /**
@@ -37,44 +28,44 @@ public interface ConsensusRegisterResponseOrBuilder extends
    * Startup Info
    * </pre>
    *
-   * <code>.ConsensusBlock chain_head = 2;</code>
+   * <code>.ConsensusBlock chain_head = 1;</code>
    */
   sawtooth.sdk.protobuf.ConsensusBlockOrBuilder getChainHeadOrBuilder();
 
   /**
-   * <code>repeated .ConsensusPeerInfo peers = 3;</code>
+   * <code>repeated .ConsensusPeerInfo peers = 2;</code>
    */
   java.util.List<sawtooth.sdk.protobuf.ConsensusPeerInfo> 
       getPeersList();
   /**
-   * <code>repeated .ConsensusPeerInfo peers = 3;</code>
+   * <code>repeated .ConsensusPeerInfo peers = 2;</code>
    */
   sawtooth.sdk.protobuf.ConsensusPeerInfo getPeers(int index);
   /**
-   * <code>repeated .ConsensusPeerInfo peers = 3;</code>
+   * <code>repeated .ConsensusPeerInfo peers = 2;</code>
    */
   int getPeersCount();
   /**
-   * <code>repeated .ConsensusPeerInfo peers = 3;</code>
+   * <code>repeated .ConsensusPeerInfo peers = 2;</code>
    */
   java.util.List<? extends sawtooth.sdk.protobuf.ConsensusPeerInfoOrBuilder> 
       getPeersOrBuilderList();
   /**
-   * <code>repeated .ConsensusPeerInfo peers = 3;</code>
+   * <code>repeated .ConsensusPeerInfo peers = 2;</code>
    */
   sawtooth.sdk.protobuf.ConsensusPeerInfoOrBuilder getPeersOrBuilder(
       int index);
 
   /**
-   * <code>.ConsensusPeerInfo local_peer_info = 4;</code>
+   * <code>.ConsensusPeerInfo local_peer_info = 3;</code>
    */
   boolean hasLocalPeerInfo();
   /**
-   * <code>.ConsensusPeerInfo local_peer_info = 4;</code>
+   * <code>.ConsensusPeerInfo local_peer_info = 3;</code>
    */
   sawtooth.sdk.protobuf.ConsensusPeerInfo getLocalPeerInfo();
   /**
-   * <code>.ConsensusPeerInfo local_peer_info = 4;</code>
+   * <code>.ConsensusPeerInfo local_peer_info = 3;</code>
    */
   sawtooth.sdk.protobuf.ConsensusPeerInfoOrBuilder getLocalPeerInfoOrBuilder();
 }

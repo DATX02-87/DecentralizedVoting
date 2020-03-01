@@ -106,6 +106,10 @@ private static final long serialVersionUID = 0L;
      * <code>NOT_READY = 4;</code>
      */
     NOT_READY(4),
+    /**
+     * <code>NOT_ACTIVE_ENGINE = 5;</code>
+     */
+    NOT_ACTIVE_ENGINE(5),
     UNRECOGNIZED(-1),
     ;
 
@@ -129,6 +133,10 @@ private static final long serialVersionUID = 0L;
      * <code>NOT_READY = 4;</code>
      */
     public static final int NOT_READY_VALUE = 4;
+    /**
+     * <code>NOT_ACTIVE_ENGINE = 5;</code>
+     */
+    public static final int NOT_ACTIVE_ENGINE_VALUE = 5;
 
 
     public final int getNumber() {
@@ -154,6 +162,7 @@ private static final long serialVersionUID = 0L;
         case 2: return BAD_REQUEST;
         case 3: return SERVICE_ERROR;
         case 4: return NOT_READY;
+        case 5: return NOT_ACTIVE_ENGINE;
         default: return null;
       }
     }

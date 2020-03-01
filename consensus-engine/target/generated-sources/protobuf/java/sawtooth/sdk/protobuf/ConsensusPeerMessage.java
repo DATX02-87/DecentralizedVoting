@@ -20,10 +20,9 @@ private static final long serialVersionUID = 0L;
     super(builder);
   }
   private ConsensusPeerMessage() {
-    messageType_ = "";
+    header_ = com.google.protobuf.ByteString.EMPTY;
+    headerSignature_ = com.google.protobuf.ByteString.EMPTY;
     content_ = com.google.protobuf.ByteString.EMPTY;
-    name_ = "";
-    version_ = "";
   }
 
   @java.lang.Override
@@ -51,9 +50,8 @@ private static final long serialVersionUID = 0L;
             done = true;
             break;
           case 10: {
-            java.lang.String s = input.readStringRequireUtf8();
 
-            messageType_ = s;
+            header_ = input.readBytes();
             break;
           }
           case 18: {
@@ -62,15 +60,8 @@ private static final long serialVersionUID = 0L;
             break;
           }
           case 26: {
-            java.lang.String s = input.readStringRequireUtf8();
 
-            name_ = s;
-            break;
-          }
-          case 34: {
-            java.lang.String s = input.readStringRequireUtf8();
-
-            version_ = s;
+            headerSignature_ = input.readBytes();
             break;
           }
           default: {
@@ -105,46 +96,30 @@ private static final long serialVersionUID = 0L;
             sawtooth.sdk.protobuf.ConsensusPeerMessage.class, sawtooth.sdk.protobuf.ConsensusPeerMessage.Builder.class);
   }
 
-  public static final int MESSAGE_TYPE_FIELD_NUMBER = 1;
-  private volatile java.lang.Object messageType_;
+  public static final int HEADER_FIELD_NUMBER = 1;
+  private com.google.protobuf.ByteString header_;
   /**
    * <pre>
-   * Interpretation is left to the consensus engine implementation
+   * The serialized version of the ConsensusPeerMessageHeader
    * </pre>
    *
-   * <code>string message_type = 1;</code>
+   * <code>bytes header = 1;</code>
    */
-  public java.lang.String getMessageType() {
-    java.lang.Object ref = messageType_;
-    if (ref instanceof java.lang.String) {
-      return (java.lang.String) ref;
-    } else {
-      com.google.protobuf.ByteString bs = 
-          (com.google.protobuf.ByteString) ref;
-      java.lang.String s = bs.toStringUtf8();
-      messageType_ = s;
-      return s;
-    }
+  public com.google.protobuf.ByteString getHeader() {
+    return header_;
   }
+
+  public static final int HEADER_SIGNATURE_FIELD_NUMBER = 3;
+  private com.google.protobuf.ByteString headerSignature_;
   /**
    * <pre>
-   * Interpretation is left to the consensus engine implementation
+   * The signature derived from signing the header
    * </pre>
    *
-   * <code>string message_type = 1;</code>
+   * <code>bytes header_signature = 3;</code>
    */
-  public com.google.protobuf.ByteString
-      getMessageTypeBytes() {
-    java.lang.Object ref = messageType_;
-    if (ref instanceof java.lang.String) {
-      com.google.protobuf.ByteString b = 
-          com.google.protobuf.ByteString.copyFromUtf8(
-              (java.lang.String) ref);
-      messageType_ = b;
-      return b;
-    } else {
-      return (com.google.protobuf.ByteString) ref;
-    }
+  public com.google.protobuf.ByteString getHeaderSignature() {
+    return headerSignature_;
   }
 
   public static final int CONTENT_FIELD_NUMBER = 2;
@@ -158,82 +133,6 @@ private static final long serialVersionUID = 0L;
    */
   public com.google.protobuf.ByteString getContent() {
     return content_;
-  }
-
-  public static final int NAME_FIELD_NUMBER = 3;
-  private volatile java.lang.Object name_;
-  /**
-   * <pre>
-   * Used to identify the consensus engine that produced this message
-   * </pre>
-   *
-   * <code>string name = 3;</code>
-   */
-  public java.lang.String getName() {
-    java.lang.Object ref = name_;
-    if (ref instanceof java.lang.String) {
-      return (java.lang.String) ref;
-    } else {
-      com.google.protobuf.ByteString bs = 
-          (com.google.protobuf.ByteString) ref;
-      java.lang.String s = bs.toStringUtf8();
-      name_ = s;
-      return s;
-    }
-  }
-  /**
-   * <pre>
-   * Used to identify the consensus engine that produced this message
-   * </pre>
-   *
-   * <code>string name = 3;</code>
-   */
-  public com.google.protobuf.ByteString
-      getNameBytes() {
-    java.lang.Object ref = name_;
-    if (ref instanceof java.lang.String) {
-      com.google.protobuf.ByteString b = 
-          com.google.protobuf.ByteString.copyFromUtf8(
-              (java.lang.String) ref);
-      name_ = b;
-      return b;
-    } else {
-      return (com.google.protobuf.ByteString) ref;
-    }
-  }
-
-  public static final int VERSION_FIELD_NUMBER = 4;
-  private volatile java.lang.Object version_;
-  /**
-   * <code>string version = 4;</code>
-   */
-  public java.lang.String getVersion() {
-    java.lang.Object ref = version_;
-    if (ref instanceof java.lang.String) {
-      return (java.lang.String) ref;
-    } else {
-      com.google.protobuf.ByteString bs = 
-          (com.google.protobuf.ByteString) ref;
-      java.lang.String s = bs.toStringUtf8();
-      version_ = s;
-      return s;
-    }
-  }
-  /**
-   * <code>string version = 4;</code>
-   */
-  public com.google.protobuf.ByteString
-      getVersionBytes() {
-    java.lang.Object ref = version_;
-    if (ref instanceof java.lang.String) {
-      com.google.protobuf.ByteString b = 
-          com.google.protobuf.ByteString.copyFromUtf8(
-              (java.lang.String) ref);
-      version_ = b;
-      return b;
-    } else {
-      return (com.google.protobuf.ByteString) ref;
-    }
   }
 
   private byte memoizedIsInitialized = -1;
@@ -250,17 +149,14 @@ private static final long serialVersionUID = 0L;
   @java.lang.Override
   public void writeTo(com.google.protobuf.CodedOutputStream output)
                       throws java.io.IOException {
-    if (!getMessageTypeBytes().isEmpty()) {
-      com.google.protobuf.GeneratedMessageV3.writeString(output, 1, messageType_);
+    if (!header_.isEmpty()) {
+      output.writeBytes(1, header_);
     }
     if (!content_.isEmpty()) {
       output.writeBytes(2, content_);
     }
-    if (!getNameBytes().isEmpty()) {
-      com.google.protobuf.GeneratedMessageV3.writeString(output, 3, name_);
-    }
-    if (!getVersionBytes().isEmpty()) {
-      com.google.protobuf.GeneratedMessageV3.writeString(output, 4, version_);
+    if (!headerSignature_.isEmpty()) {
+      output.writeBytes(3, headerSignature_);
     }
     unknownFields.writeTo(output);
   }
@@ -271,18 +167,17 @@ private static final long serialVersionUID = 0L;
     if (size != -1) return size;
 
     size = 0;
-    if (!getMessageTypeBytes().isEmpty()) {
-      size += com.google.protobuf.GeneratedMessageV3.computeStringSize(1, messageType_);
+    if (!header_.isEmpty()) {
+      size += com.google.protobuf.CodedOutputStream
+        .computeBytesSize(1, header_);
     }
     if (!content_.isEmpty()) {
       size += com.google.protobuf.CodedOutputStream
         .computeBytesSize(2, content_);
     }
-    if (!getNameBytes().isEmpty()) {
-      size += com.google.protobuf.GeneratedMessageV3.computeStringSize(3, name_);
-    }
-    if (!getVersionBytes().isEmpty()) {
-      size += com.google.protobuf.GeneratedMessageV3.computeStringSize(4, version_);
+    if (!headerSignature_.isEmpty()) {
+      size += com.google.protobuf.CodedOutputStream
+        .computeBytesSize(3, headerSignature_);
     }
     size += unknownFields.getSerializedSize();
     memoizedSize = size;
@@ -300,14 +195,12 @@ private static final long serialVersionUID = 0L;
     sawtooth.sdk.protobuf.ConsensusPeerMessage other = (sawtooth.sdk.protobuf.ConsensusPeerMessage) obj;
 
     boolean result = true;
-    result = result && getMessageType()
-        .equals(other.getMessageType());
+    result = result && getHeader()
+        .equals(other.getHeader());
+    result = result && getHeaderSignature()
+        .equals(other.getHeaderSignature());
     result = result && getContent()
         .equals(other.getContent());
-    result = result && getName()
-        .equals(other.getName());
-    result = result && getVersion()
-        .equals(other.getVersion());
     result = result && unknownFields.equals(other.unknownFields);
     return result;
   }
@@ -319,14 +212,12 @@ private static final long serialVersionUID = 0L;
     }
     int hash = 41;
     hash = (19 * hash) + getDescriptor().hashCode();
-    hash = (37 * hash) + MESSAGE_TYPE_FIELD_NUMBER;
-    hash = (53 * hash) + getMessageType().hashCode();
+    hash = (37 * hash) + HEADER_FIELD_NUMBER;
+    hash = (53 * hash) + getHeader().hashCode();
+    hash = (37 * hash) + HEADER_SIGNATURE_FIELD_NUMBER;
+    hash = (53 * hash) + getHeaderSignature().hashCode();
     hash = (37 * hash) + CONTENT_FIELD_NUMBER;
     hash = (53 * hash) + getContent().hashCode();
-    hash = (37 * hash) + NAME_FIELD_NUMBER;
-    hash = (53 * hash) + getName().hashCode();
-    hash = (37 * hash) + VERSION_FIELD_NUMBER;
-    hash = (53 * hash) + getVersion().hashCode();
     hash = (29 * hash) + unknownFields.hashCode();
     memoizedHashCode = hash;
     return hash;
@@ -464,13 +355,11 @@ private static final long serialVersionUID = 0L;
     @java.lang.Override
     public Builder clear() {
       super.clear();
-      messageType_ = "";
+      header_ = com.google.protobuf.ByteString.EMPTY;
+
+      headerSignature_ = com.google.protobuf.ByteString.EMPTY;
 
       content_ = com.google.protobuf.ByteString.EMPTY;
-
-      name_ = "";
-
-      version_ = "";
 
       return this;
     }
@@ -498,10 +387,9 @@ private static final long serialVersionUID = 0L;
     @java.lang.Override
     public sawtooth.sdk.protobuf.ConsensusPeerMessage buildPartial() {
       sawtooth.sdk.protobuf.ConsensusPeerMessage result = new sawtooth.sdk.protobuf.ConsensusPeerMessage(this);
-      result.messageType_ = messageType_;
+      result.header_ = header_;
+      result.headerSignature_ = headerSignature_;
       result.content_ = content_;
-      result.name_ = name_;
-      result.version_ = version_;
       onBuilt();
       return result;
     }
@@ -550,20 +438,14 @@ private static final long serialVersionUID = 0L;
 
     public Builder mergeFrom(sawtooth.sdk.protobuf.ConsensusPeerMessage other) {
       if (other == sawtooth.sdk.protobuf.ConsensusPeerMessage.getDefaultInstance()) return this;
-      if (!other.getMessageType().isEmpty()) {
-        messageType_ = other.messageType_;
-        onChanged();
+      if (other.getHeader() != com.google.protobuf.ByteString.EMPTY) {
+        setHeader(other.getHeader());
+      }
+      if (other.getHeaderSignature() != com.google.protobuf.ByteString.EMPTY) {
+        setHeaderSignature(other.getHeaderSignature());
       }
       if (other.getContent() != com.google.protobuf.ByteString.EMPTY) {
         setContent(other.getContent());
-      }
-      if (!other.getName().isEmpty()) {
-        name_ = other.name_;
-        onChanged();
-      }
-      if (!other.getVersion().isEmpty()) {
-        version_ = other.version_;
-        onChanged();
       }
       this.mergeUnknownFields(other.unknownFields);
       onChanged();
@@ -594,91 +476,84 @@ private static final long serialVersionUID = 0L;
       return this;
     }
 
-    private java.lang.Object messageType_ = "";
+    private com.google.protobuf.ByteString header_ = com.google.protobuf.ByteString.EMPTY;
     /**
      * <pre>
-     * Interpretation is left to the consensus engine implementation
+     * The serialized version of the ConsensusPeerMessageHeader
      * </pre>
      *
-     * <code>string message_type = 1;</code>
+     * <code>bytes header = 1;</code>
      */
-    public java.lang.String getMessageType() {
-      java.lang.Object ref = messageType_;
-      if (!(ref instanceof java.lang.String)) {
-        com.google.protobuf.ByteString bs =
-            (com.google.protobuf.ByteString) ref;
-        java.lang.String s = bs.toStringUtf8();
-        messageType_ = s;
-        return s;
-      } else {
-        return (java.lang.String) ref;
-      }
+    public com.google.protobuf.ByteString getHeader() {
+      return header_;
     }
     /**
      * <pre>
-     * Interpretation is left to the consensus engine implementation
+     * The serialized version of the ConsensusPeerMessageHeader
      * </pre>
      *
-     * <code>string message_type = 1;</code>
+     * <code>bytes header = 1;</code>
      */
-    public com.google.protobuf.ByteString
-        getMessageTypeBytes() {
-      java.lang.Object ref = messageType_;
-      if (ref instanceof String) {
-        com.google.protobuf.ByteString b = 
-            com.google.protobuf.ByteString.copyFromUtf8(
-                (java.lang.String) ref);
-        messageType_ = b;
-        return b;
-      } else {
-        return (com.google.protobuf.ByteString) ref;
-      }
-    }
-    /**
-     * <pre>
-     * Interpretation is left to the consensus engine implementation
-     * </pre>
-     *
-     * <code>string message_type = 1;</code>
-     */
-    public Builder setMessageType(
-        java.lang.String value) {
+    public Builder setHeader(com.google.protobuf.ByteString value) {
       if (value == null) {
     throw new NullPointerException();
   }
   
-      messageType_ = value;
+      header_ = value;
       onChanged();
       return this;
     }
     /**
      * <pre>
-     * Interpretation is left to the consensus engine implementation
+     * The serialized version of the ConsensusPeerMessageHeader
      * </pre>
      *
-     * <code>string message_type = 1;</code>
+     * <code>bytes header = 1;</code>
      */
-    public Builder clearMessageType() {
+    public Builder clearHeader() {
       
-      messageType_ = getDefaultInstance().getMessageType();
+      header_ = getDefaultInstance().getHeader();
       onChanged();
       return this;
     }
+
+    private com.google.protobuf.ByteString headerSignature_ = com.google.protobuf.ByteString.EMPTY;
     /**
      * <pre>
-     * Interpretation is left to the consensus engine implementation
+     * The signature derived from signing the header
      * </pre>
      *
-     * <code>string message_type = 1;</code>
+     * <code>bytes header_signature = 3;</code>
      */
-    public Builder setMessageTypeBytes(
-        com.google.protobuf.ByteString value) {
+    public com.google.protobuf.ByteString getHeaderSignature() {
+      return headerSignature_;
+    }
+    /**
+     * <pre>
+     * The signature derived from signing the header
+     * </pre>
+     *
+     * <code>bytes header_signature = 3;</code>
+     */
+    public Builder setHeaderSignature(com.google.protobuf.ByteString value) {
       if (value == null) {
     throw new NullPointerException();
   }
-  checkByteStringIsUtf8(value);
+  
+      headerSignature_ = value;
+      onChanged();
+      return this;
+    }
+    /**
+     * <pre>
+     * The signature derived from signing the header
+     * </pre>
+     *
+     * <code>bytes header_signature = 3;</code>
+     */
+    public Builder clearHeaderSignature() {
       
-      messageType_ = value;
+      headerSignature_ = getDefaultInstance().getHeaderSignature();
       onChanged();
       return this;
     }
@@ -720,164 +595,6 @@ private static final long serialVersionUID = 0L;
     public Builder clearContent() {
       
       content_ = getDefaultInstance().getContent();
-      onChanged();
-      return this;
-    }
-
-    private java.lang.Object name_ = "";
-    /**
-     * <pre>
-     * Used to identify the consensus engine that produced this message
-     * </pre>
-     *
-     * <code>string name = 3;</code>
-     */
-    public java.lang.String getName() {
-      java.lang.Object ref = name_;
-      if (!(ref instanceof java.lang.String)) {
-        com.google.protobuf.ByteString bs =
-            (com.google.protobuf.ByteString) ref;
-        java.lang.String s = bs.toStringUtf8();
-        name_ = s;
-        return s;
-      } else {
-        return (java.lang.String) ref;
-      }
-    }
-    /**
-     * <pre>
-     * Used to identify the consensus engine that produced this message
-     * </pre>
-     *
-     * <code>string name = 3;</code>
-     */
-    public com.google.protobuf.ByteString
-        getNameBytes() {
-      java.lang.Object ref = name_;
-      if (ref instanceof String) {
-        com.google.protobuf.ByteString b = 
-            com.google.protobuf.ByteString.copyFromUtf8(
-                (java.lang.String) ref);
-        name_ = b;
-        return b;
-      } else {
-        return (com.google.protobuf.ByteString) ref;
-      }
-    }
-    /**
-     * <pre>
-     * Used to identify the consensus engine that produced this message
-     * </pre>
-     *
-     * <code>string name = 3;</code>
-     */
-    public Builder setName(
-        java.lang.String value) {
-      if (value == null) {
-    throw new NullPointerException();
-  }
-  
-      name_ = value;
-      onChanged();
-      return this;
-    }
-    /**
-     * <pre>
-     * Used to identify the consensus engine that produced this message
-     * </pre>
-     *
-     * <code>string name = 3;</code>
-     */
-    public Builder clearName() {
-      
-      name_ = getDefaultInstance().getName();
-      onChanged();
-      return this;
-    }
-    /**
-     * <pre>
-     * Used to identify the consensus engine that produced this message
-     * </pre>
-     *
-     * <code>string name = 3;</code>
-     */
-    public Builder setNameBytes(
-        com.google.protobuf.ByteString value) {
-      if (value == null) {
-    throw new NullPointerException();
-  }
-  checkByteStringIsUtf8(value);
-      
-      name_ = value;
-      onChanged();
-      return this;
-    }
-
-    private java.lang.Object version_ = "";
-    /**
-     * <code>string version = 4;</code>
-     */
-    public java.lang.String getVersion() {
-      java.lang.Object ref = version_;
-      if (!(ref instanceof java.lang.String)) {
-        com.google.protobuf.ByteString bs =
-            (com.google.protobuf.ByteString) ref;
-        java.lang.String s = bs.toStringUtf8();
-        version_ = s;
-        return s;
-      } else {
-        return (java.lang.String) ref;
-      }
-    }
-    /**
-     * <code>string version = 4;</code>
-     */
-    public com.google.protobuf.ByteString
-        getVersionBytes() {
-      java.lang.Object ref = version_;
-      if (ref instanceof String) {
-        com.google.protobuf.ByteString b = 
-            com.google.protobuf.ByteString.copyFromUtf8(
-                (java.lang.String) ref);
-        version_ = b;
-        return b;
-      } else {
-        return (com.google.protobuf.ByteString) ref;
-      }
-    }
-    /**
-     * <code>string version = 4;</code>
-     */
-    public Builder setVersion(
-        java.lang.String value) {
-      if (value == null) {
-    throw new NullPointerException();
-  }
-  
-      version_ = value;
-      onChanged();
-      return this;
-    }
-    /**
-     * <code>string version = 4;</code>
-     */
-    public Builder clearVersion() {
-      
-      version_ = getDefaultInstance().getVersion();
-      onChanged();
-      return this;
-    }
-    /**
-     * <code>string version = 4;</code>
-     */
-    public Builder setVersionBytes(
-        com.google.protobuf.ByteString value) {
-      if (value == null) {
-    throw new NullPointerException();
-  }
-  checkByteStringIsUtf8(value);
-      
-      version_ = value;
       onChanged();
       return this;
     }

@@ -8,15 +8,36 @@ public interface ConsensusNotifyPeerMessageOrBuilder extends
     com.google.protobuf.MessageOrBuilder {
 
   /**
+   * <pre>
+   * The message sent
+   * </pre>
+   *
    * <code>.ConsensusPeerMessage message = 1;</code>
    */
   boolean hasMessage();
   /**
+   * <pre>
+   * The message sent
+   * </pre>
+   *
    * <code>.ConsensusPeerMessage message = 1;</code>
    */
   sawtooth.sdk.protobuf.ConsensusPeerMessage getMessage();
   /**
+   * <pre>
+   * The message sent
+   * </pre>
+   *
    * <code>.ConsensusPeerMessage message = 1;</code>
    */
   sawtooth.sdk.protobuf.ConsensusPeerMessageOrBuilder getMessageOrBuilder();
+
+  /**
+   * <pre>
+   * The node that sent the message, not necessarily the node that created it
+   * </pre>
+   *
+   * <code>bytes sender_id = 2;</code>
+   */
+  com.google.protobuf.ByteString getSenderId();
 }

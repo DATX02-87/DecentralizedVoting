@@ -4,18 +4,18 @@
 package sawtooth.sdk.protobuf;
 
 /**
- * Protobuf type {@code ConsensusCancelBlockResponse}
+ * Protobuf type {@code ConsensusCheckBlocksResponse}
  */
-public  final class ConsensusCancelBlockResponse extends
+public  final class ConsensusCheckBlocksResponse extends
     com.google.protobuf.GeneratedMessageV3 implements
-    // @@protoc_insertion_point(message_implements:ConsensusCancelBlockResponse)
-    ConsensusCancelBlockResponseOrBuilder {
+    // @@protoc_insertion_point(message_implements:ConsensusCheckBlocksResponse)
+    ConsensusCheckBlocksResponseOrBuilder {
 private static final long serialVersionUID = 0L;
-  // Use ConsensusCancelBlockResponse.newBuilder() to construct.
-  private ConsensusCancelBlockResponse(com.google.protobuf.GeneratedMessageV3.Builder<?> builder) {
+  // Use ConsensusCheckBlocksResponse.newBuilder() to construct.
+  private ConsensusCheckBlocksResponse(com.google.protobuf.GeneratedMessageV3.Builder<?> builder) {
     super(builder);
   }
-  private ConsensusCancelBlockResponse() {
+  private ConsensusCheckBlocksResponse() {
     status_ = 0;
   }
 
@@ -24,7 +24,7 @@ private static final long serialVersionUID = 0L;
   getUnknownFields() {
     return this.unknownFields;
   }
-  private ConsensusCancelBlockResponse(
+  private ConsensusCheckBlocksResponse(
       com.google.protobuf.CodedInputStream input,
       com.google.protobuf.ExtensionRegistryLite extensionRegistry)
       throws com.google.protobuf.InvalidProtocolBufferException {
@@ -70,19 +70,19 @@ private static final long serialVersionUID = 0L;
   }
   public static final com.google.protobuf.Descriptors.Descriptor
       getDescriptor() {
-    return sawtooth.sdk.protobuf.Consensus.internal_static_ConsensusCancelBlockResponse_descriptor;
+    return sawtooth.sdk.protobuf.Consensus.internal_static_ConsensusCheckBlocksResponse_descriptor;
   }
 
   @java.lang.Override
   protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
       internalGetFieldAccessorTable() {
-    return sawtooth.sdk.protobuf.Consensus.internal_static_ConsensusCancelBlockResponse_fieldAccessorTable
+    return sawtooth.sdk.protobuf.Consensus.internal_static_ConsensusCheckBlocksResponse_fieldAccessorTable
         .ensureFieldAccessorsInitialized(
-            sawtooth.sdk.protobuf.ConsensusCancelBlockResponse.class, sawtooth.sdk.protobuf.ConsensusCancelBlockResponse.Builder.class);
+            sawtooth.sdk.protobuf.ConsensusCheckBlocksResponse.class, sawtooth.sdk.protobuf.ConsensusCheckBlocksResponse.Builder.class);
   }
 
   /**
-   * Protobuf enum {@code ConsensusCancelBlockResponse.Status}
+   * Protobuf enum {@code ConsensusCheckBlocksResponse.Status}
    */
   public enum Status
       implements com.google.protobuf.ProtocolMessageEnum {
@@ -107,9 +107,9 @@ private static final long serialVersionUID = 0L;
      */
     NOT_READY(4),
     /**
-     * <code>INVALID_STATE = 5;</code>
+     * <code>UNKNOWN_BLOCK = 5;</code>
      */
-    INVALID_STATE(5),
+    UNKNOWN_BLOCK(5),
     /**
      * <code>NOT_ACTIVE_ENGINE = 6;</code>
      */
@@ -138,9 +138,9 @@ private static final long serialVersionUID = 0L;
      */
     public static final int NOT_READY_VALUE = 4;
     /**
-     * <code>INVALID_STATE = 5;</code>
+     * <code>UNKNOWN_BLOCK = 5;</code>
      */
-    public static final int INVALID_STATE_VALUE = 5;
+    public static final int UNKNOWN_BLOCK_VALUE = 5;
     /**
      * <code>NOT_ACTIVE_ENGINE = 6;</code>
      */
@@ -170,7 +170,7 @@ private static final long serialVersionUID = 0L;
         case 2: return BAD_REQUEST;
         case 3: return SERVICE_ERROR;
         case 4: return NOT_READY;
-        case 5: return INVALID_STATE;
+        case 5: return UNKNOWN_BLOCK;
         case 6: return NOT_ACTIVE_ENGINE;
         default: return null;
       }
@@ -198,7 +198,7 @@ private static final long serialVersionUID = 0L;
     }
     public static final com.google.protobuf.Descriptors.EnumDescriptor
         getDescriptor() {
-      return sawtooth.sdk.protobuf.ConsensusCancelBlockResponse.getDescriptor().getEnumTypes().get(0);
+      return sawtooth.sdk.protobuf.ConsensusCheckBlocksResponse.getDescriptor().getEnumTypes().get(0);
     }
 
     private static final Status[] VALUES = values();
@@ -221,24 +221,24 @@ private static final long serialVersionUID = 0L;
       this.value = value;
     }
 
-    // @@protoc_insertion_point(enum_scope:ConsensusCancelBlockResponse.Status)
+    // @@protoc_insertion_point(enum_scope:ConsensusCheckBlocksResponse.Status)
   }
 
   public static final int STATUS_FIELD_NUMBER = 1;
   private int status_;
   /**
-   * <code>.ConsensusCancelBlockResponse.Status status = 1;</code>
+   * <code>.ConsensusCheckBlocksResponse.Status status = 1;</code>
    */
   public int getStatusValue() {
     return status_;
   }
   /**
-   * <code>.ConsensusCancelBlockResponse.Status status = 1;</code>
+   * <code>.ConsensusCheckBlocksResponse.Status status = 1;</code>
    */
-  public sawtooth.sdk.protobuf.ConsensusCancelBlockResponse.Status getStatus() {
+  public sawtooth.sdk.protobuf.ConsensusCheckBlocksResponse.Status getStatus() {
     @SuppressWarnings("deprecation")
-    sawtooth.sdk.protobuf.ConsensusCancelBlockResponse.Status result = sawtooth.sdk.protobuf.ConsensusCancelBlockResponse.Status.valueOf(status_);
-    return result == null ? sawtooth.sdk.protobuf.ConsensusCancelBlockResponse.Status.UNRECOGNIZED : result;
+    sawtooth.sdk.protobuf.ConsensusCheckBlocksResponse.Status result = sawtooth.sdk.protobuf.ConsensusCheckBlocksResponse.Status.valueOf(status_);
+    return result == null ? sawtooth.sdk.protobuf.ConsensusCheckBlocksResponse.Status.UNRECOGNIZED : result;
   }
 
   private byte memoizedIsInitialized = -1;
@@ -255,7 +255,7 @@ private static final long serialVersionUID = 0L;
   @java.lang.Override
   public void writeTo(com.google.protobuf.CodedOutputStream output)
                       throws java.io.IOException {
-    if (status_ != sawtooth.sdk.protobuf.ConsensusCancelBlockResponse.Status.STATUS_UNSET.getNumber()) {
+    if (status_ != sawtooth.sdk.protobuf.ConsensusCheckBlocksResponse.Status.STATUS_UNSET.getNumber()) {
       output.writeEnum(1, status_);
     }
     unknownFields.writeTo(output);
@@ -267,7 +267,7 @@ private static final long serialVersionUID = 0L;
     if (size != -1) return size;
 
     size = 0;
-    if (status_ != sawtooth.sdk.protobuf.ConsensusCancelBlockResponse.Status.STATUS_UNSET.getNumber()) {
+    if (status_ != sawtooth.sdk.protobuf.ConsensusCheckBlocksResponse.Status.STATUS_UNSET.getNumber()) {
       size += com.google.protobuf.CodedOutputStream
         .computeEnumSize(1, status_);
     }
@@ -281,10 +281,10 @@ private static final long serialVersionUID = 0L;
     if (obj == this) {
      return true;
     }
-    if (!(obj instanceof sawtooth.sdk.protobuf.ConsensusCancelBlockResponse)) {
+    if (!(obj instanceof sawtooth.sdk.protobuf.ConsensusCheckBlocksResponse)) {
       return super.equals(obj);
     }
-    sawtooth.sdk.protobuf.ConsensusCancelBlockResponse other = (sawtooth.sdk.protobuf.ConsensusCancelBlockResponse) obj;
+    sawtooth.sdk.protobuf.ConsensusCheckBlocksResponse other = (sawtooth.sdk.protobuf.ConsensusCheckBlocksResponse) obj;
 
     boolean result = true;
     result = result && status_ == other.status_;
@@ -306,69 +306,69 @@ private static final long serialVersionUID = 0L;
     return hash;
   }
 
-  public static sawtooth.sdk.protobuf.ConsensusCancelBlockResponse parseFrom(
+  public static sawtooth.sdk.protobuf.ConsensusCheckBlocksResponse parseFrom(
       java.nio.ByteBuffer data)
       throws com.google.protobuf.InvalidProtocolBufferException {
     return PARSER.parseFrom(data);
   }
-  public static sawtooth.sdk.protobuf.ConsensusCancelBlockResponse parseFrom(
+  public static sawtooth.sdk.protobuf.ConsensusCheckBlocksResponse parseFrom(
       java.nio.ByteBuffer data,
       com.google.protobuf.ExtensionRegistryLite extensionRegistry)
       throws com.google.protobuf.InvalidProtocolBufferException {
     return PARSER.parseFrom(data, extensionRegistry);
   }
-  public static sawtooth.sdk.protobuf.ConsensusCancelBlockResponse parseFrom(
+  public static sawtooth.sdk.protobuf.ConsensusCheckBlocksResponse parseFrom(
       com.google.protobuf.ByteString data)
       throws com.google.protobuf.InvalidProtocolBufferException {
     return PARSER.parseFrom(data);
   }
-  public static sawtooth.sdk.protobuf.ConsensusCancelBlockResponse parseFrom(
+  public static sawtooth.sdk.protobuf.ConsensusCheckBlocksResponse parseFrom(
       com.google.protobuf.ByteString data,
       com.google.protobuf.ExtensionRegistryLite extensionRegistry)
       throws com.google.protobuf.InvalidProtocolBufferException {
     return PARSER.parseFrom(data, extensionRegistry);
   }
-  public static sawtooth.sdk.protobuf.ConsensusCancelBlockResponse parseFrom(byte[] data)
+  public static sawtooth.sdk.protobuf.ConsensusCheckBlocksResponse parseFrom(byte[] data)
       throws com.google.protobuf.InvalidProtocolBufferException {
     return PARSER.parseFrom(data);
   }
-  public static sawtooth.sdk.protobuf.ConsensusCancelBlockResponse parseFrom(
+  public static sawtooth.sdk.protobuf.ConsensusCheckBlocksResponse parseFrom(
       byte[] data,
       com.google.protobuf.ExtensionRegistryLite extensionRegistry)
       throws com.google.protobuf.InvalidProtocolBufferException {
     return PARSER.parseFrom(data, extensionRegistry);
   }
-  public static sawtooth.sdk.protobuf.ConsensusCancelBlockResponse parseFrom(java.io.InputStream input)
+  public static sawtooth.sdk.protobuf.ConsensusCheckBlocksResponse parseFrom(java.io.InputStream input)
       throws java.io.IOException {
     return com.google.protobuf.GeneratedMessageV3
         .parseWithIOException(PARSER, input);
   }
-  public static sawtooth.sdk.protobuf.ConsensusCancelBlockResponse parseFrom(
+  public static sawtooth.sdk.protobuf.ConsensusCheckBlocksResponse parseFrom(
       java.io.InputStream input,
       com.google.protobuf.ExtensionRegistryLite extensionRegistry)
       throws java.io.IOException {
     return com.google.protobuf.GeneratedMessageV3
         .parseWithIOException(PARSER, input, extensionRegistry);
   }
-  public static sawtooth.sdk.protobuf.ConsensusCancelBlockResponse parseDelimitedFrom(java.io.InputStream input)
+  public static sawtooth.sdk.protobuf.ConsensusCheckBlocksResponse parseDelimitedFrom(java.io.InputStream input)
       throws java.io.IOException {
     return com.google.protobuf.GeneratedMessageV3
         .parseDelimitedWithIOException(PARSER, input);
   }
-  public static sawtooth.sdk.protobuf.ConsensusCancelBlockResponse parseDelimitedFrom(
+  public static sawtooth.sdk.protobuf.ConsensusCheckBlocksResponse parseDelimitedFrom(
       java.io.InputStream input,
       com.google.protobuf.ExtensionRegistryLite extensionRegistry)
       throws java.io.IOException {
     return com.google.protobuf.GeneratedMessageV3
         .parseDelimitedWithIOException(PARSER, input, extensionRegistry);
   }
-  public static sawtooth.sdk.protobuf.ConsensusCancelBlockResponse parseFrom(
+  public static sawtooth.sdk.protobuf.ConsensusCheckBlocksResponse parseFrom(
       com.google.protobuf.CodedInputStream input)
       throws java.io.IOException {
     return com.google.protobuf.GeneratedMessageV3
         .parseWithIOException(PARSER, input);
   }
-  public static sawtooth.sdk.protobuf.ConsensusCancelBlockResponse parseFrom(
+  public static sawtooth.sdk.protobuf.ConsensusCheckBlocksResponse parseFrom(
       com.google.protobuf.CodedInputStream input,
       com.google.protobuf.ExtensionRegistryLite extensionRegistry)
       throws java.io.IOException {
@@ -381,7 +381,7 @@ private static final long serialVersionUID = 0L;
   public static Builder newBuilder() {
     return DEFAULT_INSTANCE.toBuilder();
   }
-  public static Builder newBuilder(sawtooth.sdk.protobuf.ConsensusCancelBlockResponse prototype) {
+  public static Builder newBuilder(sawtooth.sdk.protobuf.ConsensusCheckBlocksResponse prototype) {
     return DEFAULT_INSTANCE.toBuilder().mergeFrom(prototype);
   }
   @java.lang.Override
@@ -397,26 +397,26 @@ private static final long serialVersionUID = 0L;
     return builder;
   }
   /**
-   * Protobuf type {@code ConsensusCancelBlockResponse}
+   * Protobuf type {@code ConsensusCheckBlocksResponse}
    */
   public static final class Builder extends
       com.google.protobuf.GeneratedMessageV3.Builder<Builder> implements
-      // @@protoc_insertion_point(builder_implements:ConsensusCancelBlockResponse)
-      sawtooth.sdk.protobuf.ConsensusCancelBlockResponseOrBuilder {
+      // @@protoc_insertion_point(builder_implements:ConsensusCheckBlocksResponse)
+      sawtooth.sdk.protobuf.ConsensusCheckBlocksResponseOrBuilder {
     public static final com.google.protobuf.Descriptors.Descriptor
         getDescriptor() {
-      return sawtooth.sdk.protobuf.Consensus.internal_static_ConsensusCancelBlockResponse_descriptor;
+      return sawtooth.sdk.protobuf.Consensus.internal_static_ConsensusCheckBlocksResponse_descriptor;
     }
 
     @java.lang.Override
     protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
         internalGetFieldAccessorTable() {
-      return sawtooth.sdk.protobuf.Consensus.internal_static_ConsensusCancelBlockResponse_fieldAccessorTable
+      return sawtooth.sdk.protobuf.Consensus.internal_static_ConsensusCheckBlocksResponse_fieldAccessorTable
           .ensureFieldAccessorsInitialized(
-              sawtooth.sdk.protobuf.ConsensusCancelBlockResponse.class, sawtooth.sdk.protobuf.ConsensusCancelBlockResponse.Builder.class);
+              sawtooth.sdk.protobuf.ConsensusCheckBlocksResponse.class, sawtooth.sdk.protobuf.ConsensusCheckBlocksResponse.Builder.class);
     }
 
-    // Construct using sawtooth.sdk.protobuf.ConsensusCancelBlockResponse.newBuilder()
+    // Construct using sawtooth.sdk.protobuf.ConsensusCheckBlocksResponse.newBuilder()
     private Builder() {
       maybeForceBuilderInitialization();
     }
@@ -442,17 +442,17 @@ private static final long serialVersionUID = 0L;
     @java.lang.Override
     public com.google.protobuf.Descriptors.Descriptor
         getDescriptorForType() {
-      return sawtooth.sdk.protobuf.Consensus.internal_static_ConsensusCancelBlockResponse_descriptor;
+      return sawtooth.sdk.protobuf.Consensus.internal_static_ConsensusCheckBlocksResponse_descriptor;
     }
 
     @java.lang.Override
-    public sawtooth.sdk.protobuf.ConsensusCancelBlockResponse getDefaultInstanceForType() {
-      return sawtooth.sdk.protobuf.ConsensusCancelBlockResponse.getDefaultInstance();
+    public sawtooth.sdk.protobuf.ConsensusCheckBlocksResponse getDefaultInstanceForType() {
+      return sawtooth.sdk.protobuf.ConsensusCheckBlocksResponse.getDefaultInstance();
     }
 
     @java.lang.Override
-    public sawtooth.sdk.protobuf.ConsensusCancelBlockResponse build() {
-      sawtooth.sdk.protobuf.ConsensusCancelBlockResponse result = buildPartial();
+    public sawtooth.sdk.protobuf.ConsensusCheckBlocksResponse build() {
+      sawtooth.sdk.protobuf.ConsensusCheckBlocksResponse result = buildPartial();
       if (!result.isInitialized()) {
         throw newUninitializedMessageException(result);
       }
@@ -460,8 +460,8 @@ private static final long serialVersionUID = 0L;
     }
 
     @java.lang.Override
-    public sawtooth.sdk.protobuf.ConsensusCancelBlockResponse buildPartial() {
-      sawtooth.sdk.protobuf.ConsensusCancelBlockResponse result = new sawtooth.sdk.protobuf.ConsensusCancelBlockResponse(this);
+    public sawtooth.sdk.protobuf.ConsensusCheckBlocksResponse buildPartial() {
+      sawtooth.sdk.protobuf.ConsensusCheckBlocksResponse result = new sawtooth.sdk.protobuf.ConsensusCheckBlocksResponse(this);
       result.status_ = status_;
       onBuilt();
       return result;
@@ -501,16 +501,16 @@ private static final long serialVersionUID = 0L;
     }
     @java.lang.Override
     public Builder mergeFrom(com.google.protobuf.Message other) {
-      if (other instanceof sawtooth.sdk.protobuf.ConsensusCancelBlockResponse) {
-        return mergeFrom((sawtooth.sdk.protobuf.ConsensusCancelBlockResponse)other);
+      if (other instanceof sawtooth.sdk.protobuf.ConsensusCheckBlocksResponse) {
+        return mergeFrom((sawtooth.sdk.protobuf.ConsensusCheckBlocksResponse)other);
       } else {
         super.mergeFrom(other);
         return this;
       }
     }
 
-    public Builder mergeFrom(sawtooth.sdk.protobuf.ConsensusCancelBlockResponse other) {
-      if (other == sawtooth.sdk.protobuf.ConsensusCancelBlockResponse.getDefaultInstance()) return this;
+    public Builder mergeFrom(sawtooth.sdk.protobuf.ConsensusCheckBlocksResponse other) {
+      if (other == sawtooth.sdk.protobuf.ConsensusCheckBlocksResponse.getDefaultInstance()) return this;
       if (other.status_ != 0) {
         setStatusValue(other.getStatusValue());
       }
@@ -529,11 +529,11 @@ private static final long serialVersionUID = 0L;
         com.google.protobuf.CodedInputStream input,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws java.io.IOException {
-      sawtooth.sdk.protobuf.ConsensusCancelBlockResponse parsedMessage = null;
+      sawtooth.sdk.protobuf.ConsensusCheckBlocksResponse parsedMessage = null;
       try {
         parsedMessage = PARSER.parsePartialFrom(input, extensionRegistry);
       } catch (com.google.protobuf.InvalidProtocolBufferException e) {
-        parsedMessage = (sawtooth.sdk.protobuf.ConsensusCancelBlockResponse) e.getUnfinishedMessage();
+        parsedMessage = (sawtooth.sdk.protobuf.ConsensusCheckBlocksResponse) e.getUnfinishedMessage();
         throw e.unwrapIOException();
       } finally {
         if (parsedMessage != null) {
@@ -545,13 +545,13 @@ private static final long serialVersionUID = 0L;
 
     private int status_ = 0;
     /**
-     * <code>.ConsensusCancelBlockResponse.Status status = 1;</code>
+     * <code>.ConsensusCheckBlocksResponse.Status status = 1;</code>
      */
     public int getStatusValue() {
       return status_;
     }
     /**
-     * <code>.ConsensusCancelBlockResponse.Status status = 1;</code>
+     * <code>.ConsensusCheckBlocksResponse.Status status = 1;</code>
      */
     public Builder setStatusValue(int value) {
       status_ = value;
@@ -559,17 +559,17 @@ private static final long serialVersionUID = 0L;
       return this;
     }
     /**
-     * <code>.ConsensusCancelBlockResponse.Status status = 1;</code>
+     * <code>.ConsensusCheckBlocksResponse.Status status = 1;</code>
      */
-    public sawtooth.sdk.protobuf.ConsensusCancelBlockResponse.Status getStatus() {
+    public sawtooth.sdk.protobuf.ConsensusCheckBlocksResponse.Status getStatus() {
       @SuppressWarnings("deprecation")
-      sawtooth.sdk.protobuf.ConsensusCancelBlockResponse.Status result = sawtooth.sdk.protobuf.ConsensusCancelBlockResponse.Status.valueOf(status_);
-      return result == null ? sawtooth.sdk.protobuf.ConsensusCancelBlockResponse.Status.UNRECOGNIZED : result;
+      sawtooth.sdk.protobuf.ConsensusCheckBlocksResponse.Status result = sawtooth.sdk.protobuf.ConsensusCheckBlocksResponse.Status.valueOf(status_);
+      return result == null ? sawtooth.sdk.protobuf.ConsensusCheckBlocksResponse.Status.UNRECOGNIZED : result;
     }
     /**
-     * <code>.ConsensusCancelBlockResponse.Status status = 1;</code>
+     * <code>.ConsensusCheckBlocksResponse.Status status = 1;</code>
      */
-    public Builder setStatus(sawtooth.sdk.protobuf.ConsensusCancelBlockResponse.Status value) {
+    public Builder setStatus(sawtooth.sdk.protobuf.ConsensusCheckBlocksResponse.Status value) {
       if (value == null) {
         throw new NullPointerException();
       }
@@ -579,7 +579,7 @@ private static final long serialVersionUID = 0L;
       return this;
     }
     /**
-     * <code>.ConsensusCancelBlockResponse.Status status = 1;</code>
+     * <code>.ConsensusCheckBlocksResponse.Status status = 1;</code>
      */
     public Builder clearStatus() {
       
@@ -600,41 +600,41 @@ private static final long serialVersionUID = 0L;
     }
 
 
-    // @@protoc_insertion_point(builder_scope:ConsensusCancelBlockResponse)
+    // @@protoc_insertion_point(builder_scope:ConsensusCheckBlocksResponse)
   }
 
-  // @@protoc_insertion_point(class_scope:ConsensusCancelBlockResponse)
-  private static final sawtooth.sdk.protobuf.ConsensusCancelBlockResponse DEFAULT_INSTANCE;
+  // @@protoc_insertion_point(class_scope:ConsensusCheckBlocksResponse)
+  private static final sawtooth.sdk.protobuf.ConsensusCheckBlocksResponse DEFAULT_INSTANCE;
   static {
-    DEFAULT_INSTANCE = new sawtooth.sdk.protobuf.ConsensusCancelBlockResponse();
+    DEFAULT_INSTANCE = new sawtooth.sdk.protobuf.ConsensusCheckBlocksResponse();
   }
 
-  public static sawtooth.sdk.protobuf.ConsensusCancelBlockResponse getDefaultInstance() {
+  public static sawtooth.sdk.protobuf.ConsensusCheckBlocksResponse getDefaultInstance() {
     return DEFAULT_INSTANCE;
   }
 
-  private static final com.google.protobuf.Parser<ConsensusCancelBlockResponse>
-      PARSER = new com.google.protobuf.AbstractParser<ConsensusCancelBlockResponse>() {
+  private static final com.google.protobuf.Parser<ConsensusCheckBlocksResponse>
+      PARSER = new com.google.protobuf.AbstractParser<ConsensusCheckBlocksResponse>() {
     @java.lang.Override
-    public ConsensusCancelBlockResponse parsePartialFrom(
+    public ConsensusCheckBlocksResponse parsePartialFrom(
         com.google.protobuf.CodedInputStream input,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws com.google.protobuf.InvalidProtocolBufferException {
-      return new ConsensusCancelBlockResponse(input, extensionRegistry);
+      return new ConsensusCheckBlocksResponse(input, extensionRegistry);
     }
   };
 
-  public static com.google.protobuf.Parser<ConsensusCancelBlockResponse> parser() {
+  public static com.google.protobuf.Parser<ConsensusCheckBlocksResponse> parser() {
     return PARSER;
   }
 
   @java.lang.Override
-  public com.google.protobuf.Parser<ConsensusCancelBlockResponse> getParserForType() {
+  public com.google.protobuf.Parser<ConsensusCheckBlocksResponse> getParserForType() {
     return PARSER;
   }
 
   @java.lang.Override
-  public sawtooth.sdk.protobuf.ConsensusCancelBlockResponse getDefaultInstanceForType() {
+  public sawtooth.sdk.protobuf.ConsensusCheckBlocksResponse getDefaultInstanceForType() {
     return DEFAULT_INSTANCE;
   }
 

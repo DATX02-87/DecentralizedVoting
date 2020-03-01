@@ -15,6 +15,11 @@ public final class Consensus {
         (com.google.protobuf.ExtensionRegistryLite) registry);
   }
   static final com.google.protobuf.Descriptors.Descriptor
+    internal_static_ConsensusPeerMessageHeader_descriptor;
+  static final 
+    com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
+      internal_static_ConsensusPeerMessageHeader_fieldAccessorTable;
+  static final com.google.protobuf.Descriptors.Descriptor
     internal_static_ConsensusPeerMessage_descriptor;
   static final 
     com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
@@ -44,6 +49,11 @@ public final class Consensus {
   static final 
     com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
       internal_static_ConsensusRegisterRequest_fieldAccessorTable;
+  static final com.google.protobuf.Descriptors.Descriptor
+    internal_static_ConsensusRegisterRequest_Protocol_descriptor;
+  static final 
+    com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
+      internal_static_ConsensusRegisterRequest_Protocol_fieldAccessorTable;
   static final com.google.protobuf.Descriptors.Descriptor
     internal_static_ConsensusRegisterResponse_descriptor;
   static final 
@@ -85,6 +95,16 @@ public final class Consensus {
     com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
       internal_static_ConsensusNotifyBlockCommit_fieldAccessorTable;
   static final com.google.protobuf.Descriptors.Descriptor
+    internal_static_ConsensusNotifyEngineActivated_descriptor;
+  static final 
+    com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
+      internal_static_ConsensusNotifyEngineActivated_fieldAccessorTable;
+  static final com.google.protobuf.Descriptors.Descriptor
+    internal_static_ConsensusNotifyEngineDeactivated_descriptor;
+  static final 
+    com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
+      internal_static_ConsensusNotifyEngineDeactivated_fieldAccessorTable;
+  static final com.google.protobuf.Descriptors.Descriptor
     internal_static_ConsensusNotifyAck_descriptor;
   static final 
     com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
@@ -120,6 +140,16 @@ public final class Consensus {
     com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
       internal_static_ConsensusInitializeBlockResponse_fieldAccessorTable;
   static final com.google.protobuf.Descriptors.Descriptor
+    internal_static_ConsensusSummarizeBlockRequest_descriptor;
+  static final 
+    com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
+      internal_static_ConsensusSummarizeBlockRequest_fieldAccessorTable;
+  static final com.google.protobuf.Descriptors.Descriptor
+    internal_static_ConsensusSummarizeBlockResponse_descriptor;
+  static final 
+    com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
+      internal_static_ConsensusSummarizeBlockResponse_fieldAccessorTable;
+  static final com.google.protobuf.Descriptors.Descriptor
     internal_static_ConsensusFinalizeBlockRequest_descriptor;
   static final 
     com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
@@ -140,15 +170,15 @@ public final class Consensus {
     com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
       internal_static_ConsensusCancelBlockResponse_fieldAccessorTable;
   static final com.google.protobuf.Descriptors.Descriptor
-    internal_static_ConsensusCheckBlockRequest_descriptor;
+    internal_static_ConsensusCheckBlocksRequest_descriptor;
   static final 
     com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
-      internal_static_ConsensusCheckBlockRequest_fieldAccessorTable;
+      internal_static_ConsensusCheckBlocksRequest_fieldAccessorTable;
   static final com.google.protobuf.Descriptors.Descriptor
-    internal_static_ConsensusCheckBlockResponse_descriptor;
+    internal_static_ConsensusCheckBlocksResponse_descriptor;
   static final 
     com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
-      internal_static_ConsensusCheckBlockResponse_fieldAccessorTable;
+      internal_static_ConsensusCheckBlocksResponse_fieldAccessorTable;
   static final com.google.protobuf.Descriptors.Descriptor
     internal_static_ConsensusCommitBlockRequest_descriptor;
   static final 
@@ -190,6 +220,16 @@ public final class Consensus {
     com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
       internal_static_ConsensusBlocksGetResponse_fieldAccessorTable;
   static final com.google.protobuf.Descriptors.Descriptor
+    internal_static_ConsensusChainHeadGetRequest_descriptor;
+  static final 
+    com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
+      internal_static_ConsensusChainHeadGetRequest_fieldAccessorTable;
+  static final com.google.protobuf.Descriptors.Descriptor
+    internal_static_ConsensusChainHeadGetResponse_descriptor;
+  static final 
+    com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
+      internal_static_ConsensusChainHeadGetResponse_fieldAccessorTable;
+  static final com.google.protobuf.Descriptors.Descriptor
     internal_static_ConsensusSettingsGetRequest_descriptor;
   static final 
     com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
@@ -218,110 +258,146 @@ public final class Consensus {
       descriptor;
   static {
     java.lang.String[] descriptorData = {
-      "\n\017consensus.proto\"\\\n\024ConsensusPeerMessag" +
-      "e\022\024\n\014message_type\030\001 \001(\t\022\017\n\007content\030\002 \001(\014" +
-      "\022\014\n\004name\030\003 \001(\t\022\017\n\007version\030\004 \001(\t\"n\n\016Conse" +
-      "nsusBlock\022\020\n\010block_id\030\001 \001(\014\022\023\n\013previous_" +
-      "id\030\002 \001(\014\022\021\n\tsigner_id\030\003 \001(\014\022\021\n\tblock_num" +
-      "\030\004 \001(\004\022\017\n\007payload\030\005 \001(\014\"$\n\021ConsensusPeer" +
-      "Info\022\017\n\007peer_id\030\001 \001(\014\"4\n\026ConsensusSettin" +
-      "gsEntry\022\013\n\003key\030\001 \001(\t\022\r\n\005value\030\002 \001(\t\"4\n\023C" +
-      "onsensusStateEntry\022\017\n\007address\030\001 \001(\t\022\014\n\004d" +
-      "ata\030\002 \001(\014\"9\n\030ConsensusRegisterRequest\022\014\n" +
-      "\004name\030\001 \001(\t\022\017\n\007version\030\002 \001(\t\"\245\001\n\031Consens" +
-      "usRegisterResponse\0221\n\006status\030\001 \001(\0162!.Con" +
-      "sensusRegisterResponse.Status\"U\n\006Status\022" +
-      "\020\n\014STATUS_UNSET\020\000\022\006\n\002OK\020\001\022\017\n\013BAD_REQUEST" +
-      "\020\002\022\021\n\rSERVICE_ERROR\020\003\022\r\n\tNOT_READY\020\004\"E\n\034" +
-      "ConsensusNotifyPeerConnected\022%\n\tpeer_inf" +
-      "o\030\001 \001(\0132\022.ConsensusPeerInfo\"2\n\037Consensus" +
-      "NotifyPeerDisconnected\022\017\n\007peer_id\030\001 \001(\014\"" +
-      "D\n\032ConsensusNotifyPeerMessage\022&\n\007message" +
-      "\030\001 \001(\0132\025.ConsensusPeerMessage\"9\n\027Consens" +
-      "usNotifyBlockNew\022\036\n\005block\030\001 \001(\0132\017.Consen" +
-      "susBlock\"-\n\031ConsensusNotifyBlockValid\022\020\n" +
-      "\010block_id\030\001 \001(\014\"/\n\033ConsensusNotifyBlockI" +
-      "nvalid\022\020\n\010block_id\030\001 \001(\014\".\n\032ConsensusNot" +
-      "ifyBlockCommit\022\020\n\010block_id\030\001 \001(\014\"\024\n\022Cons" +
-      "ensusNotifyAck\"Q\n\026ConsensusSendToRequest" +
-      "\022&\n\007message\030\001 \001(\0132\025.ConsensusPeerMessage" +
-      "\022\017\n\007peer_id\030\002 \001(\014\"\263\001\n\027ConsensusSendToRes" +
-      "ponse\022/\n\006status\030\001 \001(\0162\037.ConsensusSendToR" +
-      "esponse.Status\"g\n\006Status\022\020\n\014STATUS_UNSET" +
-      "\020\000\022\006\n\002OK\020\001\022\017\n\013BAD_REQUEST\020\002\022\021\n\rSERVICE_E" +
-      "RROR\020\003\022\r\n\tNOT_READY\020\004\022\020\n\014UNKNOWN_PEER\020\005\"" +
-      "C\n\031ConsensusBroadcastRequest\022&\n\007message\030" +
-      "\001 \001(\0132\025.ConsensusPeerMessage\"\247\001\n\032Consens" +
-      "usBroadcastResponse\0222\n\006status\030\001 \001(\0162\".Co" +
-      "nsensusBroadcastResponse.Status\"U\n\006Statu" +
-      "s\022\020\n\014STATUS_UNSET\020\000\022\006\n\002OK\020\001\022\017\n\013BAD_REQUE" +
-      "ST\020\002\022\021\n\rSERVICE_ERROR\020\003\022\r\n\tNOT_READY\020\004\"6" +
-      "\n\037ConsensusInitializeBlockRequest\022\023\n\013pre" +
-      "vious_id\030\001 \001(\014\"\331\001\n ConsensusInitializeBl" +
-      "ockResponse\0228\n\006status\030\001 \001(\0162(.ConsensusI" +
-      "nitializeBlockResponse.Status\"{\n\006Status\022" +
-      "\020\n\014STATUS_UNSET\020\000\022\006\n\002OK\020\001\022\017\n\013BAD_REQUEST" +
-      "\020\002\022\021\n\rSERVICE_ERROR\020\003\022\r\n\tNOT_READY\020\004\022\021\n\r" +
-      "INVALID_STATE\020\005\022\021\n\rUNKNOWN_BLOCK\020\006\"-\n\035Co" +
-      "nsensusFinalizeBlockRequest\022\014\n\004data\030\001 \001(" +
-      "\014\"\324\001\n\036ConsensusFinalizeBlockResponse\0226\n\006" +
-      "status\030\001 \001(\0162&.ConsensusFinalizeBlockRes" +
-      "ponse.Status\022\020\n\010block_id\030\002 \001(\014\"h\n\006Status" +
-      "\022\020\n\014STATUS_UNSET\020\000\022\006\n\002OK\020\001\022\017\n\013BAD_REQUES" +
-      "T\020\002\022\021\n\rSERVICE_ERROR\020\003\022\r\n\tNOT_READY\020\004\022\021\n" +
-      "\rINVALID_STATE\020\005\"\035\n\033ConsensusCancelBlock" +
-      "Request\"\276\001\n\034ConsensusCancelBlockResponse" +
-      "\0224\n\006status\030\001 \001(\0162$.ConsensusCancelBlockR" +
-      "esponse.Status\"h\n\006Status\022\020\n\014STATUS_UNSET" +
-      "\020\000\022\006\n\002OK\020\001\022\017\n\013BAD_REQUEST\020\002\022\021\n\rSERVICE_E" +
-      "RROR\020\003\022\r\n\tNOT_READY\020\004\022\021\n\rINVALID_STATE\020\005" +
-      "\"/\n\032ConsensusCheckBlockRequest\022\021\n\tblock_" +
-      "ids\030\001 \003(\014\"\274\001\n\033ConsensusCheckBlockRespons" +
-      "e\0223\n\006status\030\001 \001(\0162#.ConsensusCheckBlockR" +
-      "esponse.Status\"h\n\006Status\022\020\n\014STATUS_UNSET" +
-      "\020\000\022\006\n\002OK\020\001\022\017\n\013BAD_REQUEST\020\002\022\021\n\rSERVICE_E" +
-      "RROR\020\003\022\r\n\tNOT_READY\020\004\022\021\n\rUNKNOWN_BLOCK\020\005" +
-      "\"/\n\033ConsensusCommitBlockRequest\022\020\n\010block" +
-      "_id\030\001 \001(\014\"\276\001\n\034ConsensusCommitBlockRespon" +
-      "se\0224\n\006status\030\001 \001(\0162$.ConsensusCommitBloc" +
-      "kResponse.Status\"h\n\006Status\022\020\n\014STATUS_UNS" +
-      "ET\020\000\022\006\n\002OK\020\001\022\017\n\013BAD_REQUEST\020\002\022\021\n\rSERVICE" +
-      "_ERROR\020\003\022\r\n\tNOT_READY\020\004\022\021\n\rUNKNOWN_BLOCK" +
-      "\020\005\"/\n\033ConsensusIgnoreBlockRequest\022\020\n\010blo" +
-      "ck_id\030\001 \001(\014\"\276\001\n\034ConsensusIgnoreBlockResp" +
-      "onse\0224\n\006status\030\001 \001(\0162$.ConsensusIgnoreBl" +
-      "ockResponse.Status\"h\n\006Status\022\020\n\014STATUS_U" +
+      "\n\017consensus.proto\"|\n\032ConsensusPeerMessag" +
+      "eHeader\022\021\n\tsigner_id\030\001 \001(\014\022\026\n\016content_sh" +
+      "a512\030\002 \001(\014\022\024\n\014message_type\030\005 \001(\t\022\014\n\004name" +
+      "\030\003 \001(\t\022\017\n\007version\030\004 \001(\t\"Q\n\024ConsensusPeer" +
+      "Message\022\016\n\006header\030\001 \001(\014\022\030\n\020header_signat" +
+      "ure\030\003 \001(\014\022\017\n\007content\030\002 \001(\014\"\177\n\016ConsensusB" +
+      "lock\022\020\n\010block_id\030\001 \001(\014\022\023\n\013previous_id\030\002 " +
+      "\001(\014\022\021\n\tsigner_id\030\003 \001(\014\022\021\n\tblock_num\030\004 \001(" +
+      "\004\022\017\n\007payload\030\005 \001(\014\022\017\n\007summary\030\006 \001(\014\"$\n\021C" +
+      "onsensusPeerInfo\022\017\n\007peer_id\030\001 \001(\014\"4\n\026Con" +
+      "sensusSettingsEntry\022\013\n\003key\030\001 \001(\t\022\r\n\005valu" +
+      "e\030\002 \001(\t\"4\n\023ConsensusStateEntry\022\017\n\007addres" +
+      "s\030\001 \001(\t\022\014\n\004data\030\002 \001(\014\"\246\001\n\030ConsensusRegis" +
+      "terRequest\022\014\n\004name\030\001 \001(\t\022\017\n\007version\030\002 \001(" +
+      "\t\022@\n\024additional_protocols\030\003 \003(\0132\".Consen" +
+      "susRegisterRequest.Protocol\032)\n\010Protocol\022" +
+      "\014\n\004name\030\001 \001(\t\022\017\n\007version\030\002 \001(\t\"\232\002\n\031Conse" +
+      "nsusRegisterResponse\0221\n\006status\030\001 \001(\0162!.C" +
+      "onsensusRegisterResponse.Status\022#\n\nchain" +
+      "_head\030\002 \001(\0132\017.ConsensusBlock\022!\n\005peers\030\003 " +
+      "\003(\0132\022.ConsensusPeerInfo\022+\n\017local_peer_in" +
+      "fo\030\004 \001(\0132\022.ConsensusPeerInfo\"U\n\006Status\022\020" +
+      "\n\014STATUS_UNSET\020\000\022\006\n\002OK\020\001\022\017\n\013BAD_REQUEST\020" +
+      "\002\022\021\n\rSERVICE_ERROR\020\003\022\r\n\tNOT_READY\020\004\"E\n\034C" +
+      "onsensusNotifyPeerConnected\022%\n\tpeer_info" +
+      "\030\001 \001(\0132\022.ConsensusPeerInfo\"2\n\037ConsensusN" +
+      "otifyPeerDisconnected\022\017\n\007peer_id\030\001 \001(\014\"W" +
+      "\n\032ConsensusNotifyPeerMessage\022&\n\007message\030" +
+      "\001 \001(\0132\025.ConsensusPeerMessage\022\021\n\tsender_i" +
+      "d\030\002 \001(\014\"9\n\027ConsensusNotifyBlockNew\022\036\n\005bl" +
+      "ock\030\001 \001(\0132\017.ConsensusBlock\"-\n\031ConsensusN" +
+      "otifyBlockValid\022\020\n\010block_id\030\001 \001(\014\"/\n\033Con" +
+      "sensusNotifyBlockInvalid\022\020\n\010block_id\030\001 \001" +
+      "(\014\".\n\032ConsensusNotifyBlockCommit\022\020\n\010bloc" +
+      "k_id\030\001 \001(\014\"\225\001\n\036ConsensusNotifyEngineActi" +
+      "vated\022#\n\nchain_head\030\001 \001(\0132\017.ConsensusBlo" +
+      "ck\022!\n\005peers\030\002 \003(\0132\022.ConsensusPeerInfo\022+\n" +
+      "\017local_peer_info\030\003 \001(\0132\022.ConsensusPeerIn" +
+      "fo\"\"\n ConsensusNotifyEngineDeactivated\"\024" +
+      "\n\022ConsensusNotifyAck\"T\n\026ConsensusSendToR" +
+      "equest\022\017\n\007content\030\001 \001(\014\022\024\n\014message_type\030" +
+      "\003 \001(\t\022\023\n\013receiver_id\030\002 \001(\014\"\312\001\n\027Consensus" +
+      "SendToResponse\022/\n\006status\030\001 \001(\0162\037.Consens" +
+      "usSendToResponse.Status\"~\n\006Status\022\020\n\014STA" +
+      "TUS_UNSET\020\000\022\006\n\002OK\020\001\022\017\n\013BAD_REQUEST\020\002\022\021\n\r" +
+      "SERVICE_ERROR\020\003\022\r\n\tNOT_READY\020\004\022\020\n\014UNKNOW" +
+      "N_PEER\020\005\022\025\n\021NOT_ACTIVE_ENGINE\020\006\"B\n\031Conse" +
+      "nsusBroadcastRequest\022\017\n\007content\030\001 \001(\014\022\024\n" +
+      "\014message_type\030\002 \001(\t\"\276\001\n\032ConsensusBroadca" +
+      "stResponse\0222\n\006status\030\001 \001(\0162\".ConsensusBr" +
+      "oadcastResponse.Status\"l\n\006Status\022\020\n\014STAT" +
+      "US_UNSET\020\000\022\006\n\002OK\020\001\022\017\n\013BAD_REQUEST\020\002\022\021\n\rS" +
+      "ERVICE_ERROR\020\003\022\r\n\tNOT_READY\020\004\022\025\n\021NOT_ACT" +
+      "IVE_ENGINE\020\005\"6\n\037ConsensusInitializeBlock" +
+      "Request\022\023\n\013previous_id\030\001 \001(\014\"\361\001\n Consens" +
+      "usInitializeBlockResponse\0228\n\006status\030\001 \001(" +
+      "\0162(.ConsensusInitializeBlockResponse.Sta" +
+      "tus\"\222\001\n\006Status\022\020\n\014STATUS_UNSET\020\000\022\006\n\002OK\020\001" +
+      "\022\017\n\013BAD_REQUEST\020\002\022\021\n\rSERVICE_ERROR\020\003\022\r\n\t" +
+      "NOT_READY\020\004\022\021\n\rINVALID_STATE\020\005\022\021\n\rUNKNOW" +
+      "N_BLOCK\020\006\022\025\n\021NOT_ACTIVE_ENGINE\020\007\" \n\036Cons" +
+      "ensusSummarizeBlockRequest\"\202\002\n\037Consensus" +
+      "SummarizeBlockResponse\0227\n\006status\030\001 \001(\0162\'" +
+      ".ConsensusSummarizeBlockResponse.Status\022" +
+      "\017\n\007summary\030\002 \001(\014\"\224\001\n\006Status\022\020\n\014STATUS_UN" +
+      "SET\020\000\022\006\n\002OK\020\001\022\017\n\013BAD_REQUEST\020\002\022\021\n\rSERVIC" +
+      "E_ERROR\020\003\022\r\n\tNOT_READY\020\004\022\021\n\rINVALID_STAT" +
+      "E\020\005\022\023\n\017BLOCK_NOT_READY\020\006\022\025\n\021NOT_ACTIVE_E" +
+      "NGINE\020\007\"-\n\035ConsensusFinalizeBlockRequest" +
+      "\022\014\n\004data\030\001 \001(\014\"\201\002\n\036ConsensusFinalizeBloc" +
+      "kResponse\0226\n\006status\030\001 \001(\0162&.ConsensusFin" +
+      "alizeBlockResponse.Status\022\020\n\010block_id\030\002 " +
+      "\001(\014\"\224\001\n\006Status\022\020\n\014STATUS_UNSET\020\000\022\006\n\002OK\020\001" +
+      "\022\017\n\013BAD_REQUEST\020\002\022\021\n\rSERVICE_ERROR\020\003\022\r\n\t" +
+      "NOT_READY\020\004\022\021\n\rINVALID_STATE\020\005\022\023\n\017BLOCK_" +
+      "NOT_READY\020\006\022\025\n\021NOT_ACTIVE_ENGINE\020\007\"\035\n\033Co" +
+      "nsensusCancelBlockRequest\"\325\001\n\034ConsensusC" +
+      "ancelBlockResponse\0224\n\006status\030\001 \001(\0162$.Con" +
+      "sensusCancelBlockResponse.Status\"\177\n\006Stat" +
+      "us\022\020\n\014STATUS_UNSET\020\000\022\006\n\002OK\020\001\022\017\n\013BAD_REQU" +
+      "EST\020\002\022\021\n\rSERVICE_ERROR\020\003\022\r\n\tNOT_READY\020\004\022" +
+      "\021\n\rINVALID_STATE\020\005\022\025\n\021NOT_ACTIVE_ENGINE\020" +
+      "\006\"0\n\033ConsensusCheckBlocksRequest\022\021\n\tbloc" +
+      "k_ids\030\001 \003(\014\"\325\001\n\034ConsensusCheckBlocksResp" +
+      "onse\0224\n\006status\030\001 \001(\0162$.ConsensusCheckBlo" +
+      "cksResponse.Status\"\177\n\006Status\022\020\n\014STATUS_U" +
       "NSET\020\000\022\006\n\002OK\020\001\022\017\n\013BAD_REQUEST\020\002\022\021\n\rSERVI" +
       "CE_ERROR\020\003\022\r\n\tNOT_READY\020\004\022\021\n\rUNKNOWN_BLO" +
-      "CK\020\005\"-\n\031ConsensusFailBlockRequest\022\020\n\010blo" +
-      "ck_id\030\001 \001(\014\"\272\001\n\032ConsensusFailBlockRespon" +
-      "se\0222\n\006status\030\001 \001(\0162\".ConsensusFailBlockR" +
-      "esponse.Status\"h\n\006Status\022\020\n\014STATUS_UNSET" +
-      "\020\000\022\006\n\002OK\020\001\022\017\n\013BAD_REQUEST\020\002\022\021\n\rSERVICE_E" +
-      "RROR\020\003\022\r\n\tNOT_READY\020\004\022\021\n\rUNKNOWN_BLOCK\020\005" +
-      "\".\n\031ConsensusBlocksGetRequest\022\021\n\tblock_i" +
-      "ds\030\001 \003(\014\"\333\001\n\032ConsensusBlocksGetResponse\022" +
-      "2\n\006status\030\001 \001(\0162\".ConsensusBlocksGetResp" +
-      "onse.Status\022\037\n\006blocks\030\002 \003(\0132\017.ConsensusB" +
-      "lock\"h\n\006Status\022\020\n\014STATUS_UNSET\020\000\022\006\n\002OK\020\001" +
-      "\022\017\n\013BAD_REQUEST\020\002\022\021\n\rSERVICE_ERROR\020\003\022\r\n\t" +
-      "NOT_READY\020\004\022\021\n\rUNKNOWN_BLOCK\020\005\"=\n\033Consen" +
-      "susSettingsGetRequest\022\020\n\010block_id\030\001 \001(\014\022" +
-      "\014\n\004keys\030\002 \003(\t\"\350\001\n\034ConsensusSettingsGetRe" +
-      "sponse\0224\n\006status\030\001 \001(\0162$.ConsensusSettin" +
-      "gsGetResponse.Status\022(\n\007entries\030\002 \003(\0132\027." +
-      "ConsensusSettingsEntry\"h\n\006Status\022\020\n\014STAT" +
+      "CK\020\005\022\025\n\021NOT_ACTIVE_ENGINE\020\006\"/\n\033Consensus" +
+      "CommitBlockRequest\022\020\n\010block_id\030\001 \001(\014\"\325\001\n" +
+      "\034ConsensusCommitBlockResponse\0224\n\006status\030" +
+      "\001 \001(\0162$.ConsensusCommitBlockResponse.Sta" +
+      "tus\"\177\n\006Status\022\020\n\014STATUS_UNSET\020\000\022\006\n\002OK\020\001\022" +
+      "\017\n\013BAD_REQUEST\020\002\022\021\n\rSERVICE_ERROR\020\003\022\r\n\tN" +
+      "OT_READY\020\004\022\021\n\rUNKNOWN_BLOCK\020\005\022\025\n\021NOT_ACT" +
+      "IVE_ENGINE\020\006\"/\n\033ConsensusIgnoreBlockRequ" +
+      "est\022\020\n\010block_id\030\001 \001(\014\"\325\001\n\034ConsensusIgnor" +
+      "eBlockResponse\0224\n\006status\030\001 \001(\0162$.Consens" +
+      "usIgnoreBlockResponse.Status\"\177\n\006Status\022\020" +
+      "\n\014STATUS_UNSET\020\000\022\006\n\002OK\020\001\022\017\n\013BAD_REQUEST\020" +
+      "\002\022\021\n\rSERVICE_ERROR\020\003\022\r\n\tNOT_READY\020\004\022\021\n\rU" +
+      "NKNOWN_BLOCK\020\005\022\025\n\021NOT_ACTIVE_ENGINE\020\006\"-\n" +
+      "\031ConsensusFailBlockRequest\022\020\n\010block_id\030\001" +
+      " \001(\014\"\321\001\n\032ConsensusFailBlockResponse\0222\n\006s" +
+      "tatus\030\001 \001(\0162\".ConsensusFailBlockResponse" +
+      ".Status\"\177\n\006Status\022\020\n\014STATUS_UNSET\020\000\022\006\n\002O" +
+      "K\020\001\022\017\n\013BAD_REQUEST\020\002\022\021\n\rSERVICE_ERROR\020\003\022" +
+      "\r\n\tNOT_READY\020\004\022\021\n\rUNKNOWN_BLOCK\020\005\022\025\n\021NOT" +
+      "_ACTIVE_ENGINE\020\006\".\n\031ConsensusBlocksGetRe" +
+      "quest\022\021\n\tblock_ids\030\001 \003(\014\"\362\001\n\032ConsensusBl" +
+      "ocksGetResponse\0222\n\006status\030\001 \001(\0162\".Consen" +
+      "susBlocksGetResponse.Status\022\037\n\006blocks\030\002 " +
+      "\003(\0132\017.ConsensusBlock\"\177\n\006Status\022\020\n\014STATUS" +
+      "_UNSET\020\000\022\006\n\002OK\020\001\022\017\n\013BAD_REQUEST\020\002\022\021\n\rSER" +
+      "VICE_ERROR\020\003\022\r\n\tNOT_READY\020\004\022\021\n\rUNKNOWN_B" +
+      "LOCK\020\005\022\025\n\021NOT_ACTIVE_ENGINE\020\006\"\036\n\034Consens" +
+      "usChainHeadGetRequest\"\367\001\n\035ConsensusChain" +
+      "HeadGetResponse\0225\n\006status\030\001 \001(\0162%.Consen" +
+      "susChainHeadGetResponse.Status\022\036\n\005block\030" +
+      "\002 \001(\0132\017.ConsensusBlock\"\177\n\006Status\022\020\n\014STAT" +
       "US_UNSET\020\000\022\006\n\002OK\020\001\022\017\n\013BAD_REQUEST\020\002\022\021\n\rS" +
-      "ERVICE_ERROR\020\003\022\r\n\tNOT_READY\020\004\022\021\n\rUNKNOWN" +
-      "_BLOCK\020\005\"?\n\030ConsensusStateGetRequest\022\020\n\010" +
-      "block_id\030\001 \001(\014\022\021\n\taddresses\030\002 \003(\t\"\337\001\n\031Co" +
-      "nsensusStateGetResponse\0221\n\006status\030\001 \001(\0162" +
-      "!.ConsensusStateGetResponse.Status\022%\n\007en" +
-      "tries\030\002 \003(\0132\024.ConsensusStateEntry\"h\n\006Sta" +
-      "tus\022\020\n\014STATUS_UNSET\020\000\022\006\n\002OK\020\001\022\017\n\013BAD_REQ" +
-      "UEST\020\002\022\021\n\rSERVICE_ERROR\020\003\022\r\n\tNOT_READY\020\004" +
-      "\022\021\n\rUNKNOWN_BLOCK\020\005B$\n\025sawtooth.sdk.prot" +
-      "obufP\001Z\tconsensusb\006proto3"
+      "ERVICE_ERROR\020\003\022\r\n\tNOT_READY\020\004\022\021\n\rNO_CHAI" +
+      "N_HEAD\020\005\022\025\n\021NOT_ACTIVE_ENGINE\020\006\"=\n\033Conse" +
+      "nsusSettingsGetRequest\022\020\n\010block_id\030\001 \001(\014" +
+      "\022\014\n\004keys\030\002 \003(\t\"\377\001\n\034ConsensusSettingsGetR" +
+      "esponse\0224\n\006status\030\001 \001(\0162$.ConsensusSetti" +
+      "ngsGetResponse.Status\022(\n\007entries\030\002 \003(\0132\027" +
+      ".ConsensusSettingsEntry\"\177\n\006Status\022\020\n\014STA" +
+      "TUS_UNSET\020\000\022\006\n\002OK\020\001\022\017\n\013BAD_REQUEST\020\002\022\021\n\r" +
+      "SERVICE_ERROR\020\003\022\r\n\tNOT_READY\020\004\022\021\n\rUNKNOW" +
+      "N_BLOCK\020\005\022\025\n\021NOT_ACTIVE_ENGINE\020\006\"?\n\030Cons" +
+      "ensusStateGetRequest\022\020\n\010block_id\030\001 \001(\014\022\021" +
+      "\n\taddresses\030\002 \003(\t\"\366\001\n\031ConsensusStateGetR" +
+      "esponse\0221\n\006status\030\001 \001(\0162!.ConsensusState" +
+      "GetResponse.Status\022%\n\007entries\030\002 \003(\0132\024.Co" +
+      "nsensusStateEntry\"\177\n\006Status\022\020\n\014STATUS_UN" +
+      "SET\020\000\022\006\n\002OK\020\001\022\017\n\013BAD_REQUEST\020\002\022\021\n\rSERVIC" +
+      "E_ERROR\020\003\022\r\n\tNOT_READY\020\004\022\021\n\rUNKNOWN_BLOC" +
+      "K\020\005\022\025\n\021NOT_ACTIVE_ENGINE\020\006B$\n\025sawtooth.s" +
+      "dk.protobufP\001Z\tconsensusb\006proto3"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
         new com.google.protobuf.Descriptors.FileDescriptor.    InternalDescriptorAssigner() {
@@ -335,236 +411,284 @@ public final class Consensus {
       .internalBuildGeneratedFileFrom(descriptorData,
         new com.google.protobuf.Descriptors.FileDescriptor[] {
         }, assigner);
-    internal_static_ConsensusPeerMessage_descriptor =
+    internal_static_ConsensusPeerMessageHeader_descriptor =
       getDescriptor().getMessageTypes().get(0);
+    internal_static_ConsensusPeerMessageHeader_fieldAccessorTable = new
+      com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
+        internal_static_ConsensusPeerMessageHeader_descriptor,
+        new java.lang.String[] { "SignerId", "ContentSha512", "MessageType", "Name", "Version", });
+    internal_static_ConsensusPeerMessage_descriptor =
+      getDescriptor().getMessageTypes().get(1);
     internal_static_ConsensusPeerMessage_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_ConsensusPeerMessage_descriptor,
-        new java.lang.String[] { "MessageType", "Content", "Name", "Version", });
+        new java.lang.String[] { "Header", "HeaderSignature", "Content", });
     internal_static_ConsensusBlock_descriptor =
-      getDescriptor().getMessageTypes().get(1);
+      getDescriptor().getMessageTypes().get(2);
     internal_static_ConsensusBlock_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_ConsensusBlock_descriptor,
-        new java.lang.String[] { "BlockId", "PreviousId", "SignerId", "BlockNum", "Payload", });
+        new java.lang.String[] { "BlockId", "PreviousId", "SignerId", "BlockNum", "Payload", "Summary", });
     internal_static_ConsensusPeerInfo_descriptor =
-      getDescriptor().getMessageTypes().get(2);
+      getDescriptor().getMessageTypes().get(3);
     internal_static_ConsensusPeerInfo_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_ConsensusPeerInfo_descriptor,
         new java.lang.String[] { "PeerId", });
     internal_static_ConsensusSettingsEntry_descriptor =
-      getDescriptor().getMessageTypes().get(3);
+      getDescriptor().getMessageTypes().get(4);
     internal_static_ConsensusSettingsEntry_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_ConsensusSettingsEntry_descriptor,
         new java.lang.String[] { "Key", "Value", });
     internal_static_ConsensusStateEntry_descriptor =
-      getDescriptor().getMessageTypes().get(4);
+      getDescriptor().getMessageTypes().get(5);
     internal_static_ConsensusStateEntry_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_ConsensusStateEntry_descriptor,
         new java.lang.String[] { "Address", "Data", });
     internal_static_ConsensusRegisterRequest_descriptor =
-      getDescriptor().getMessageTypes().get(5);
+      getDescriptor().getMessageTypes().get(6);
     internal_static_ConsensusRegisterRequest_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_ConsensusRegisterRequest_descriptor,
+        new java.lang.String[] { "Name", "Version", "AdditionalProtocols", });
+    internal_static_ConsensusRegisterRequest_Protocol_descriptor =
+      internal_static_ConsensusRegisterRequest_descriptor.getNestedTypes().get(0);
+    internal_static_ConsensusRegisterRequest_Protocol_fieldAccessorTable = new
+      com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
+        internal_static_ConsensusRegisterRequest_Protocol_descriptor,
         new java.lang.String[] { "Name", "Version", });
     internal_static_ConsensusRegisterResponse_descriptor =
-      getDescriptor().getMessageTypes().get(6);
+      getDescriptor().getMessageTypes().get(7);
     internal_static_ConsensusRegisterResponse_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_ConsensusRegisterResponse_descriptor,
-        new java.lang.String[] { "Status", });
+        new java.lang.String[] { "Status", "ChainHead", "Peers", "LocalPeerInfo", });
     internal_static_ConsensusNotifyPeerConnected_descriptor =
-      getDescriptor().getMessageTypes().get(7);
+      getDescriptor().getMessageTypes().get(8);
     internal_static_ConsensusNotifyPeerConnected_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_ConsensusNotifyPeerConnected_descriptor,
         new java.lang.String[] { "PeerInfo", });
     internal_static_ConsensusNotifyPeerDisconnected_descriptor =
-      getDescriptor().getMessageTypes().get(8);
+      getDescriptor().getMessageTypes().get(9);
     internal_static_ConsensusNotifyPeerDisconnected_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_ConsensusNotifyPeerDisconnected_descriptor,
         new java.lang.String[] { "PeerId", });
     internal_static_ConsensusNotifyPeerMessage_descriptor =
-      getDescriptor().getMessageTypes().get(9);
+      getDescriptor().getMessageTypes().get(10);
     internal_static_ConsensusNotifyPeerMessage_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_ConsensusNotifyPeerMessage_descriptor,
-        new java.lang.String[] { "Message", });
+        new java.lang.String[] { "Message", "SenderId", });
     internal_static_ConsensusNotifyBlockNew_descriptor =
-      getDescriptor().getMessageTypes().get(10);
+      getDescriptor().getMessageTypes().get(11);
     internal_static_ConsensusNotifyBlockNew_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_ConsensusNotifyBlockNew_descriptor,
         new java.lang.String[] { "Block", });
     internal_static_ConsensusNotifyBlockValid_descriptor =
-      getDescriptor().getMessageTypes().get(11);
+      getDescriptor().getMessageTypes().get(12);
     internal_static_ConsensusNotifyBlockValid_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_ConsensusNotifyBlockValid_descriptor,
         new java.lang.String[] { "BlockId", });
     internal_static_ConsensusNotifyBlockInvalid_descriptor =
-      getDescriptor().getMessageTypes().get(12);
+      getDescriptor().getMessageTypes().get(13);
     internal_static_ConsensusNotifyBlockInvalid_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_ConsensusNotifyBlockInvalid_descriptor,
         new java.lang.String[] { "BlockId", });
     internal_static_ConsensusNotifyBlockCommit_descriptor =
-      getDescriptor().getMessageTypes().get(13);
+      getDescriptor().getMessageTypes().get(14);
     internal_static_ConsensusNotifyBlockCommit_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_ConsensusNotifyBlockCommit_descriptor,
         new java.lang.String[] { "BlockId", });
+    internal_static_ConsensusNotifyEngineActivated_descriptor =
+      getDescriptor().getMessageTypes().get(15);
+    internal_static_ConsensusNotifyEngineActivated_fieldAccessorTable = new
+      com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
+        internal_static_ConsensusNotifyEngineActivated_descriptor,
+        new java.lang.String[] { "ChainHead", "Peers", "LocalPeerInfo", });
+    internal_static_ConsensusNotifyEngineDeactivated_descriptor =
+      getDescriptor().getMessageTypes().get(16);
+    internal_static_ConsensusNotifyEngineDeactivated_fieldAccessorTable = new
+      com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
+        internal_static_ConsensusNotifyEngineDeactivated_descriptor,
+        new java.lang.String[] { });
     internal_static_ConsensusNotifyAck_descriptor =
-      getDescriptor().getMessageTypes().get(14);
+      getDescriptor().getMessageTypes().get(17);
     internal_static_ConsensusNotifyAck_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_ConsensusNotifyAck_descriptor,
         new java.lang.String[] { });
     internal_static_ConsensusSendToRequest_descriptor =
-      getDescriptor().getMessageTypes().get(15);
+      getDescriptor().getMessageTypes().get(18);
     internal_static_ConsensusSendToRequest_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_ConsensusSendToRequest_descriptor,
-        new java.lang.String[] { "Message", "PeerId", });
+        new java.lang.String[] { "Content", "MessageType", "ReceiverId", });
     internal_static_ConsensusSendToResponse_descriptor =
-      getDescriptor().getMessageTypes().get(16);
+      getDescriptor().getMessageTypes().get(19);
     internal_static_ConsensusSendToResponse_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_ConsensusSendToResponse_descriptor,
         new java.lang.String[] { "Status", });
     internal_static_ConsensusBroadcastRequest_descriptor =
-      getDescriptor().getMessageTypes().get(17);
+      getDescriptor().getMessageTypes().get(20);
     internal_static_ConsensusBroadcastRequest_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_ConsensusBroadcastRequest_descriptor,
-        new java.lang.String[] { "Message", });
+        new java.lang.String[] { "Content", "MessageType", });
     internal_static_ConsensusBroadcastResponse_descriptor =
-      getDescriptor().getMessageTypes().get(18);
+      getDescriptor().getMessageTypes().get(21);
     internal_static_ConsensusBroadcastResponse_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_ConsensusBroadcastResponse_descriptor,
         new java.lang.String[] { "Status", });
     internal_static_ConsensusInitializeBlockRequest_descriptor =
-      getDescriptor().getMessageTypes().get(19);
+      getDescriptor().getMessageTypes().get(22);
     internal_static_ConsensusInitializeBlockRequest_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_ConsensusInitializeBlockRequest_descriptor,
         new java.lang.String[] { "PreviousId", });
     internal_static_ConsensusInitializeBlockResponse_descriptor =
-      getDescriptor().getMessageTypes().get(20);
+      getDescriptor().getMessageTypes().get(23);
     internal_static_ConsensusInitializeBlockResponse_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_ConsensusInitializeBlockResponse_descriptor,
         new java.lang.String[] { "Status", });
+    internal_static_ConsensusSummarizeBlockRequest_descriptor =
+      getDescriptor().getMessageTypes().get(24);
+    internal_static_ConsensusSummarizeBlockRequest_fieldAccessorTable = new
+      com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
+        internal_static_ConsensusSummarizeBlockRequest_descriptor,
+        new java.lang.String[] { });
+    internal_static_ConsensusSummarizeBlockResponse_descriptor =
+      getDescriptor().getMessageTypes().get(25);
+    internal_static_ConsensusSummarizeBlockResponse_fieldAccessorTable = new
+      com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
+        internal_static_ConsensusSummarizeBlockResponse_descriptor,
+        new java.lang.String[] { "Status", "Summary", });
     internal_static_ConsensusFinalizeBlockRequest_descriptor =
-      getDescriptor().getMessageTypes().get(21);
+      getDescriptor().getMessageTypes().get(26);
     internal_static_ConsensusFinalizeBlockRequest_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_ConsensusFinalizeBlockRequest_descriptor,
         new java.lang.String[] { "Data", });
     internal_static_ConsensusFinalizeBlockResponse_descriptor =
-      getDescriptor().getMessageTypes().get(22);
+      getDescriptor().getMessageTypes().get(27);
     internal_static_ConsensusFinalizeBlockResponse_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_ConsensusFinalizeBlockResponse_descriptor,
         new java.lang.String[] { "Status", "BlockId", });
     internal_static_ConsensusCancelBlockRequest_descriptor =
-      getDescriptor().getMessageTypes().get(23);
+      getDescriptor().getMessageTypes().get(28);
     internal_static_ConsensusCancelBlockRequest_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_ConsensusCancelBlockRequest_descriptor,
         new java.lang.String[] { });
     internal_static_ConsensusCancelBlockResponse_descriptor =
-      getDescriptor().getMessageTypes().get(24);
+      getDescriptor().getMessageTypes().get(29);
     internal_static_ConsensusCancelBlockResponse_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_ConsensusCancelBlockResponse_descriptor,
         new java.lang.String[] { "Status", });
-    internal_static_ConsensusCheckBlockRequest_descriptor =
-      getDescriptor().getMessageTypes().get(25);
-    internal_static_ConsensusCheckBlockRequest_fieldAccessorTable = new
+    internal_static_ConsensusCheckBlocksRequest_descriptor =
+      getDescriptor().getMessageTypes().get(30);
+    internal_static_ConsensusCheckBlocksRequest_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
-        internal_static_ConsensusCheckBlockRequest_descriptor,
+        internal_static_ConsensusCheckBlocksRequest_descriptor,
         new java.lang.String[] { "BlockIds", });
-    internal_static_ConsensusCheckBlockResponse_descriptor =
-      getDescriptor().getMessageTypes().get(26);
-    internal_static_ConsensusCheckBlockResponse_fieldAccessorTable = new
+    internal_static_ConsensusCheckBlocksResponse_descriptor =
+      getDescriptor().getMessageTypes().get(31);
+    internal_static_ConsensusCheckBlocksResponse_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
-        internal_static_ConsensusCheckBlockResponse_descriptor,
+        internal_static_ConsensusCheckBlocksResponse_descriptor,
         new java.lang.String[] { "Status", });
     internal_static_ConsensusCommitBlockRequest_descriptor =
-      getDescriptor().getMessageTypes().get(27);
+      getDescriptor().getMessageTypes().get(32);
     internal_static_ConsensusCommitBlockRequest_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_ConsensusCommitBlockRequest_descriptor,
         new java.lang.String[] { "BlockId", });
     internal_static_ConsensusCommitBlockResponse_descriptor =
-      getDescriptor().getMessageTypes().get(28);
+      getDescriptor().getMessageTypes().get(33);
     internal_static_ConsensusCommitBlockResponse_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_ConsensusCommitBlockResponse_descriptor,
         new java.lang.String[] { "Status", });
     internal_static_ConsensusIgnoreBlockRequest_descriptor =
-      getDescriptor().getMessageTypes().get(29);
+      getDescriptor().getMessageTypes().get(34);
     internal_static_ConsensusIgnoreBlockRequest_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_ConsensusIgnoreBlockRequest_descriptor,
         new java.lang.String[] { "BlockId", });
     internal_static_ConsensusIgnoreBlockResponse_descriptor =
-      getDescriptor().getMessageTypes().get(30);
+      getDescriptor().getMessageTypes().get(35);
     internal_static_ConsensusIgnoreBlockResponse_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_ConsensusIgnoreBlockResponse_descriptor,
         new java.lang.String[] { "Status", });
     internal_static_ConsensusFailBlockRequest_descriptor =
-      getDescriptor().getMessageTypes().get(31);
+      getDescriptor().getMessageTypes().get(36);
     internal_static_ConsensusFailBlockRequest_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_ConsensusFailBlockRequest_descriptor,
         new java.lang.String[] { "BlockId", });
     internal_static_ConsensusFailBlockResponse_descriptor =
-      getDescriptor().getMessageTypes().get(32);
+      getDescriptor().getMessageTypes().get(37);
     internal_static_ConsensusFailBlockResponse_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_ConsensusFailBlockResponse_descriptor,
         new java.lang.String[] { "Status", });
     internal_static_ConsensusBlocksGetRequest_descriptor =
-      getDescriptor().getMessageTypes().get(33);
+      getDescriptor().getMessageTypes().get(38);
     internal_static_ConsensusBlocksGetRequest_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_ConsensusBlocksGetRequest_descriptor,
         new java.lang.String[] { "BlockIds", });
     internal_static_ConsensusBlocksGetResponse_descriptor =
-      getDescriptor().getMessageTypes().get(34);
+      getDescriptor().getMessageTypes().get(39);
     internal_static_ConsensusBlocksGetResponse_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_ConsensusBlocksGetResponse_descriptor,
         new java.lang.String[] { "Status", "Blocks", });
+    internal_static_ConsensusChainHeadGetRequest_descriptor =
+      getDescriptor().getMessageTypes().get(40);
+    internal_static_ConsensusChainHeadGetRequest_fieldAccessorTable = new
+      com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
+        internal_static_ConsensusChainHeadGetRequest_descriptor,
+        new java.lang.String[] { });
+    internal_static_ConsensusChainHeadGetResponse_descriptor =
+      getDescriptor().getMessageTypes().get(41);
+    internal_static_ConsensusChainHeadGetResponse_fieldAccessorTable = new
+      com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
+        internal_static_ConsensusChainHeadGetResponse_descriptor,
+        new java.lang.String[] { "Status", "Block", });
     internal_static_ConsensusSettingsGetRequest_descriptor =
-      getDescriptor().getMessageTypes().get(35);
+      getDescriptor().getMessageTypes().get(42);
     internal_static_ConsensusSettingsGetRequest_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_ConsensusSettingsGetRequest_descriptor,
         new java.lang.String[] { "BlockId", "Keys", });
     internal_static_ConsensusSettingsGetResponse_descriptor =
-      getDescriptor().getMessageTypes().get(36);
+      getDescriptor().getMessageTypes().get(43);
     internal_static_ConsensusSettingsGetResponse_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_ConsensusSettingsGetResponse_descriptor,
         new java.lang.String[] { "Status", "Entries", });
     internal_static_ConsensusStateGetRequest_descriptor =
-      getDescriptor().getMessageTypes().get(37);
+      getDescriptor().getMessageTypes().get(44);
     internal_static_ConsensusStateGetRequest_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_ConsensusStateGetRequest_descriptor,
         new java.lang.String[] { "BlockId", "Addresses", });
     internal_static_ConsensusStateGetResponse_descriptor =
-      getDescriptor().getMessageTypes().get(38);
+      getDescriptor().getMessageTypes().get(45);
     internal_static_ConsensusStateGetResponse_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_ConsensusStateGetResponse_descriptor,

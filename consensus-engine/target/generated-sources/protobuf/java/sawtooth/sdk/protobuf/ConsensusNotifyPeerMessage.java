@@ -20,6 +20,7 @@ private static final long serialVersionUID = 0L;
     super(builder);
   }
   private ConsensusNotifyPeerMessage() {
+    senderId_ = com.google.protobuf.ByteString.EMPTY;
   }
 
   @java.lang.Override
@@ -59,6 +60,11 @@ private static final long serialVersionUID = 0L;
 
             break;
           }
+          case 18: {
+
+            senderId_ = input.readBytes();
+            break;
+          }
           default: {
             if (!parseUnknownFieldProto3(
                 input, unknownFields, extensionRegistry, tag)) {
@@ -94,22 +100,47 @@ private static final long serialVersionUID = 0L;
   public static final int MESSAGE_FIELD_NUMBER = 1;
   private sawtooth.sdk.protobuf.ConsensusPeerMessage message_;
   /**
+   * <pre>
+   * The message sent
+   * </pre>
+   *
    * <code>.ConsensusPeerMessage message = 1;</code>
    */
   public boolean hasMessage() {
     return message_ != null;
   }
   /**
+   * <pre>
+   * The message sent
+   * </pre>
+   *
    * <code>.ConsensusPeerMessage message = 1;</code>
    */
   public sawtooth.sdk.protobuf.ConsensusPeerMessage getMessage() {
     return message_ == null ? sawtooth.sdk.protobuf.ConsensusPeerMessage.getDefaultInstance() : message_;
   }
   /**
+   * <pre>
+   * The message sent
+   * </pre>
+   *
    * <code>.ConsensusPeerMessage message = 1;</code>
    */
   public sawtooth.sdk.protobuf.ConsensusPeerMessageOrBuilder getMessageOrBuilder() {
     return getMessage();
+  }
+
+  public static final int SENDER_ID_FIELD_NUMBER = 2;
+  private com.google.protobuf.ByteString senderId_;
+  /**
+   * <pre>
+   * The node that sent the message, not necessarily the node that created it
+   * </pre>
+   *
+   * <code>bytes sender_id = 2;</code>
+   */
+  public com.google.protobuf.ByteString getSenderId() {
+    return senderId_;
   }
 
   private byte memoizedIsInitialized = -1;
@@ -129,6 +160,9 @@ private static final long serialVersionUID = 0L;
     if (message_ != null) {
       output.writeMessage(1, getMessage());
     }
+    if (!senderId_.isEmpty()) {
+      output.writeBytes(2, senderId_);
+    }
     unknownFields.writeTo(output);
   }
 
@@ -141,6 +175,10 @@ private static final long serialVersionUID = 0L;
     if (message_ != null) {
       size += com.google.protobuf.CodedOutputStream
         .computeMessageSize(1, getMessage());
+    }
+    if (!senderId_.isEmpty()) {
+      size += com.google.protobuf.CodedOutputStream
+        .computeBytesSize(2, senderId_);
     }
     size += unknownFields.getSerializedSize();
     memoizedSize = size;
@@ -163,6 +201,8 @@ private static final long serialVersionUID = 0L;
       result = result && getMessage()
           .equals(other.getMessage());
     }
+    result = result && getSenderId()
+        .equals(other.getSenderId());
     result = result && unknownFields.equals(other.unknownFields);
     return result;
   }
@@ -178,6 +218,8 @@ private static final long serialVersionUID = 0L;
       hash = (37 * hash) + MESSAGE_FIELD_NUMBER;
       hash = (53 * hash) + getMessage().hashCode();
     }
+    hash = (37 * hash) + SENDER_ID_FIELD_NUMBER;
+    hash = (53 * hash) + getSenderId().hashCode();
     hash = (29 * hash) + unknownFields.hashCode();
     memoizedHashCode = hash;
     return hash;
@@ -321,6 +363,8 @@ private static final long serialVersionUID = 0L;
         message_ = null;
         messageBuilder_ = null;
       }
+      senderId_ = com.google.protobuf.ByteString.EMPTY;
+
       return this;
     }
 
@@ -352,6 +396,7 @@ private static final long serialVersionUID = 0L;
       } else {
         result.message_ = messageBuilder_.build();
       }
+      result.senderId_ = senderId_;
       onBuilt();
       return result;
     }
@@ -403,6 +448,9 @@ private static final long serialVersionUID = 0L;
       if (other.hasMessage()) {
         mergeMessage(other.getMessage());
       }
+      if (other.getSenderId() != com.google.protobuf.ByteString.EMPTY) {
+        setSenderId(other.getSenderId());
+      }
       this.mergeUnknownFields(other.unknownFields);
       onChanged();
       return this;
@@ -436,12 +484,20 @@ private static final long serialVersionUID = 0L;
     private com.google.protobuf.SingleFieldBuilderV3<
         sawtooth.sdk.protobuf.ConsensusPeerMessage, sawtooth.sdk.protobuf.ConsensusPeerMessage.Builder, sawtooth.sdk.protobuf.ConsensusPeerMessageOrBuilder> messageBuilder_;
     /**
+     * <pre>
+     * The message sent
+     * </pre>
+     *
      * <code>.ConsensusPeerMessage message = 1;</code>
      */
     public boolean hasMessage() {
       return messageBuilder_ != null || message_ != null;
     }
     /**
+     * <pre>
+     * The message sent
+     * </pre>
+     *
      * <code>.ConsensusPeerMessage message = 1;</code>
      */
     public sawtooth.sdk.protobuf.ConsensusPeerMessage getMessage() {
@@ -452,6 +508,10 @@ private static final long serialVersionUID = 0L;
       }
     }
     /**
+     * <pre>
+     * The message sent
+     * </pre>
+     *
      * <code>.ConsensusPeerMessage message = 1;</code>
      */
     public Builder setMessage(sawtooth.sdk.protobuf.ConsensusPeerMessage value) {
@@ -468,6 +528,10 @@ private static final long serialVersionUID = 0L;
       return this;
     }
     /**
+     * <pre>
+     * The message sent
+     * </pre>
+     *
      * <code>.ConsensusPeerMessage message = 1;</code>
      */
     public Builder setMessage(
@@ -482,6 +546,10 @@ private static final long serialVersionUID = 0L;
       return this;
     }
     /**
+     * <pre>
+     * The message sent
+     * </pre>
+     *
      * <code>.ConsensusPeerMessage message = 1;</code>
      */
     public Builder mergeMessage(sawtooth.sdk.protobuf.ConsensusPeerMessage value) {
@@ -500,6 +568,10 @@ private static final long serialVersionUID = 0L;
       return this;
     }
     /**
+     * <pre>
+     * The message sent
+     * </pre>
+     *
      * <code>.ConsensusPeerMessage message = 1;</code>
      */
     public Builder clearMessage() {
@@ -514,6 +586,10 @@ private static final long serialVersionUID = 0L;
       return this;
     }
     /**
+     * <pre>
+     * The message sent
+     * </pre>
+     *
      * <code>.ConsensusPeerMessage message = 1;</code>
      */
     public sawtooth.sdk.protobuf.ConsensusPeerMessage.Builder getMessageBuilder() {
@@ -522,6 +598,10 @@ private static final long serialVersionUID = 0L;
       return getMessageFieldBuilder().getBuilder();
     }
     /**
+     * <pre>
+     * The message sent
+     * </pre>
+     *
      * <code>.ConsensusPeerMessage message = 1;</code>
      */
     public sawtooth.sdk.protobuf.ConsensusPeerMessageOrBuilder getMessageOrBuilder() {
@@ -533,6 +613,10 @@ private static final long serialVersionUID = 0L;
       }
     }
     /**
+     * <pre>
+     * The message sent
+     * </pre>
+     *
      * <code>.ConsensusPeerMessage message = 1;</code>
      */
     private com.google.protobuf.SingleFieldBuilderV3<
@@ -547,6 +631,47 @@ private static final long serialVersionUID = 0L;
         message_ = null;
       }
       return messageBuilder_;
+    }
+
+    private com.google.protobuf.ByteString senderId_ = com.google.protobuf.ByteString.EMPTY;
+    /**
+     * <pre>
+     * The node that sent the message, not necessarily the node that created it
+     * </pre>
+     *
+     * <code>bytes sender_id = 2;</code>
+     */
+    public com.google.protobuf.ByteString getSenderId() {
+      return senderId_;
+    }
+    /**
+     * <pre>
+     * The node that sent the message, not necessarily the node that created it
+     * </pre>
+     *
+     * <code>bytes sender_id = 2;</code>
+     */
+    public Builder setSenderId(com.google.protobuf.ByteString value) {
+      if (value == null) {
+    throw new NullPointerException();
+  }
+  
+      senderId_ = value;
+      onChanged();
+      return this;
+    }
+    /**
+     * <pre>
+     * The node that sent the message, not necessarily the node that created it
+     * </pre>
+     *
+     * <code>bytes sender_id = 2;</code>
+     */
+    public Builder clearSenderId() {
+      
+      senderId_ = getDefaultInstance().getSenderId();
+      onChanged();
+      return this;
     }
     @java.lang.Override
     public final Builder setUnknownFields(

@@ -42,4 +42,48 @@ public interface ConsensusRegisterRequestOrBuilder extends
    */
   com.google.protobuf.ByteString
       getVersionBytes();
+
+  /**
+   * <pre>
+   * Any additional name/version pairs the consensus engine supports
+   * </pre>
+   *
+   * <code>repeated .ConsensusRegisterRequest.Protocol additional_protocols = 3;</code>
+   */
+  java.util.List<sawtooth.sdk.protobuf.ConsensusRegisterRequest.Protocol> 
+      getAdditionalProtocolsList();
+  /**
+   * <pre>
+   * Any additional name/version pairs the consensus engine supports
+   * </pre>
+   *
+   * <code>repeated .ConsensusRegisterRequest.Protocol additional_protocols = 3;</code>
+   */
+  sawtooth.sdk.protobuf.ConsensusRegisterRequest.Protocol getAdditionalProtocols(int index);
+  /**
+   * <pre>
+   * Any additional name/version pairs the consensus engine supports
+   * </pre>
+   *
+   * <code>repeated .ConsensusRegisterRequest.Protocol additional_protocols = 3;</code>
+   */
+  int getAdditionalProtocolsCount();
+  /**
+   * <pre>
+   * Any additional name/version pairs the consensus engine supports
+   * </pre>
+   *
+   * <code>repeated .ConsensusRegisterRequest.Protocol additional_protocols = 3;</code>
+   */
+  java.util.List<? extends sawtooth.sdk.protobuf.ConsensusRegisterRequest.ProtocolOrBuilder> 
+      getAdditionalProtocolsOrBuilderList();
+  /**
+   * <pre>
+   * Any additional name/version pairs the consensus engine supports
+   * </pre>
+   *
+   * <code>repeated .ConsensusRegisterRequest.Protocol additional_protocols = 3;</code>
+   */
+  sawtooth.sdk.protobuf.ConsensusRegisterRequest.ProtocolOrBuilder getAdditionalProtocolsOrBuilder(
+      int index);
 }

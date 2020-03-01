@@ -9,21 +9,21 @@ public interface ConsensusPeerMessageOrBuilder extends
 
   /**
    * <pre>
-   * Interpretation is left to the consensus engine implementation
+   * The serialized version of the ConsensusPeerMessageHeader
    * </pre>
    *
-   * <code>string message_type = 1;</code>
+   * <code>bytes header = 1;</code>
    */
-  java.lang.String getMessageType();
+  com.google.protobuf.ByteString getHeader();
+
   /**
    * <pre>
-   * Interpretation is left to the consensus engine implementation
+   * The signature derived from signing the header
    * </pre>
    *
-   * <code>string message_type = 1;</code>
+   * <code>bytes header_signature = 3;</code>
    */
-  com.google.protobuf.ByteString
-      getMessageTypeBytes();
+  com.google.protobuf.ByteString getHeaderSignature();
 
   /**
    * <pre>
@@ -33,32 +33,4 @@ public interface ConsensusPeerMessageOrBuilder extends
    * <code>bytes content = 2;</code>
    */
   com.google.protobuf.ByteString getContent();
-
-  /**
-   * <pre>
-   * Used to identify the consensus engine that produced this message
-   * </pre>
-   *
-   * <code>string name = 3;</code>
-   */
-  java.lang.String getName();
-  /**
-   * <pre>
-   * Used to identify the consensus engine that produced this message
-   * </pre>
-   *
-   * <code>string name = 3;</code>
-   */
-  com.google.protobuf.ByteString
-      getNameBytes();
-
-  /**
-   * <code>string version = 4;</code>
-   */
-  java.lang.String getVersion();
-  /**
-   * <code>string version = 4;</code>
-   */
-  com.google.protobuf.ByteString
-      getVersionBytes();
 }

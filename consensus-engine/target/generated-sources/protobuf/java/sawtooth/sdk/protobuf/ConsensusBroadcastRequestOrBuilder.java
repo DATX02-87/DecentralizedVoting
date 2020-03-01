@@ -8,15 +8,25 @@ public interface ConsensusBroadcastRequestOrBuilder extends
     com.google.protobuf.MessageOrBuilder {
 
   /**
-   * <code>.ConsensusPeerMessage message = 1;</code>
+   * <pre>
+   * Payload to broadcast peers
+   * NOTE: This payload will be wrapped up in a ConsensusPeerMessage struct,
+   * which includes computing its SHA-512 digest, inserting this engine's
+   * registration info, and the validator's public key, and signing everything
+   * with the validator's private key.
+   * </pre>
+   *
+   * <code>bytes content = 1;</code>
    */
-  boolean hasMessage();
+  com.google.protobuf.ByteString getContent();
+
   /**
-   * <code>.ConsensusPeerMessage message = 1;</code>
+   * <code>string message_type = 2;</code>
    */
-  sawtooth.sdk.protobuf.ConsensusPeerMessage getMessage();
+  java.lang.String getMessageType();
   /**
-   * <code>.ConsensusPeerMessage message = 1;</code>
+   * <code>string message_type = 2;</code>
    */
-  sawtooth.sdk.protobuf.ConsensusPeerMessageOrBuilder getMessageOrBuilder();
+  com.google.protobuf.ByteString
+      getMessageTypeBytes();
 }

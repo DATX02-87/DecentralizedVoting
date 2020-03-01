@@ -3,8 +3,8 @@
 
 package sawtooth.sdk.protobuf;
 
-public interface ConsensusCheckBlockRequestOrBuilder extends
-    // @@protoc_insertion_point(interface_extends:ConsensusCheckBlockRequest)
+public interface ConsensusCheckBlocksRequestOrBuilder extends
+    // @@protoc_insertion_point(interface_extends:ConsensusCheckBlocksRequest)
     com.google.protobuf.MessageOrBuilder {
 
   /**

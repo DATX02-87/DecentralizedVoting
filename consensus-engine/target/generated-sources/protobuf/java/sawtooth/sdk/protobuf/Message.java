@@ -509,6 +509,10 @@ private static final long serialVersionUID = 0L;
      */
     GOSSIP_GET_PEERS_RESPONSE(211),
     /**
+     * <code>GOSSIP_CONSENSUS_MESSAGE = 212;</code>
+     */
+    GOSSIP_CONSENSUS_MESSAGE(212),
+    /**
      * <code>NETWORK_ACK = 300;</code>
      */
     NETWORK_ACK(300),
@@ -609,6 +613,14 @@ private static final long serialVersionUID = 0L;
      */
     CONSENSUS_FINALIZE_BLOCK_RESPONSE(809),
     /**
+     * <code>CONSENSUS_SUMMARIZE_BLOCK_REQUEST = 828;</code>
+     */
+    CONSENSUS_SUMMARIZE_BLOCK_REQUEST(828),
+    /**
+     * <code>CONSENSUS_SUMMARIZE_BLOCK_RESPONSE = 829;</code>
+     */
+    CONSENSUS_SUMMARIZE_BLOCK_RESPONSE(829),
+    /**
      * <code>CONSENSUS_CANCEL_BLOCK_REQUEST = 810;</code>
      */
     CONSENSUS_CANCEL_BLOCK_REQUEST(810),
@@ -617,13 +629,13 @@ private static final long serialVersionUID = 0L;
      */
     CONSENSUS_CANCEL_BLOCK_RESPONSE(811),
     /**
-     * <code>CONSENSUS_CHECK_BLOCK_REQUEST = 812;</code>
+     * <code>CONSENSUS_CHECK_BLOCKS_REQUEST = 812;</code>
      */
-    CONSENSUS_CHECK_BLOCK_REQUEST(812),
+    CONSENSUS_CHECK_BLOCKS_REQUEST(812),
     /**
-     * <code>CONSENSUS_CHECK_BLOCK_RESPONSE = 813;</code>
+     * <code>CONSENSUS_CHECK_BLOCKS_RESPONSE = 813;</code>
      */
-    CONSENSUS_CHECK_BLOCK_RESPONSE(813),
+    CONSENSUS_CHECK_BLOCKS_RESPONSE(813),
     /**
      * <code>CONSENSUS_COMMIT_BLOCK_REQUEST = 814;</code>
      */
@@ -673,6 +685,14 @@ private static final long serialVersionUID = 0L;
      */
     CONSENSUS_BLOCKS_GET_RESPONSE(825),
     /**
+     * <code>CONSENSUS_CHAIN_HEAD_GET_REQUEST = 826;</code>
+     */
+    CONSENSUS_CHAIN_HEAD_GET_REQUEST(826),
+    /**
+     * <code>CONSENSUS_CHAIN_HEAD_GET_RESPONSE = 827;</code>
+     */
+    CONSENSUS_CHAIN_HEAD_GET_RESPONSE(827),
+    /**
      * <pre>
      * Consensus notification messages
      * </pre>
@@ -704,6 +724,14 @@ private static final long serialVersionUID = 0L;
      * <code>CONSENSUS_NOTIFY_BLOCK_COMMIT = 906;</code>
      */
     CONSENSUS_NOTIFY_BLOCK_COMMIT(906),
+    /**
+     * <code>CONSENSUS_NOTIFY_ENGINE_ACTIVATED = 907;</code>
+     */
+    CONSENSUS_NOTIFY_ENGINE_ACTIVATED(907),
+    /**
+     * <code>CONSENSUS_NOTIFY_ENGINE_DEACTIVATED = 908;</code>
+     */
+    CONSENSUS_NOTIFY_ENGINE_DEACTIVATED(908),
     /**
      * <code>CONSENSUS_NOTIFY_ACK = 999;</code>
      */
@@ -1116,6 +1144,10 @@ private static final long serialVersionUID = 0L;
      */
     public static final int GOSSIP_GET_PEERS_RESPONSE_VALUE = 211;
     /**
+     * <code>GOSSIP_CONSENSUS_MESSAGE = 212;</code>
+     */
+    public static final int GOSSIP_CONSENSUS_MESSAGE_VALUE = 212;
+    /**
      * <code>NETWORK_ACK = 300;</code>
      */
     public static final int NETWORK_ACK_VALUE = 300;
@@ -1216,6 +1248,14 @@ private static final long serialVersionUID = 0L;
      */
     public static final int CONSENSUS_FINALIZE_BLOCK_RESPONSE_VALUE = 809;
     /**
+     * <code>CONSENSUS_SUMMARIZE_BLOCK_REQUEST = 828;</code>
+     */
+    public static final int CONSENSUS_SUMMARIZE_BLOCK_REQUEST_VALUE = 828;
+    /**
+     * <code>CONSENSUS_SUMMARIZE_BLOCK_RESPONSE = 829;</code>
+     */
+    public static final int CONSENSUS_SUMMARIZE_BLOCK_RESPONSE_VALUE = 829;
+    /**
      * <code>CONSENSUS_CANCEL_BLOCK_REQUEST = 810;</code>
      */
     public static final int CONSENSUS_CANCEL_BLOCK_REQUEST_VALUE = 810;
@@ -1224,13 +1264,13 @@ private static final long serialVersionUID = 0L;
      */
     public static final int CONSENSUS_CANCEL_BLOCK_RESPONSE_VALUE = 811;
     /**
-     * <code>CONSENSUS_CHECK_BLOCK_REQUEST = 812;</code>
+     * <code>CONSENSUS_CHECK_BLOCKS_REQUEST = 812;</code>
      */
-    public static final int CONSENSUS_CHECK_BLOCK_REQUEST_VALUE = 812;
+    public static final int CONSENSUS_CHECK_BLOCKS_REQUEST_VALUE = 812;
     /**
-     * <code>CONSENSUS_CHECK_BLOCK_RESPONSE = 813;</code>
+     * <code>CONSENSUS_CHECK_BLOCKS_RESPONSE = 813;</code>
      */
-    public static final int CONSENSUS_CHECK_BLOCK_RESPONSE_VALUE = 813;
+    public static final int CONSENSUS_CHECK_BLOCKS_RESPONSE_VALUE = 813;
     /**
      * <code>CONSENSUS_COMMIT_BLOCK_REQUEST = 814;</code>
      */
@@ -1280,6 +1320,14 @@ private static final long serialVersionUID = 0L;
      */
     public static final int CONSENSUS_BLOCKS_GET_RESPONSE_VALUE = 825;
     /**
+     * <code>CONSENSUS_CHAIN_HEAD_GET_REQUEST = 826;</code>
+     */
+    public static final int CONSENSUS_CHAIN_HEAD_GET_REQUEST_VALUE = 826;
+    /**
+     * <code>CONSENSUS_CHAIN_HEAD_GET_RESPONSE = 827;</code>
+     */
+    public static final int CONSENSUS_CHAIN_HEAD_GET_RESPONSE_VALUE = 827;
+    /**
      * <pre>
      * Consensus notification messages
      * </pre>
@@ -1311,6 +1359,14 @@ private static final long serialVersionUID = 0L;
      * <code>CONSENSUS_NOTIFY_BLOCK_COMMIT = 906;</code>
      */
     public static final int CONSENSUS_NOTIFY_BLOCK_COMMIT_VALUE = 906;
+    /**
+     * <code>CONSENSUS_NOTIFY_ENGINE_ACTIVATED = 907;</code>
+     */
+    public static final int CONSENSUS_NOTIFY_ENGINE_ACTIVATED_VALUE = 907;
+    /**
+     * <code>CONSENSUS_NOTIFY_ENGINE_DEACTIVATED = 908;</code>
+     */
+    public static final int CONSENSUS_NOTIFY_ENGINE_DEACTIVATED_VALUE = 908;
     /**
      * <code>CONSENSUS_NOTIFY_ACK = 999;</code>
      */
@@ -1400,6 +1456,7 @@ private static final long serialVersionUID = 0L;
         case 209: return GOSSIP_BATCH_RESPONSE;
         case 210: return GOSSIP_GET_PEERS_REQUEST;
         case 211: return GOSSIP_GET_PEERS_RESPONSE;
+        case 212: return GOSSIP_CONSENSUS_MESSAGE;
         case 300: return NETWORK_ACK;
         case 301: return NETWORK_CONNECT;
         case 302: return NETWORK_DISCONNECT;
@@ -1423,10 +1480,12 @@ private static final long serialVersionUID = 0L;
         case 807: return CONSENSUS_INITIALIZE_BLOCK_RESPONSE;
         case 808: return CONSENSUS_FINALIZE_BLOCK_REQUEST;
         case 809: return CONSENSUS_FINALIZE_BLOCK_RESPONSE;
+        case 828: return CONSENSUS_SUMMARIZE_BLOCK_REQUEST;
+        case 829: return CONSENSUS_SUMMARIZE_BLOCK_RESPONSE;
         case 810: return CONSENSUS_CANCEL_BLOCK_REQUEST;
         case 811: return CONSENSUS_CANCEL_BLOCK_RESPONSE;
-        case 812: return CONSENSUS_CHECK_BLOCK_REQUEST;
-        case 813: return CONSENSUS_CHECK_BLOCK_RESPONSE;
+        case 812: return CONSENSUS_CHECK_BLOCKS_REQUEST;
+        case 813: return CONSENSUS_CHECK_BLOCKS_RESPONSE;
         case 814: return CONSENSUS_COMMIT_BLOCK_REQUEST;
         case 815: return CONSENSUS_COMMIT_BLOCK_RESPONSE;
         case 816: return CONSENSUS_IGNORE_BLOCK_REQUEST;
@@ -1439,6 +1498,8 @@ private static final long serialVersionUID = 0L;
         case 823: return CONSENSUS_STATE_GET_RESPONSE;
         case 824: return CONSENSUS_BLOCKS_GET_REQUEST;
         case 825: return CONSENSUS_BLOCKS_GET_RESPONSE;
+        case 826: return CONSENSUS_CHAIN_HEAD_GET_REQUEST;
+        case 827: return CONSENSUS_CHAIN_HEAD_GET_RESPONSE;
         case 900: return CONSENSUS_NOTIFY_PEER_CONNECTED;
         case 901: return CONSENSUS_NOTIFY_PEER_DISCONNECTED;
         case 902: return CONSENSUS_NOTIFY_PEER_MESSAGE;
@@ -1446,6 +1507,8 @@ private static final long serialVersionUID = 0L;
         case 904: return CONSENSUS_NOTIFY_BLOCK_VALID;
         case 905: return CONSENSUS_NOTIFY_BLOCK_INVALID;
         case 906: return CONSENSUS_NOTIFY_BLOCK_COMMIT;
+        case 907: return CONSENSUS_NOTIFY_ENGINE_ACTIVATED;
+        case 908: return CONSENSUS_NOTIFY_ENGINE_DEACTIVATED;
         case 999: return CONSENSUS_NOTIFY_ACK;
         default: return null;
       }

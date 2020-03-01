@@ -25,6 +25,7 @@ private static final long serialVersionUID = 0L;
     signerId_ = com.google.protobuf.ByteString.EMPTY;
     blockNum_ = 0L;
     payload_ = com.google.protobuf.ByteString.EMPTY;
+    summary_ = com.google.protobuf.ByteString.EMPTY;
   }
 
   @java.lang.Override
@@ -74,6 +75,11 @@ private static final long serialVersionUID = 0L;
           case 42: {
 
             payload_ = input.readBytes();
+            break;
+          }
+          case 50: {
+
+            summary_ = input.readBytes();
             break;
           }
           default: {
@@ -157,6 +163,19 @@ private static final long serialVersionUID = 0L;
     return payload_;
   }
 
+  public static final int SUMMARY_FIELD_NUMBER = 6;
+  private com.google.protobuf.ByteString summary_;
+  /**
+   * <pre>
+   * A summary of the contents of the block
+   * </pre>
+   *
+   * <code>bytes summary = 6;</code>
+   */
+  public com.google.protobuf.ByteString getSummary() {
+    return summary_;
+  }
+
   private byte memoizedIsInitialized = -1;
   @java.lang.Override
   public final boolean isInitialized() {
@@ -185,6 +204,9 @@ private static final long serialVersionUID = 0L;
     }
     if (!payload_.isEmpty()) {
       output.writeBytes(5, payload_);
+    }
+    if (!summary_.isEmpty()) {
+      output.writeBytes(6, summary_);
     }
     unknownFields.writeTo(output);
   }
@@ -215,6 +237,10 @@ private static final long serialVersionUID = 0L;
       size += com.google.protobuf.CodedOutputStream
         .computeBytesSize(5, payload_);
     }
+    if (!summary_.isEmpty()) {
+      size += com.google.protobuf.CodedOutputStream
+        .computeBytesSize(6, summary_);
+    }
     size += unknownFields.getSerializedSize();
     memoizedSize = size;
     return size;
@@ -241,6 +267,8 @@ private static final long serialVersionUID = 0L;
         == other.getBlockNum());
     result = result && getPayload()
         .equals(other.getPayload());
+    result = result && getSummary()
+        .equals(other.getSummary());
     result = result && unknownFields.equals(other.unknownFields);
     return result;
   }
@@ -263,6 +291,8 @@ private static final long serialVersionUID = 0L;
         getBlockNum());
     hash = (37 * hash) + PAYLOAD_FIELD_NUMBER;
     hash = (53 * hash) + getPayload().hashCode();
+    hash = (37 * hash) + SUMMARY_FIELD_NUMBER;
+    hash = (53 * hash) + getSummary().hashCode();
     hash = (29 * hash) + unknownFields.hashCode();
     memoizedHashCode = hash;
     return hash;
@@ -410,6 +440,8 @@ private static final long serialVersionUID = 0L;
 
       payload_ = com.google.protobuf.ByteString.EMPTY;
 
+      summary_ = com.google.protobuf.ByteString.EMPTY;
+
       return this;
     }
 
@@ -441,6 +473,7 @@ private static final long serialVersionUID = 0L;
       result.signerId_ = signerId_;
       result.blockNum_ = blockNum_;
       result.payload_ = payload_;
+      result.summary_ = summary_;
       onBuilt();
       return result;
     }
@@ -503,6 +536,9 @@ private static final long serialVersionUID = 0L;
       }
       if (other.getPayload() != com.google.protobuf.ByteString.EMPTY) {
         setPayload(other.getPayload());
+      }
+      if (other.getSummary() != com.google.protobuf.ByteString.EMPTY) {
+        setSummary(other.getSummary());
       }
       this.mergeUnknownFields(other.unknownFields);
       onChanged();
@@ -683,6 +719,47 @@ private static final long serialVersionUID = 0L;
     public Builder clearPayload() {
       
       payload_ = getDefaultInstance().getPayload();
+      onChanged();
+      return this;
+    }
+
+    private com.google.protobuf.ByteString summary_ = com.google.protobuf.ByteString.EMPTY;
+    /**
+     * <pre>
+     * A summary of the contents of the block
+     * </pre>
+     *
+     * <code>bytes summary = 6;</code>
+     */
+    public com.google.protobuf.ByteString getSummary() {
+      return summary_;
+    }
+    /**
+     * <pre>
+     * A summary of the contents of the block
+     * </pre>
+     *
+     * <code>bytes summary = 6;</code>
+     */
+    public Builder setSummary(com.google.protobuf.ByteString value) {
+      if (value == null) {
+    throw new NullPointerException();
+  }
+  
+      summary_ = value;
+      onChanged();
+      return this;
+    }
+    /**
+     * <pre>
+     * A summary of the contents of the block
+     * </pre>
+     *
+     * <code>bytes summary = 6;</code>
+     */
+    public Builder clearSummary() {
+      
+      summary_ = getDefaultInstance().getSummary();
       onChanged();
       return this;
     }

@@ -20,7 +20,9 @@ private static final long serialVersionUID = 0L;
     super(builder);
   }
   private ConsensusSendToRequest() {
-    peerId_ = com.google.protobuf.ByteString.EMPTY;
+    content_ = com.google.protobuf.ByteString.EMPTY;
+    messageType_ = "";
+    receiverId_ = com.google.protobuf.ByteString.EMPTY;
   }
 
   @java.lang.Override
@@ -48,21 +50,19 @@ private static final long serialVersionUID = 0L;
             done = true;
             break;
           case 10: {
-            sawtooth.sdk.protobuf.ConsensusPeerMessage.Builder subBuilder = null;
-            if (message_ != null) {
-              subBuilder = message_.toBuilder();
-            }
-            message_ = input.readMessage(sawtooth.sdk.protobuf.ConsensusPeerMessage.parser(), extensionRegistry);
-            if (subBuilder != null) {
-              subBuilder.mergeFrom(message_);
-              message_ = subBuilder.buildPartial();
-            }
 
+            content_ = input.readBytes();
             break;
           }
           case 18: {
 
-            peerId_ = input.readBytes();
+            receiverId_ = input.readBytes();
+            break;
+          }
+          case 26: {
+            java.lang.String s = input.readStringRequireUtf8();
+
+            messageType_ = s;
             break;
           }
           default: {
@@ -97,34 +97,68 @@ private static final long serialVersionUID = 0L;
             sawtooth.sdk.protobuf.ConsensusSendToRequest.class, sawtooth.sdk.protobuf.ConsensusSendToRequest.Builder.class);
   }
 
-  public static final int MESSAGE_FIELD_NUMBER = 1;
-  private sawtooth.sdk.protobuf.ConsensusPeerMessage message_;
+  public static final int CONTENT_FIELD_NUMBER = 1;
+  private com.google.protobuf.ByteString content_;
   /**
-   * <code>.ConsensusPeerMessage message = 1;</code>
+   * <pre>
+   * Payload to send to peer
+   * NOTE: This payload will be wrapped up in a ConsensusPeerMessage struct,
+   * which includes computing its SHA-512 digest, inserting this engine's
+   * registration info, and the validator's public key, and signing everything
+   * with the validator's private key.
+   * </pre>
+   *
+   * <code>bytes content = 1;</code>
    */
-  public boolean hasMessage() {
-    return message_ != null;
-  }
-  /**
-   * <code>.ConsensusPeerMessage message = 1;</code>
-   */
-  public sawtooth.sdk.protobuf.ConsensusPeerMessage getMessage() {
-    return message_ == null ? sawtooth.sdk.protobuf.ConsensusPeerMessage.getDefaultInstance() : message_;
-  }
-  /**
-   * <code>.ConsensusPeerMessage message = 1;</code>
-   */
-  public sawtooth.sdk.protobuf.ConsensusPeerMessageOrBuilder getMessageOrBuilder() {
-    return getMessage();
+  public com.google.protobuf.ByteString getContent() {
+    return content_;
   }
 
-  public static final int PEER_ID_FIELD_NUMBER = 2;
-  private com.google.protobuf.ByteString peerId_;
+  public static final int MESSAGE_TYPE_FIELD_NUMBER = 3;
+  private volatile java.lang.Object messageType_;
   /**
-   * <code>bytes peer_id = 2;</code>
+   * <code>string message_type = 3;</code>
    */
-  public com.google.protobuf.ByteString getPeerId() {
-    return peerId_;
+  public java.lang.String getMessageType() {
+    java.lang.Object ref = messageType_;
+    if (ref instanceof java.lang.String) {
+      return (java.lang.String) ref;
+    } else {
+      com.google.protobuf.ByteString bs = 
+          (com.google.protobuf.ByteString) ref;
+      java.lang.String s = bs.toStringUtf8();
+      messageType_ = s;
+      return s;
+    }
+  }
+  /**
+   * <code>string message_type = 3;</code>
+   */
+  public com.google.protobuf.ByteString
+      getMessageTypeBytes() {
+    java.lang.Object ref = messageType_;
+    if (ref instanceof java.lang.String) {
+      com.google.protobuf.ByteString b = 
+          com.google.protobuf.ByteString.copyFromUtf8(
+              (java.lang.String) ref);
+      messageType_ = b;
+      return b;
+    } else {
+      return (com.google.protobuf.ByteString) ref;
+    }
+  }
+
+  public static final int RECEIVER_ID_FIELD_NUMBER = 2;
+  private com.google.protobuf.ByteString receiverId_;
+  /**
+   * <pre>
+   * Peer that this message is destined for
+   * </pre>
+   *
+   * <code>bytes receiver_id = 2;</code>
+   */
+  public com.google.protobuf.ByteString getReceiverId() {
+    return receiverId_;
   }
 
   private byte memoizedIsInitialized = -1;
@@ -141,11 +175,14 @@ private static final long serialVersionUID = 0L;
   @java.lang.Override
   public void writeTo(com.google.protobuf.CodedOutputStream output)
                       throws java.io.IOException {
-    if (message_ != null) {
-      output.writeMessage(1, getMessage());
+    if (!content_.isEmpty()) {
+      output.writeBytes(1, content_);
     }
-    if (!peerId_.isEmpty()) {
-      output.writeBytes(2, peerId_);
+    if (!receiverId_.isEmpty()) {
+      output.writeBytes(2, receiverId_);
+    }
+    if (!getMessageTypeBytes().isEmpty()) {
+      com.google.protobuf.GeneratedMessageV3.writeString(output, 3, messageType_);
     }
     unknownFields.writeTo(output);
   }
@@ -156,13 +193,16 @@ private static final long serialVersionUID = 0L;
     if (size != -1) return size;
 
     size = 0;
-    if (message_ != null) {
+    if (!content_.isEmpty()) {
       size += com.google.protobuf.CodedOutputStream
-        .computeMessageSize(1, getMessage());
+        .computeBytesSize(1, content_);
     }
-    if (!peerId_.isEmpty()) {
+    if (!receiverId_.isEmpty()) {
       size += com.google.protobuf.CodedOutputStream
-        .computeBytesSize(2, peerId_);
+        .computeBytesSize(2, receiverId_);
+    }
+    if (!getMessageTypeBytes().isEmpty()) {
+      size += com.google.protobuf.GeneratedMessageV3.computeStringSize(3, messageType_);
     }
     size += unknownFields.getSerializedSize();
     memoizedSize = size;
@@ -180,13 +220,12 @@ private static final long serialVersionUID = 0L;
     sawtooth.sdk.protobuf.ConsensusSendToRequest other = (sawtooth.sdk.protobuf.ConsensusSendToRequest) obj;
 
     boolean result = true;
-    result = result && (hasMessage() == other.hasMessage());
-    if (hasMessage()) {
-      result = result && getMessage()
-          .equals(other.getMessage());
-    }
-    result = result && getPeerId()
-        .equals(other.getPeerId());
+    result = result && getContent()
+        .equals(other.getContent());
+    result = result && getMessageType()
+        .equals(other.getMessageType());
+    result = result && getReceiverId()
+        .equals(other.getReceiverId());
     result = result && unknownFields.equals(other.unknownFields);
     return result;
   }
@@ -198,12 +237,12 @@ private static final long serialVersionUID = 0L;
     }
     int hash = 41;
     hash = (19 * hash) + getDescriptor().hashCode();
-    if (hasMessage()) {
-      hash = (37 * hash) + MESSAGE_FIELD_NUMBER;
-      hash = (53 * hash) + getMessage().hashCode();
-    }
-    hash = (37 * hash) + PEER_ID_FIELD_NUMBER;
-    hash = (53 * hash) + getPeerId().hashCode();
+    hash = (37 * hash) + CONTENT_FIELD_NUMBER;
+    hash = (53 * hash) + getContent().hashCode();
+    hash = (37 * hash) + MESSAGE_TYPE_FIELD_NUMBER;
+    hash = (53 * hash) + getMessageType().hashCode();
+    hash = (37 * hash) + RECEIVER_ID_FIELD_NUMBER;
+    hash = (53 * hash) + getReceiverId().hashCode();
     hash = (29 * hash) + unknownFields.hashCode();
     memoizedHashCode = hash;
     return hash;
@@ -341,13 +380,11 @@ private static final long serialVersionUID = 0L;
     @java.lang.Override
     public Builder clear() {
       super.clear();
-      if (messageBuilder_ == null) {
-        message_ = null;
-      } else {
-        message_ = null;
-        messageBuilder_ = null;
-      }
-      peerId_ = com.google.protobuf.ByteString.EMPTY;
+      content_ = com.google.protobuf.ByteString.EMPTY;
+
+      messageType_ = "";
+
+      receiverId_ = com.google.protobuf.ByteString.EMPTY;
 
       return this;
     }
@@ -375,12 +412,9 @@ private static final long serialVersionUID = 0L;
     @java.lang.Override
     public sawtooth.sdk.protobuf.ConsensusSendToRequest buildPartial() {
       sawtooth.sdk.protobuf.ConsensusSendToRequest result = new sawtooth.sdk.protobuf.ConsensusSendToRequest(this);
-      if (messageBuilder_ == null) {
-        result.message_ = message_;
-      } else {
-        result.message_ = messageBuilder_.build();
-      }
-      result.peerId_ = peerId_;
+      result.content_ = content_;
+      result.messageType_ = messageType_;
+      result.receiverId_ = receiverId_;
       onBuilt();
       return result;
     }
@@ -429,11 +463,15 @@ private static final long serialVersionUID = 0L;
 
     public Builder mergeFrom(sawtooth.sdk.protobuf.ConsensusSendToRequest other) {
       if (other == sawtooth.sdk.protobuf.ConsensusSendToRequest.getDefaultInstance()) return this;
-      if (other.hasMessage()) {
-        mergeMessage(other.getMessage());
+      if (other.getContent() != com.google.protobuf.ByteString.EMPTY) {
+        setContent(other.getContent());
       }
-      if (other.getPeerId() != com.google.protobuf.ByteString.EMPTY) {
-        setPeerId(other.getPeerId());
+      if (!other.getMessageType().isEmpty()) {
+        messageType_ = other.messageType_;
+        onChanged();
+      }
+      if (other.getReceiverId() != com.google.protobuf.ByteString.EMPTY) {
+        setReceiverId(other.getReceiverId());
       }
       this.mergeUnknownFields(other.unknownFields);
       onChanged();
@@ -464,148 +502,165 @@ private static final long serialVersionUID = 0L;
       return this;
     }
 
-    private sawtooth.sdk.protobuf.ConsensusPeerMessage message_ = null;
-    private com.google.protobuf.SingleFieldBuilderV3<
-        sawtooth.sdk.protobuf.ConsensusPeerMessage, sawtooth.sdk.protobuf.ConsensusPeerMessage.Builder, sawtooth.sdk.protobuf.ConsensusPeerMessageOrBuilder> messageBuilder_;
+    private com.google.protobuf.ByteString content_ = com.google.protobuf.ByteString.EMPTY;
     /**
-     * <code>.ConsensusPeerMessage message = 1;</code>
+     * <pre>
+     * Payload to send to peer
+     * NOTE: This payload will be wrapped up in a ConsensusPeerMessage struct,
+     * which includes computing its SHA-512 digest, inserting this engine's
+     * registration info, and the validator's public key, and signing everything
+     * with the validator's private key.
+     * </pre>
+     *
+     * <code>bytes content = 1;</code>
      */
-    public boolean hasMessage() {
-      return messageBuilder_ != null || message_ != null;
+    public com.google.protobuf.ByteString getContent() {
+      return content_;
     }
     /**
-     * <code>.ConsensusPeerMessage message = 1;</code>
+     * <pre>
+     * Payload to send to peer
+     * NOTE: This payload will be wrapped up in a ConsensusPeerMessage struct,
+     * which includes computing its SHA-512 digest, inserting this engine's
+     * registration info, and the validator's public key, and signing everything
+     * with the validator's private key.
+     * </pre>
+     *
+     * <code>bytes content = 1;</code>
      */
-    public sawtooth.sdk.protobuf.ConsensusPeerMessage getMessage() {
-      if (messageBuilder_ == null) {
-        return message_ == null ? sawtooth.sdk.protobuf.ConsensusPeerMessage.getDefaultInstance() : message_;
-      } else {
-        return messageBuilder_.getMessage();
-      }
-    }
-    /**
-     * <code>.ConsensusPeerMessage message = 1;</code>
-     */
-    public Builder setMessage(sawtooth.sdk.protobuf.ConsensusPeerMessage value) {
-      if (messageBuilder_ == null) {
-        if (value == null) {
-          throw new NullPointerException();
-        }
-        message_ = value;
-        onChanged();
-      } else {
-        messageBuilder_.setMessage(value);
-      }
-
-      return this;
-    }
-    /**
-     * <code>.ConsensusPeerMessage message = 1;</code>
-     */
-    public Builder setMessage(
-        sawtooth.sdk.protobuf.ConsensusPeerMessage.Builder builderForValue) {
-      if (messageBuilder_ == null) {
-        message_ = builderForValue.build();
-        onChanged();
-      } else {
-        messageBuilder_.setMessage(builderForValue.build());
-      }
-
-      return this;
-    }
-    /**
-     * <code>.ConsensusPeerMessage message = 1;</code>
-     */
-    public Builder mergeMessage(sawtooth.sdk.protobuf.ConsensusPeerMessage value) {
-      if (messageBuilder_ == null) {
-        if (message_ != null) {
-          message_ =
-            sawtooth.sdk.protobuf.ConsensusPeerMessage.newBuilder(message_).mergeFrom(value).buildPartial();
-        } else {
-          message_ = value;
-        }
-        onChanged();
-      } else {
-        messageBuilder_.mergeFrom(value);
-      }
-
-      return this;
-    }
-    /**
-     * <code>.ConsensusPeerMessage message = 1;</code>
-     */
-    public Builder clearMessage() {
-      if (messageBuilder_ == null) {
-        message_ = null;
-        onChanged();
-      } else {
-        message_ = null;
-        messageBuilder_ = null;
-      }
-
-      return this;
-    }
-    /**
-     * <code>.ConsensusPeerMessage message = 1;</code>
-     */
-    public sawtooth.sdk.protobuf.ConsensusPeerMessage.Builder getMessageBuilder() {
-      
-      onChanged();
-      return getMessageFieldBuilder().getBuilder();
-    }
-    /**
-     * <code>.ConsensusPeerMessage message = 1;</code>
-     */
-    public sawtooth.sdk.protobuf.ConsensusPeerMessageOrBuilder getMessageOrBuilder() {
-      if (messageBuilder_ != null) {
-        return messageBuilder_.getMessageOrBuilder();
-      } else {
-        return message_ == null ?
-            sawtooth.sdk.protobuf.ConsensusPeerMessage.getDefaultInstance() : message_;
-      }
-    }
-    /**
-     * <code>.ConsensusPeerMessage message = 1;</code>
-     */
-    private com.google.protobuf.SingleFieldBuilderV3<
-        sawtooth.sdk.protobuf.ConsensusPeerMessage, sawtooth.sdk.protobuf.ConsensusPeerMessage.Builder, sawtooth.sdk.protobuf.ConsensusPeerMessageOrBuilder> 
-        getMessageFieldBuilder() {
-      if (messageBuilder_ == null) {
-        messageBuilder_ = new com.google.protobuf.SingleFieldBuilderV3<
-            sawtooth.sdk.protobuf.ConsensusPeerMessage, sawtooth.sdk.protobuf.ConsensusPeerMessage.Builder, sawtooth.sdk.protobuf.ConsensusPeerMessageOrBuilder>(
-                getMessage(),
-                getParentForChildren(),
-                isClean());
-        message_ = null;
-      }
-      return messageBuilder_;
-    }
-
-    private com.google.protobuf.ByteString peerId_ = com.google.protobuf.ByteString.EMPTY;
-    /**
-     * <code>bytes peer_id = 2;</code>
-     */
-    public com.google.protobuf.ByteString getPeerId() {
-      return peerId_;
-    }
-    /**
-     * <code>bytes peer_id = 2;</code>
-     */
-    public Builder setPeerId(com.google.protobuf.ByteString value) {
+    public Builder setContent(com.google.protobuf.ByteString value) {
       if (value == null) {
     throw new NullPointerException();
   }
   
-      peerId_ = value;
+      content_ = value;
       onChanged();
       return this;
     }
     /**
-     * <code>bytes peer_id = 2;</code>
+     * <pre>
+     * Payload to send to peer
+     * NOTE: This payload will be wrapped up in a ConsensusPeerMessage struct,
+     * which includes computing its SHA-512 digest, inserting this engine's
+     * registration info, and the validator's public key, and signing everything
+     * with the validator's private key.
+     * </pre>
+     *
+     * <code>bytes content = 1;</code>
      */
-    public Builder clearPeerId() {
+    public Builder clearContent() {
       
-      peerId_ = getDefaultInstance().getPeerId();
+      content_ = getDefaultInstance().getContent();
+      onChanged();
+      return this;
+    }
+
+    private java.lang.Object messageType_ = "";
+    /**
+     * <code>string message_type = 3;</code>
+     */
+    public java.lang.String getMessageType() {
+      java.lang.Object ref = messageType_;
+      if (!(ref instanceof java.lang.String)) {
+        com.google.protobuf.ByteString bs =
+            (com.google.protobuf.ByteString) ref;
+        java.lang.String s = bs.toStringUtf8();
+        messageType_ = s;
+        return s;
+      } else {
+        return (java.lang.String) ref;
+      }
+    }
+    /**
+     * <code>string message_type = 3;</code>
+     */
+    public com.google.protobuf.ByteString
+        getMessageTypeBytes() {
+      java.lang.Object ref = messageType_;
+      if (ref instanceof String) {
+        com.google.protobuf.ByteString b = 
+            com.google.protobuf.ByteString.copyFromUtf8(
+                (java.lang.String) ref);
+        messageType_ = b;
+        return b;
+      } else {
+        return (com.google.protobuf.ByteString) ref;
+      }
+    }
+    /**
+     * <code>string message_type = 3;</code>
+     */
+    public Builder setMessageType(
+        java.lang.String value) {
+      if (value == null) {
+    throw new NullPointerException();
+  }
+  
+      messageType_ = value;
+      onChanged();
+      return this;
+    }
+    /**
+     * <code>string message_type = 3;</code>
+     */
+    public Builder clearMessageType() {
+      
+      messageType_ = getDefaultInstance().getMessageType();
+      onChanged();
+      return this;
+    }
+    /**
+     * <code>string message_type = 3;</code>
+     */
+    public Builder setMessageTypeBytes(
+        com.google.protobuf.ByteString value) {
+      if (value == null) {
+    throw new NullPointerException();
+  }
+  checkByteStringIsUtf8(value);
+      
+      messageType_ = value;
+      onChanged();
+      return this;
+    }
+
+    private com.google.protobuf.ByteString receiverId_ = com.google.protobuf.ByteString.EMPTY;
+    /**
+     * <pre>
+     * Peer that this message is destined for
+     * </pre>
+     *
+     * <code>bytes receiver_id = 2;</code>
+     */
+    public com.google.protobuf.ByteString getReceiverId() {
+      return receiverId_;
+    }
+    /**
+     * <pre>
+     * Peer that this message is destined for
+     * </pre>
+     *
+     * <code>bytes receiver_id = 2;</code>
+     */
+    public Builder setReceiverId(com.google.protobuf.ByteString value) {
+      if (value == null) {
+    throw new NullPointerException();
+  }
+  
+      receiverId_ = value;
+      onChanged();
+      return this;
+    }
+    /**
+     * <pre>
+     * Peer that this message is destined for
+     * </pre>
+     *
+     * <code>bytes receiver_id = 2;</code>
+     */
+    public Builder clearReceiverId() {
+      
+      receiverId_ = getDefaultInstance().getReceiverId();
       onChanged();
       return this;
     }

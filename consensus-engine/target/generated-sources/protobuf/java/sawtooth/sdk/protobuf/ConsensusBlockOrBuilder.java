@@ -35,4 +35,13 @@ public interface ConsensusBlockOrBuilder extends
    * <code>bytes payload = 5;</code>
    */
   com.google.protobuf.ByteString getPayload();
+
+  /**
+   * <pre>
+   * A summary of the contents of the block
+   * </pre>
+   *
+   * <code>bytes summary = 6;</code>
+   */
+  com.google.protobuf.ByteString getSummary();
 }
