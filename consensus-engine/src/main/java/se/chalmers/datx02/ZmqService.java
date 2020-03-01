@@ -3,6 +3,7 @@ package se.chalmers.datx02;
 import com.google.protobuf.ByteString;
 import com.google.protobuf.Parser;
 import sawtooth.sdk.protobuf.*;
+import se.chalmers.datx02.lib.Service;
 import zmq.socket.Stream;
 
 import java.util.List;
@@ -30,15 +31,15 @@ public class ZmqService implements Service {
 
 
     public void sendTo(byte[] receiverId, Message.MessageType messageType, byte[] payload) {
-        ByteString messageContent = ByteString.copyFrom(payload);
-        byte[] request = ConsensusSendToRequest.newBuilder()
-                .setMessage(ConsensusPeerMessage.newBuilder()
-                        .setContent(messageContent)
-                        .setMessageType(messageType.name())
-                        .build())
-                .build().toByteArray();
-
-        send(request, Message.MessageType.CONSENSUS_SEND_TO_REQUEST, ConsensusSendToResponse.parser());
+//        ByteString messageContent = ByteString.copyFrom(payload);
+//        byte[] request = ConsensusSendToRequest.newBuilder()
+//                .setContent(ConsensusPeerMessage.newBuilder()
+//                        .setContent(messageContent)
+//                        .setMessageType(messageType.name())
+//                        .build())
+//                .build().toByteArray();
+//
+//        send(request, Message.MessageType.CONSENSUS_SEND_TO_REQUEST, ConsensusSendToResponse.parser());
     }
 
     public void broadcast(String messageType, byte[] payload) {
@@ -75,6 +76,16 @@ public class ZmqService implements Service {
 
     public void failBlock(byte[] blockId) {
 
+    }
+
+    @Override
+    public Map<Byte[], ConsensusBlock> getBlocks(List<Byte[]> blockIds) {
+        return null;
+    }
+
+    @Override
+    public ConsensusBlock getChainHead() {
+        return null;
     }
 
     public Map<String, String> getSettings(byte[] blockId, List<String> settings) {
