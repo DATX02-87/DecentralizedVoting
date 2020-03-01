@@ -1,5 +1,7 @@
 package se.chalmers.datx02.lib;
 
+import se.chalmers.datx02.lib.models.DriverUpdate;
+
 import java.util.Map;
 import java.util.concurrent.BlockingQueue;
 
@@ -11,7 +13,7 @@ public interface Engine {
      *         validator are sent along UPDATES. SERVICE is used to send
      *         requests to the validator.
      */
-    void start(BlockingQueue<Object> updates, Service service, StartupInfo startupInfo);
+    void start(BlockingQueue<DriverUpdate> updates, Service service, StartupState startupState);
 
     /**
      * Called before the engine is dropped
