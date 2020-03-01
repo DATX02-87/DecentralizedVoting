@@ -13,6 +13,7 @@ import se.chalmers.datx02.lib.models.ConsensusFuture;
 import java.util.Queue;
 import java.util.UUID;
 import java.util.concurrent.*;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class ZmqCommunicator implements Communicator {
     private final String url;
@@ -27,14 +28,17 @@ public class ZmqCommunicator implements Communicator {
 
     private final Thread socketThread;
 
+    private final AtomicBoolean exit;
+
     public ZmqCommunicator(String url) {
         this.url = url;
         this.futures = new ConcurrentHashMap<>();
         this.zmqId = Util.generateId();
         this.sendQueue = new LinkedBlockingQueue<>();
         this.receiveQueue = new LinkedBlockingQueue<>();
+        exit = new AtomicBoolean(false);
         this.socketRunnable = new SocketRunnable(
-                sendQueue, receiveQueue, futures, zmqId, url
+                sendQueue, receiveQueue, futures, zmqId, url, exit
         );
         this.socketThread = new Thread(socketRunnable);
         this.socketThread.start();
@@ -106,8 +110,9 @@ public class ZmqCommunicator implements Communicator {
     }
 
     @Override
-    public void close() {
-        this.socketThread.interrupt();
+    public void close() throws InterruptedException {
+        this.exit.set(true);
+        this.socketThread.join();
     }
 
     private enum SocketRunnableState {
@@ -120,16 +125,18 @@ public class ZmqCommunicator implements Communicator {
         private final byte[] identity;
         private final String addr;
         private final ConcurrentMap<String, ConsensusFuture> futures;
+        private final AtomicBoolean exit;
         private ZContext ctx;
         private ZMQ.Socket socket;
         private volatile SocketRunnableState state = SocketRunnableState.NOT_STARTED;
 
-        private SocketRunnable(Queue<Message> sendQueue, Queue<Message> receiveQueue, ConcurrentMap<String, ConsensusFuture> futures, byte[] identity, String addr) {
+        private SocketRunnable(Queue<Message> sendQueue, Queue<Message> receiveQueue, ConcurrentMap<String, ConsensusFuture> futures, byte[] identity, String addr, AtomicBoolean exit) {
             this.sendQueue = sendQueue;
             this.identity = identity;
             this.addr = addr;
             this.receiveQueue = receiveQueue;
             this.futures = futures;
+            this.exit = exit;
         }
 
         private SocketRunnableState getState() {
@@ -154,7 +161,7 @@ public class ZmqCommunicator implements Communicator {
         }
 
         private void eventLoop() {
-            while (!Thread.currentThread().isInterrupted()) {
+            while (!exit.get()) {
                 pollSend();
                 pollReceive();
             }
