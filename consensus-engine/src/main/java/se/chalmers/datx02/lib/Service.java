@@ -28,12 +28,12 @@ public interface Service {
 
     void failBlock(byte[] blockId);
 
-    Map<Byte[], ConsensusBlock> getBlocks( List<Byte[]> blockIds);
+    Map<byte[], ConsensusBlock> getBlocks( List<byte[]> blockIds);
 
     ConsensusBlock getChainHead();
 
     Map<String, String> getSettings(byte[] blockId, List<String> settings);
 
-    Map<String, Byte[]> getState(byte[] blockId, List<String> addresses);
+    Map<String, byte[]> getState(byte[] blockId, List<String> addresses);
 
 }
