@@ -5,27 +5,26 @@ import com.google.protobuf.Parser;
 import sawtooth.sdk.protobuf.*;
 import se.chalmers.datx02.lib.Communicator;
 import se.chalmers.datx02.lib.Service;
+import se.chalmers.datx02.lib.models.ConsensusFuture;
 
 import java.util.List;
 import java.util.Map;
 
 public class ZmqService implements Service {
     private Communicator communicator;
-    private Double timeout;
+    private long timeout;
 
-    public ZmqService(Communicator communicator, Double timeout) {
+    public ZmqService(Communicator communicator, long timeout) {
         this.communicator = communicator;
         this.timeout = timeout;
     }
 
     private <T> T send(byte[] request, Message.MessageType messageType, Parser<T> responseParser) {
         try {
-            byte[] response = new byte[] {}; // = something
+            byte[] response = communicator.send(request, messageType).result(timeout).getContent();
             return responseParser.parseFrom(response);
-            // TODO implement
         } catch (Exception e) {
-            // TODO
-            return null;
+            throw new RuntimeException(e);
         }
     }
 
