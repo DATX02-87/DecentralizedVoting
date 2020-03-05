@@ -119,7 +119,7 @@ public class ZmqService implements Service {
         }
     }
 
-    public void checkBlocks(List<Byte[]> priority) {
+    public void checkBlocks(List<byte[]> priority) {
         for (int i = 0; i < priority.size(); i++) {
             ByteString value = ByteString.copyFrom(priority.get(i));
             byte[] request = ConsensusCheckBlockRequest.newBuilder().setBlockIds(i, value).build().toByteArray();

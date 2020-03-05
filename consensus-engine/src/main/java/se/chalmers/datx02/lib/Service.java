@@ -20,7 +20,7 @@ public interface Service {
 
     void cancelBlock();
 
-    void checkBlocks(List<Byte[]> priority);
+    void checkBlocks(List<byte[]> priority);
 
     void commitBlock(byte[] blockId);
 
