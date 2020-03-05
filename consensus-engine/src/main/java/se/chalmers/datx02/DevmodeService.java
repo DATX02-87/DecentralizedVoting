@@ -1,6 +1,7 @@
 package se.chalmers.datx02;
 
 import com.sun.org.apache.xerces.internal.impl.dv.util.HexBin;
+import se.chalmers.datx02.lib.Service;
 import se.chalmers.datx02.lib.ZmqService;
 
 import java.util.ArrayList;
@@ -13,11 +14,11 @@ public class DevmodeService {
                     not_ready_to_finalize;
 
     private final int DEFAULT_WAIT_TIME = 0;
-    private final int[] NULL_BLOCK_IDENTIFIER = {0, 0, 0, 0, 0, 0, 0, 0};
+    public final byte[] NULL_BLOCK_IDENTIFIER = {0, 0, 0, 0, 0, 0, 0, 0};
 
-    private ZmqService service;
+    private Service service;
 
-    public DevmodeService(ZmqService service){
+    public DevmodeService(Service service){
         this.service = service;
     }
 
@@ -68,9 +69,26 @@ public class DevmodeService {
     public byte[] finalizeBlock(){
         System.out.println("Finalizing block");
 
-        byte[] summary = this.service.summarizeBlock();
+        // Try to summarize block
+        byte[] summary = null;
 
-        // TODO: Implement finalizeBlock
+        while(true) {
+            try{
+                summary = this.service.summarizeBlock();
+                break;
+            }
+            catch(RuntimeException e){
+                System.out.println("Block not ready to summarize");
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException ex) {
+                    ex.printStackTrace();
+                }
+            }
+        }
+
+        // TODO: Finish finalizeBlock
+        // TODO: Impl. helper functions
 
         return null;
     }
@@ -152,7 +170,7 @@ public class DevmodeService {
     }
 
     public void sendBlockReceived(ConsensusBlock block){
-        byte[] blockCopy = block.clone();
+        ConsensusBlock blockCopy = block.clone();
 
         /*
         * TODO: Check signer_id and block_id, also replace with right messageType
