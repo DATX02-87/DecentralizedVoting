@@ -21,7 +21,7 @@ public class DevmodeEngine implements Engine {
     public void start(BlockingQueue<DriverUpdate> updates, Service service, StartupState startupState) {
         DevmodeService serviceDev = new DevmodeService(service);
 
-        ConsensuBlock chainHead = startupState.getChainHead();
+        ConsensusBlock chainHead = startupState.getChainHead();
         int wait_time = serviceDev.calculateWaitTime(chainHead.block_id.clone());
 
         boolean published_at_height = false;
@@ -40,7 +40,7 @@ public class DevmodeEngine implements Engine {
         DriverUpdate incoming_message = null;
         while(running){
             try {
-                // TODO: This might be wrong
+                // TODO: This might be wrong, double check this
                 incoming_message = updates.poll(Duration.ofMillis(10).getSeconds(), TimeUnit.SECONDS);
             } catch (InterruptedException e) {
                 e.printStackTrace();
@@ -58,10 +58,13 @@ public class DevmodeEngine implements Engine {
                     break;
                 case CONSENSUS_NEW_BLOCK:
                     System.out.println("Checking consensus data: ");
+
                     if( == serviceDev.NULL_BLOCK_IDENTIFIER){
                         System.out.println("WARNING: Received genesis block; ignoring");
                         continue;
                     }
+
+
                     break;
                 case CONSENSUS_VALID_BLOCK:
 
@@ -77,16 +80,19 @@ public class DevmodeEngine implements Engine {
                     break;
             }
 
-            // TODO: Change duration_since to right function
-            if(!published_at_height && Instant.now().duration_since(start) > wait_time){
+            // Publish block when timer expires
+            if(!published_at_height && Duration.between(Instant.now(), start).getSeconds() > wait_time){
+                System.out.println("Timer expired - publishing block");
+                byte[] new_blockId = serviceDev.finalizeBlock();
+                published_at_height = true;
 
+                serviceDev.broadcastPublishedBlock(new_blockId);
             }
         }
     }
 
     @Override
     public void stop() {
-        // TODO: Might need more to actually stop start()
         running = false;
     }
 

@@ -212,12 +212,10 @@ public class DevmodeService {
 
             System.out.println("Min: " + min_wait_time + " -- Max: " + max_wait_time);
 
-            if(min_wait_time >= max_wait_time){
+            if(min_wait_time >= max_wait_time)
                 wait_time = DEFAULT_WAIT_TIME;
-            }
-            else{
+            else
                 wait_time = ThreadLocalRandom.current().nextInt(min_wait_time, max_wait_time + 1);
-            }
         }
         catch(RuntimeException e){
             wait_time = DEFAULT_WAIT_TIME;
