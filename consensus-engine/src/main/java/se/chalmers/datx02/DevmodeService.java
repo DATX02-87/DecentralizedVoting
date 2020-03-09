@@ -92,7 +92,7 @@ public class DevmodeService {
             try {
                 Thread.sleep(1000);
             } catch (InterruptedException ex) {
-                ex.printStackTrace();
+                throw new RuntimeException("Could not sleep thread");
             }
 
             // Try to get summarized block
@@ -108,7 +108,7 @@ public class DevmodeService {
 
         not_ready_to_summarize = false;
 
-        byte[] consensus = summary.clone();
+        byte[] consensus = DevmodeEngine.createConsensus(summary);
 
         byte[] block_id = new byte[0];
         try {
@@ -128,7 +128,7 @@ public class DevmodeService {
             try {
                 Thread.sleep(1000);
             } catch (InterruptedException ex) {
-                ex.printStackTrace();
+                throw new RuntimeException("Could not sleep thread");
             }
 
             // Try to get summarized block

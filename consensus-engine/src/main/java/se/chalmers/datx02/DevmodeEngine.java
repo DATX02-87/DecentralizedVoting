@@ -153,11 +153,11 @@ public class DevmodeEngine implements Engine {
         }
     }
 
-    private static boolean checkConsensus(ConsensusBlock block) {
+    public static boolean checkConsensus(ConsensusBlock block) {
         return Arrays.equals(block.getPayload().toByteArray(), createConsensus(block.getSummary().toByteArray()));
     }
 
-    private static byte[] createConsensus(byte[] blockSummary) {
+    public static byte[] createConsensus(byte[] blockSummary) {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         try {
             baos.write("Devmode".getBytes());
