@@ -77,3 +77,9 @@ fabric.properties
 .settings
 .classpath
 .project
+
+target/classes
+target/maven-*
+target/protoc-*
+target/surefire-reports
+
