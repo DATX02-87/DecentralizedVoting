@@ -6,6 +6,8 @@ import sawtooth.sdk.protobuf.Message;
 import sawtooth.sdk.protobuf.Message.MessageType;
 import se.chalmers.datx02.lib.Service;
 
+
+import java.util.logging.Logger;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -14,6 +16,8 @@ import java.util.concurrent.ThreadLocalRandom;
 public class DevmodeService {
     private boolean not_ready_to_summarize,
             not_ready_to_finalize;
+
+    private Logger logger = Logger.getLogger(DevmodeService.class.getName());
 
     private final int DEFAULT_WAIT_TIME = 0;
     public final byte[] NULL_BLOCK_IDENTIFIER = {0, 0, 0, 0, 0, 0, 0, 0};
@@ -25,20 +29,19 @@ public class DevmodeService {
     }
 
     public ConsensusBlock getChainHead(){
-        System.out.println("Getting chain head");
+        logger.info("Getting chain head");
 
         try{
             return this.service.getChainHead();
         }
         catch(RuntimeException e){
-            e.printStackTrace();
-            System.out.println("Failed to get chain head");
+            logger.warning("Failed to get chain head");
             return null;
         }
     }
 
     public ConsensusBlock getBlock(byte[] blockId){
-        System.out.println("Getting block " + HexBin.encode(blockId));
+        logger.info("Getting block " + HexBin.encode(blockId));
 
         // Generate a list of only one block id
         ArrayList<byte[]> blockList = new ArrayList<>();
@@ -52,26 +55,24 @@ public class DevmodeService {
             return resultBlock;
         }
         catch(RuntimeException e){
-            e.printStackTrace();
-            System.out.println("Failed to get chain head");
+            logger.warning("Failed to get block: " + HexBin.encode(blockId));
 
             return null;
         }
     }
 
     public void initializeBlock(){
-        System.out.println("Initializing block");
+        logger.info("Initializing block");
         try {
             this.service.initializeBlock(null);
         }
         catch(RuntimeException e){
-            e.printStackTrace();
-            System.out.println("Failed to initialize");
+            logger.warning("Failed to initialize");
         }
     }
 
     public byte[] finalizeBlock(){
-        System.out.println("Finalizing block");
+        logger.info("Finalizing block");
 
         // Try to summarize block
         byte[] summary = null;
@@ -81,7 +82,7 @@ public class DevmodeService {
             // Log
             if(!not_ready_to_summarize){
                 not_ready_to_summarize = true;
-                System.out.println("Block not ready to summarize");
+                logger.info("Block not ready to summarize");
             }
 
             // Sleep thread
@@ -97,8 +98,7 @@ public class DevmodeService {
                 break;
             }
             catch(RuntimeException e){
-                e.printStackTrace();
-                System.out.println("Failed to summarize block");
+                logger.warning("Failed to summarize block");
                 break;
             }
         }
@@ -113,7 +113,7 @@ public class DevmodeService {
             // Log
             if(!not_ready_to_finalize){
                 not_ready_to_finalize = true;
-                System.out.println("Block not ready to finalize");
+                logger.info("Block not ready to finalize");
             }
 
             // Sleep thread
@@ -129,20 +129,19 @@ public class DevmodeService {
                 break;
             }
             catch(RuntimeException e){
-                e.printStackTrace();
-                System.out.println("Failed to finalize block");
+                logger.warning("Failed to finalize block");
                 break;
             }
         }
         not_ready_to_finalize = false;
 
-        System.out.println("Block has been finalized sucessfully : " + HexBin.encode(block_id));
+        logger.info("Block has been finalized sucessfully : " + HexBin.encode(block_id));
 
         return block_id;
     }
 
     public void checkBlock(byte[] blockId){
-        System.out.println("Checking block " + HexBin.encode(blockId));
+        logger.info("Checking block " + HexBin.encode(blockId));
 
         // Generate a list of only one block id
         ArrayList<byte[]> blockList = new ArrayList<>();
@@ -152,68 +151,62 @@ public class DevmodeService {
             this.service.checkBlocks(blockList);
         }
         catch(RuntimeException e){
-            e.printStackTrace();
-            System.out.println("Failed to check block");
+            logger.warning("Failed to check block");
         }
     }
 
     public void failBlock(byte[] blockId){
-        System.out.println("Failing block " + HexBin.encode(blockId));
+        logger.info("Failing block " + HexBin.encode(blockId));
 
         try{
             this.service.failBlock(blockId);
         }
         catch(RuntimeException e){
-            e.printStackTrace();
-            System.out.println("Failed to fail block");
+            logger.warning("Failed to fail block");
         }
     }
 
     public void ignoreBlock(byte[] blockId){
-        System.out.println("Ignoring block " + HexBin.encode(blockId));
+        logger.info("Ignoring block " + HexBin.encode(blockId));
 
         try{
             this.service.ignoreBlock(blockId);
         }
         catch(RuntimeException e){
-            e.printStackTrace();
-            System.out.println("Failed to ignore block");
+            logger.warning("Failed to ignore block");
         }
     }
 
     public void commitBlock(byte[] blockId){
-        System.out.println("Commiting block " + HexBin.encode(blockId));
+        logger.info("Commiting block " + HexBin.encode(blockId));
 
         try{
             this.service.commitBlock(blockId);
         }
         catch(RuntimeException e){
-            e.printStackTrace();
-            System.out.println("Failed to commit block");
+            logger.warning("Failed to commit block");
         }
     }
 
     public void cancelBlock(){
-        System.out.println("Canceling block ");
+        logger.info("Canceling block ");
 
         try{
             this.service.cancelBlock();
         }
         catch(RuntimeException e){
-            e.printStackTrace();
-            System.out.println("Failed to cancel block");
+            logger.warning("Failed to cancel block");
         }
     }
 
     public void broadcastPublishedBlock(byte[] blockId){
-        System.out.println("Broadcasting published block " + HexBin.encode(blockId));
+        logger.info("Broadcasting published block " + HexBin.encode(blockId));
 
         try{
             this.service.broadcast("published", blockId);
         }
         catch(RuntimeException e){
-            e.printStackTrace();
-            System.out.println("Failed to broadcast published block");
+            logger.warning("Failed to broadcast published block");
         }
     }
 
@@ -222,8 +215,7 @@ public class DevmodeService {
             this.service.sendTo(block.getSignerId().toByteArray(), MessageType.CONSENSUS_NOTIFY_PEER_MESSAGE, block.getBlockId().toByteArray());
         }
         catch(RuntimeException e){
-            e.printStackTrace();
-            System.out.println("Failed to send block received");
+            logger.warning("Failed to send block received");
         }
     }
 
@@ -232,8 +224,7 @@ public class DevmodeService {
             this.service.sendTo(senderId, MessageType.CONSENSUS_NOTIFY_ACK, blockId);
         }
         catch(RuntimeException e){
-            e.printStackTrace();
-            System.out.println("Failed to send block ack");
+            logger.warning("Failed to send block ack");
         }
     }
 
@@ -251,7 +242,7 @@ public class DevmodeService {
             int min_wait_time = Integer.parseInt(settings.get("sawtooth.consensus.min_wait_time"));
             int max_wait_time = Integer.parseInt(settings.get("sawtooth.consensus.max_wait_time"));
 
-            System.out.println("Min: " + min_wait_time + " -- Max: " + max_wait_time);
+            logger.info("Min: " + min_wait_time + " -- Max: " + max_wait_time);
 
             if(min_wait_time >= max_wait_time)
                 wait_time = DEFAULT_WAIT_TIME;
@@ -262,7 +253,7 @@ public class DevmodeService {
             wait_time = DEFAULT_WAIT_TIME;
         }
 
-        System.out.println("Wait time: " + wait_time);
+        logger.info("Wait time: " + wait_time);
 
         return wait_time;
     }
