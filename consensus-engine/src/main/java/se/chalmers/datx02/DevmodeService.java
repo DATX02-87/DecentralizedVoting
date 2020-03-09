@@ -3,6 +3,7 @@ package se.chalmers.datx02;
 import com.sun.org.apache.xerces.internal.impl.dv.util.HexBin;
 import sawtooth.sdk.protobuf.ConsensusBlock;
 import sawtooth.sdk.protobuf.Message;
+import sawtooth.sdk.protobuf.Message.MessageType;
 import se.chalmers.datx02.lib.Service;
 
 import java.util.ArrayList;
@@ -12,7 +13,7 @@ import java.util.concurrent.ThreadLocalRandom;
 
 public class DevmodeService {
     private boolean not_ready_to_summarize,
-                    not_ready_to_finalize;
+            not_ready_to_finalize;
 
     private final int DEFAULT_WAIT_TIME = 0;
     public final byte[] NULL_BLOCK_IDENTIFIER = {0, 0, 0, 0, 0, 0, 0, 0};
@@ -27,11 +28,12 @@ public class DevmodeService {
         System.out.println("Getting chain head");
 
         try{
-            this.service.getChainHead();
+            return this.service.getChainHead();
         }
         catch(RuntimeException e){
             e.printStackTrace();
             System.out.println("Failed to get chain head");
+            return null;
         }
     }
 
@@ -49,7 +51,7 @@ public class DevmodeService {
 
             return resultBlock;
         }
-            catch(RuntimeException e){
+        catch(RuntimeException e){
             e.printStackTrace();
             System.out.println("Failed to get chain head");
 
@@ -74,25 +76,69 @@ public class DevmodeService {
         // Try to summarize block
         byte[] summary = null;
 
+
         while(true) {
+            // Log
+            if(!not_ready_to_summarize){
+                not_ready_to_summarize = true;
+                System.out.println("Block not ready to summarize");
+            }
+
+            // Sleep thread
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException ex) {
+                ex.printStackTrace();
+            }
+
+            // Try to get summarized block
             try{
                 summary = this.service.summarizeBlock();
                 break;
             }
             catch(RuntimeException e){
-                System.out.println("Block not ready to summarize");
-                try {
-                    Thread.sleep(1000);
-                } catch (InterruptedException ex) {
-                    ex.printStackTrace();
-                }
+                e.printStackTrace();
+                System.out.println("Failed to summarize block");
+                break;
             }
         }
 
-        // TODO: Finish finalizeBlock
-        // TODO: Impl. helper functions
+        not_ready_to_summarize = false;
 
-        return null;
+        byte[] consensus = summary.clone();
+
+        byte[] block_id = this.service.finalizeBlock(consensus);
+
+        while(true) {
+            // Log
+            if(!not_ready_to_finalize){
+                not_ready_to_finalize = true;
+                System.out.println("Block not ready to finalize");
+            }
+
+            // Sleep thread
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException ex) {
+                ex.printStackTrace();
+            }
+
+            // Try to get summarized block
+            try{
+                block_id = this.service.finalizeBlock(consensus);
+                break;
+            }
+            catch(RuntimeException e){
+                e.printStackTrace();
+                System.out.println("Failed to finalize block");
+                break;
+            }
+        }
+        not_ready_to_finalize = false;
+
+        System.out.println("Block has been finalized sucessfully : " + HexBin.encode(block_id));
+
+        return block_id;
     }
 
     public void checkBlock(byte[] blockId){
@@ -172,11 +218,8 @@ public class DevmodeService {
     }
 
     public void sendBlockReceived(ConsensusBlock block){
-        /*
-        * TODO: Check signer_id and block_id, also replace with right messageType
-         */
         try{
-            this.service.sendTo(block.getSignerId().toByteArray(), Message.MessageType.RESPONSE., block.getBlockId().toByteArray());
+            this.service.sendTo(block.getSignerId().toByteArray(), MessageType.CONSENSUS_NOTIFY_PEER_MESSAGE, block.getBlockId().toByteArray());
         }
         catch(RuntimeException e){
             e.printStackTrace();
@@ -185,10 +228,8 @@ public class DevmodeService {
     }
 
     public void sendBlockAck(byte[] senderId, byte[] blockId){
-
-        // TODO: Change to right messageType
         try{
-            this.service.sendTo(senderId, Message.MessageType.CONSENSUS_NOTIFY_ACK, blockId);
+            this.service.sendTo(senderId, MessageType.CONSENSUS_NOTIFY_ACK, blockId);
         }
         catch(RuntimeException e){
             e.printStackTrace();
