@@ -40,6 +40,7 @@ public class ZmqService implements Service {
         byte[] request = ConsensusSendToRequest.newBuilder()
                 .setContent(messageContent)
                 .setMessageType(messageType.toString())
+                .setReceiverId(peerId)
                 .build().toByteArray();
 
         send(request, Message.MessageType.CONSENSUS_SEND_TO_REQUEST, ConsensusSendToResponse.parser());
