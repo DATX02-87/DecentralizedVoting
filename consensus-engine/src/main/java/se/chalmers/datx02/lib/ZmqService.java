@@ -122,15 +122,15 @@ public class ZmqService implements Service {
     public void checkBlocks(List<byte[]> priority) {
         for (int i = 0; i < priority.size(); i++) {
             ByteString value = ByteString.copyFrom(priority.get(i));
-            byte[] request = ConsensusCheckBlockRequest.newBuilder().setBlockIds(i, value).build().toByteArray();
-            ConsensusCheckBlockResponse response = send(request, Message.MessageType.CONSENSUS_CHECK_BLOCK_REQUEST,
-                    ConsensusCheckBlockResponse.parser());
-            ConsensusCheckBlockResponse.Status status = response.getStatus();
+            byte[] request = ConsensusCheckBlocksRequest.newBuilder().setBlockIds(i, value).build().toByteArray();
+            ConsensusCheckBlocksResponse response = send(request, Message.MessageType.CONSENSUS_CHECK_BLOCKS_REQUEST,
+                    ConsensusCheckBlocksResponse.parser());
+            ConsensusCheckBlocksResponse.Status status = response.getStatus();
 
-            if (status == ConsensusCheckBlockResponse.Status.UNKNOWN_BLOCK) {
+            if (status == ConsensusCheckBlocksResponse.Status.UNKNOWN_BLOCK) {
                 throw new RuntimeException("Unknown block");
             }
-            if (status != ConsensusCheckBlockResponse.Status.OK) {
+            if (status != ConsensusCheckBlocksResponse.Status.OK) {
                 throw new RuntimeException("Receive Error, Failed with status: " + status.name());
             }
         }
