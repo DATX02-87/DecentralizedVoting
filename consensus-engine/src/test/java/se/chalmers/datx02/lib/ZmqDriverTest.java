@@ -68,7 +68,7 @@ class ZmqDriverTest {
     }
 
     @Test
-    @Timeout(5)
+    @Timeout(10)
     void testStopEngine() throws InterruptedException {
         Thread driverThread = new Thread(() -> driver.start(url));
         driverThread.start();
