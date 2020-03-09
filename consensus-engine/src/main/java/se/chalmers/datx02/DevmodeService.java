@@ -1,8 +1,9 @@
 package se.chalmers.datx02;
 
 import com.sun.org.apache.xerces.internal.impl.dv.util.HexBin;
+import sawtooth.sdk.protobuf.ConsensusBlock;
+import sawtooth.sdk.protobuf.Message;
 import se.chalmers.datx02.lib.Service;
-import se.chalmers.datx02.lib.ZmqService;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -43,7 +44,8 @@ public class DevmodeService {
 
         try{
             Map<byte[], ConsensusBlock> result = this.service.getBlocks(blockList);
-            ConsensusBlock resultBlock = result.values().toArray()[0];
+
+            ConsensusBlock resultBlock = (ConsensusBlock) result.values().toArray()[0];
 
             return resultBlock;
         }
@@ -146,7 +148,7 @@ public class DevmodeService {
     }
 
     public void cancelBlock(){
-        System.out.println("Canceling block " + HexBin.encode(blockId));
+        System.out.println("Canceling block ");
 
         try{
             this.service.cancelBlock();
@@ -170,13 +172,11 @@ public class DevmodeService {
     }
 
     public void sendBlockReceived(ConsensusBlock block){
-        ConsensusBlock blockCopy = block.clone();
-
         /*
         * TODO: Check signer_id and block_id, also replace with right messageType
          */
         try{
-            this.service.sendTo(block.signer_id, "received", blockCopy.block_id);
+            this.service.sendTo(block.getSignerId().toByteArray(), Message.MessageType.RESPONSE., block.getBlockId().toByteArray());
         }
         catch(RuntimeException e){
             e.printStackTrace();
@@ -188,7 +188,7 @@ public class DevmodeService {
 
         // TODO: Change to right messageType
         try{
-            this.service.sendTo(senderId, "ack", blockId);
+            this.service.sendTo(senderId, Message.MessageType.CONSENSUS_NOTIFY_ACK, blockId);
         }
         catch(RuntimeException e){
             e.printStackTrace();
