@@ -224,11 +224,12 @@ public class ZmqService implements Service {
     }
 
     public Map<String, String> getSettings(byte[] blockId, List<String> settings) {
-        Map<String, String> blockSettings = null;
+        Map<String, String> blockSettings = new HashMap<>();
         ByteString id = ByteString.copyFrom(blockId);
 
-        byte[] request = ConsensusSettingsGetRequest.newBuilder().addAllKeys(settings).setBlockId(id).build()
-                .toByteArray();
+        byte[] request = ConsensusSettingsGetRequest.newBuilder()
+                .addAllKeys(settings).setBlockId(id)
+                .build().toByteArray();
 
         ConsensusSettingsGetResponse response = send(request, Message.MessageType.CONSENSUS_SETTINGS_GET_REQUEST,
                 ConsensusSettingsGetResponse.parser());
@@ -242,17 +243,16 @@ public class ZmqService implements Service {
             throw new RuntimeException("Receive error, failed with status: " + status.name());
         }
 
-        for (int i = 0; i < settings.size(); i++) {
-            String entryKey = response.getEntries(i).getKey();
-            String setting = response.getEntries(i).getValue();
-            blockSettings.put(entryKey, setting);
+        for (ConsensusSettingsEntry c : response.getEntriesList()) {
+            blockSettings.put(c.getKey(), c.getValue());
         }
+
         return blockSettings;
     }
 
     public Map<String, byte[]> getState(byte[] blockId, List<String> addresses) {
         ByteString id = ByteString.copyFrom(blockId);
-        Map<String, byte[]> toReturn = null;
+        Map<String, byte[]> toReturn = new HashMap<>();
 
         byte[] request = ConsensusStateGetRequest.newBuilder()
                 .setBlockId(id)
@@ -268,11 +268,10 @@ public class ZmqService implements Service {
         if (status != ConsensusStateGetResponse.Status.OK)
             throw new RuntimeException("Receive Error, Failed with status: " + status.name() );
 
-        for (int i = 0; i < addresses.size(); i++) {
-            String address = response.getEntries(i).getAddress();
-            byte[] bytes = response.getEntries(i).getAddressBytes().toByteArray();
-            toReturn.put(address, bytes);
+        for (ConsensusStateEntry e : response.getEntriesList()) {
+            toReturn.put(e.getAddress(), e.getData().toByteArray());
         }
+        
         return toReturn;
 
     }
