@@ -7,8 +7,11 @@ import se.chalmers.datx02.lib.Communicator;
 import se.chalmers.datx02.lib.Service;
 import se.chalmers.datx02.lib.models.ConsensusFuture;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
+import java.util.stream.Collectors;
 
 public class ZmqService implements Service {
     private Communicator communicator;
@@ -192,9 +195,26 @@ public class ZmqService implements Service {
 
     @Override
     public Map<byte[], ConsensusBlock> getBlocks(List<byte[]> blockIds) {
-        Map<byte[], ConsensusBlock> blockMap = null;
-        // TODO
-        return null;
+        Map<byte[], ConsensusBlock> toReturn = new HashMap<>();
+
+        Iterable<ByteString> byteBlockIds = blockIds.stream().map(ByteString::copyFrom).collect(Collectors.toList());
+
+        byte[] request = ConsensusBlocksGetRequest.newBuilder().addAllBlockIds(byteBlockIds).build().toByteArray();
+
+        ConsensusBlocksGetResponse response = send(request, Message.MessageType.CONSENSUS_BLOCKS_GET_REQUEST, ConsensusBlocksGetResponse.parser());
+
+        ConsensusBlocksGetResponse.Status status = response.getStatus();
+
+        if (status == ConsensusBlocksGetResponse.Status.UNKNOWN_BLOCK)
+            throw new RuntimeException("Unknown Block");
+        if (status != ConsensusBlocksGetResponse.Status.OK)
+            throw new RuntimeException("Receive Error, Failed with status: " + status.name());
+
+        for (ConsensusBlock c : response.getBlocksList()) {
+            toReturn.put(c.getBlockId().toByteArray(), c);
+        }
+
+        return toReturn;
     }
 
     @Override
