@@ -67,17 +67,17 @@ public class DevmodeEngine implements Engine {
                 // no message, continue
                 continue;
             }
-            System.out.println("Received message: " + update.getMessageType());
+            LOGGER.info("Received message: " + update.getMessageType());
 
             switch (update.getMessageType()) {
                 case CONSENSUS_NOTIFY_ENGINE_DEACTIVATED:
                     this.stop();
                     break;
                 case CONSENSUS_NOTIFY_BLOCK_NEW:
-                    System.out.println("Checking consensus data: ");
+                    LOGGER.fine("Checking consensus data: ");
                     block = ConsensusBlock.parseFrom(update.getData());
                     if (Arrays.equals(block.getBlockId().toByteArray(), service.NULL_BLOCK_IDENTIFIER)) {
-                        System.out.println("WARNING: Received genesis block; ignoring");
+                        LOGGER.warning("WARNING: Received genesis block; ignoring");
                         continue;
                     }
                     if (checkConsensus(block)) {
@@ -144,7 +144,7 @@ public class DevmodeEngine implements Engine {
 
             // Publish block when timer expires
             if (!published_at_height && Duration.between(Instant.now(), start).getSeconds() > wait_time) {
-                System.out.println("Timer expired - publishing block");
+                LOGGER.info("Timer expired - publishing block");
                 byte[] new_blockId = service.finalizeBlock();
                 published_at_height = true;
 
