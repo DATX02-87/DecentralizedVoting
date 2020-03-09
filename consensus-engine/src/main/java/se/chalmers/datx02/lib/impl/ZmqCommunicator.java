@@ -6,6 +6,7 @@ import org.zeromq.SocketType;
 import org.zeromq.ZContext;
 import org.zeromq.ZMQ;
 import sawtooth.sdk.protobuf.Message;
+import se.chalmers.datx02.DevmodeEngine;
 import se.chalmers.datx02.lib.Communicator;
 import se.chalmers.datx02.lib.Util;
 import se.chalmers.datx02.lib.models.ConsensusFuture;
@@ -14,6 +15,7 @@ import java.util.Queue;
 import java.util.UUID;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.logging.Logger;
 
 public class ZmqCommunicator implements Communicator {
     private final String url;
@@ -29,6 +31,8 @@ public class ZmqCommunicator implements Communicator {
     private final Thread socketThread;
 
     private final AtomicBoolean exit;
+
+    private final static Logger LOGGER = Logger.getLogger(ZmqCommunicator.class.getName());
 
     public ZmqCommunicator(String url) {
         this.url = url;
@@ -150,7 +154,7 @@ public class ZmqCommunicator implements Communicator {
                 socket = ctx.createSocket(SocketType.DEALER);
                 socket.setIdentity(identity);
                 socket.connect(addr);
-                System.out.println(String.format("ZMQ socket listening on %s", addr));
+                LOGGER.info(String.format("ZMQ socket listening on %s", addr));
                 state = SocketRunnableState.RUNNING;
                 eventLoop();
             } finally {
@@ -172,7 +176,7 @@ public class ZmqCommunicator implements Communicator {
             if (recv == null) {
                 return;
             }
-            System.out.println("Received message");
+            LOGGER.fine("Received message");
             try {
                 Message received = Message.parseFrom(recv);
                 ConsensusFuture consensusFuture = futures.get(received.getCorrelationId());
@@ -184,7 +188,7 @@ public class ZmqCommunicator implements Communicator {
                 }
 
             } catch (InvalidProtocolBufferException e) {
-                System.out.println("Parsing message failed");
+                LOGGER.warning("Parsing message failed");
                 e.printStackTrace();
             }
         }
@@ -194,14 +198,14 @@ public class ZmqCommunicator implements Communicator {
             if(msg == null) {
                 return;
             }
-            System.out.println("Sending message");
+            LOGGER.fine("Sending message");
             socket.send(msg.toByteArray(), 0);
-            System.out.println("Message sent");
+            LOGGER.fine("Message sent");
         }
 
         @Override
         public void close() {
-            System.out.println("SocketRunnable closing down");
+            LOGGER.info("SocketRunnable closing down");
             if (socket != null) {
                 socket.close();
             }
