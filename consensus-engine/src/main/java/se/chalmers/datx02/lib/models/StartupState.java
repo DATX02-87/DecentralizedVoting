@@ -1,4 +1,4 @@
-package se.chalmers.datx02.lib;
+package se.chalmers.datx02.lib.models;
 
 import com.google.protobuf.Descriptors;
 import sawtooth.sdk.protobuf.ConsensusBlock;

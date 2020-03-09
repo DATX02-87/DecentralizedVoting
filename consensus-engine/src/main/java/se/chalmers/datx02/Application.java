@@ -1,8 +1,9 @@
 package se.chalmers.datx02;
 
 import picocli.CommandLine;
+import se.chalmers.datx02.devmode.DevmodeEngine;
 import se.chalmers.datx02.lib.Driver;
-import se.chalmers.datx02.lib.ZmqDriver;
+import se.chalmers.datx02.lib.impl.ZmqDriver;
 
 @CommandLine.Command(name = "Hyperledger Sawtooth Devmode engine Java", mixinStandardHelpOptions = true, version = "1.0")
 public class Application implements Runnable {

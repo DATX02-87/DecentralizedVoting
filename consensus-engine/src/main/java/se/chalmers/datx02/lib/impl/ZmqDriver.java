@@ -1,12 +1,12 @@
-package se.chalmers.datx02.lib;
+package se.chalmers.datx02.lib.impl;
 
-import com.google.protobuf.ByteString;
-import com.google.protobuf.Descriptors;
-import com.google.protobuf.Field;
 import com.google.protobuf.InvalidProtocolBufferException;
 import sawtooth.sdk.protobuf.*;
+import se.chalmers.datx02.lib.Communicator;
+import se.chalmers.datx02.lib.Driver;
+import se.chalmers.datx02.lib.Engine;
+import se.chalmers.datx02.lib.models.StartupState;
 import se.chalmers.datx02.lib.exceptions.ReceiveError;
-import se.chalmers.datx02.lib.impl.ZmqCommunicator;
 import se.chalmers.datx02.lib.models.ConsensusFuture;
 import se.chalmers.datx02.lib.models.DriverUpdate;
 

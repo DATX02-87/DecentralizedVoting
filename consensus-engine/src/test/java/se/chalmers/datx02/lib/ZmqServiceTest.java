@@ -3,14 +3,12 @@ package se.chalmers.datx02.lib;
 import com.google.protobuf.ByteString;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.Timeout;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import sawtooth.sdk.protobuf.*;
+import se.chalmers.datx02.lib.impl.ZmqService;
 import se.chalmers.datx02.lib.models.ConsensusFuture;
-
-import java.util.concurrent.Future;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;

@@ -1,4 +1,4 @@
-package se.chalmers.datx02;
+package se.chalmers.datx02.devmode;
 
 import com.google.protobuf.ByteString;
 import com.google.protobuf.InvalidProtocolBufferException;
@@ -7,7 +7,7 @@ import sawtooth.sdk.protobuf.ConsensusNotifyBlockCommit;
 import sawtooth.sdk.protobuf.ConsensusNotifyPeerMessage;
 import se.chalmers.datx02.lib.Engine;
 import se.chalmers.datx02.lib.Service;
-import se.chalmers.datx02.lib.StartupState;
+import se.chalmers.datx02.lib.models.StartupState;
 import se.chalmers.datx02.lib.models.DriverUpdate;
 
 import java.io.ByteArrayOutputStream;

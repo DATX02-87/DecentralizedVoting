@@ -6,7 +6,6 @@ import org.zeromq.SocketType;
 import org.zeromq.ZContext;
 import org.zeromq.ZMQ;
 import sawtooth.sdk.protobuf.Message;
-import se.chalmers.datx02.DevmodeEngine;
 import se.chalmers.datx02.lib.Communicator;
 import se.chalmers.datx02.lib.Util;
 import se.chalmers.datx02.lib.models.ConsensusFuture;

@@ -1,6 +1,7 @@
 package se.chalmers.datx02.lib;
 
 import se.chalmers.datx02.lib.models.DriverUpdate;
+import se.chalmers.datx02.lib.models.StartupState;
 
 import java.util.Map;
 import java.util.concurrent.BlockingQueue;

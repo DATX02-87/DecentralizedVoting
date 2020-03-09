@@ -1,8 +1,7 @@
-package se.chalmers.datx02;
+package se.chalmers.datx02.devmode;
 
 import com.sun.org.apache.xerces.internal.impl.dv.util.HexBin;
 import sawtooth.sdk.protobuf.ConsensusBlock;
-import sawtooth.sdk.protobuf.Message;
 import sawtooth.sdk.protobuf.Message.MessageType;
 import se.chalmers.datx02.lib.Service;
 import se.chalmers.datx02.lib.exceptions.InvalidState;

@@ -1,4 +1,4 @@
-package se.chalmers.datx02.lib;
+package se.chalmers.datx02.lib.impl;
 
 import com.google.protobuf.ByteString;
 import com.google.protobuf.Parser;

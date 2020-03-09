@@ -5,7 +5,9 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
 import sawtooth.sdk.protobuf.*;
+import se.chalmers.datx02.lib.impl.ZmqDriver;
 import se.chalmers.datx02.lib.models.DriverUpdate;
+import se.chalmers.datx02.lib.models.StartupState;
 
 import java.util.*;
 import java.util.concurrent.BlockingQueue;
