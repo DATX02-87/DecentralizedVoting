@@ -23,7 +23,7 @@ public class DevmodeService {
     private final static Logger LOGGER = Logger.getLogger(DevmodeService.class.getName());
 
     private final int DEFAULT_WAIT_TIME = 0;
-    public final byte[] NULL_BLOCK_IDENTIFIER = {0, 0, 0, 0, 0, 0, 0, 0};
+    public final static byte[] NULL_BLOCK_IDENTIFIER = {0, 0, 0, 0, 0, 0, 0, 0};
 
     private Service service;
 
