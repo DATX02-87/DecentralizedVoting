@@ -5,6 +5,9 @@ import com.google.protobuf.Parser;
 import sawtooth.sdk.protobuf.*;
 import se.chalmers.datx02.lib.Communicator;
 import se.chalmers.datx02.lib.Service;
+import se.chalmers.datx02.lib.exceptions.InvalidState;
+import se.chalmers.datx02.lib.exceptions.ReceiveError;
+import se.chalmers.datx02.lib.exceptions.UnknownBlock;
 import se.chalmers.datx02.lib.models.ConsensusFuture;
 
 import java.util.HashMap;
@@ -54,7 +57,7 @@ public class ZmqService implements Service {
 
     // block creating
 
-    public void initializeBlock(byte[] previousId) {
+    public void initializeBlock(byte[] previousId) throws InvalidState, UnknownBlock, ReceiveError {
         ConsensusInitializeBlockRequest.Builder builder = ConsensusInitializeBlockRequest.newBuilder();
         if (previousId != null) {
             ByteString previousBlockId = ByteString.copyFrom(previousId);
@@ -68,13 +71,13 @@ public class ZmqService implements Service {
         ConsensusInitializeBlockResponse.Status status = response.getStatus();
 
         if (status == ConsensusInitializeBlockResponse.Status.INVALID_STATE) {
-            throw new RuntimeException("Cannot initialize block in current state");
+            throw new InvalidState("Cannot initialize block in current state");
         }
         if (status == ConsensusInitializeBlockResponse.Status.UNKNOWN_BLOCK) {
-            throw new RuntimeException("Unknown block");
+            throw new UnknownBlock("Unknown block");
         }
         if (status != ConsensusInitializeBlockResponse.Status.OK) {
-            throw new RuntimeException("Receive Error, failed with status: " + status.name());
+            throw new ReceiveError("Receive Error, failed with status: " + status.name());
         }
     }
 
@@ -84,7 +87,7 @@ public class ZmqService implements Service {
         return new byte[0];
     }
 
-    public byte[] finalizeBlock(byte[] data) {
+    public byte[] finalizeBlock(byte[] data) throws InvalidState, UnknownBlock, ReceiveError {
         ByteString content = ByteString.copyFrom(data);
         byte[] request = ConsensusFinalizeBlockRequest.newBuilder().setData(content).build().toByteArray();
 
@@ -94,19 +97,19 @@ public class ZmqService implements Service {
         ConsensusFinalizeBlockResponse.Status status = response.getStatus();
 
         if (status == ConsensusFinalizeBlockResponse.Status.INVALID_STATE) {
-            throw new RuntimeException("cannot finalize block in current state");
+            throw new InvalidState("cannot finalize block in current state");
         }
         if (status == ConsensusFinalizeBlockResponse.Status.NOT_READY) {
-            throw new RuntimeException("Block not ready to be finalized");
+            throw new UnknownBlock("Block not ready to be finalized");
         }
         if (status != ConsensusFinalizeBlockResponse.Status.OK) {
-            throw new RuntimeException("Receive Error, failed with status: " + status.name());
+            throw new ReceiveError("Receive Error, failed with status: " + status.name());
         }
 
         return response.getBlockId().toByteArray();
     }
 
-    public void cancelBlock() {
+    public void cancelBlock() throws InvalidState, ReceiveError {
         byte[] request = ConsensusCancelBlockRequest.newBuilder().build().toByteArray();
 
         ConsensusCancelBlockResponse response = send(request, Message.MessageType.CONSENSUS_CANCEL_BLOCK_REQUEST,
@@ -115,14 +118,14 @@ public class ZmqService implements Service {
         ConsensusCancelBlockResponse.Status status = response.getStatus();
 
         if (status == ConsensusCancelBlockResponse.Status.INVALID_STATE) {
-            throw new RuntimeException("Cannot cancel block in current state");
+            throw new InvalidState("Cannot cancel block in current state");
         }
         if (status != ConsensusCancelBlockResponse.Status.OK) {
-            throw new RuntimeException("Receive Error, Failed with status: " + status.name());
+            throw new ReceiveError("Receive Error, Failed with status: " + status.name());
         }
     }
 
-    public void checkBlocks(List<byte[]> priority) {
+    public void checkBlocks(List<byte[]> priority) throws UnknownBlock, ReceiveError {
         for (int i = 0; i < priority.size(); i++) {
             ByteString value = ByteString.copyFrom(priority.get(i));
             byte[] request = ConsensusCheckBlocksRequest.newBuilder().setBlockIds(i, value).build().toByteArray();
@@ -131,15 +134,15 @@ public class ZmqService implements Service {
             ConsensusCheckBlocksResponse.Status status = response.getStatus();
 
             if (status == ConsensusCheckBlocksResponse.Status.UNKNOWN_BLOCK) {
-                throw new RuntimeException("Unknown block");
+                throw new UnknownBlock("Unknown block");
             }
             if (status != ConsensusCheckBlocksResponse.Status.OK) {
-                throw new RuntimeException("Receive Error, Failed with status: " + status.name());
+                throw new ReceiveError("Receive Error, Failed with status: " + status.name());
             }
         }
     }
 
-    public void commitBlock(byte[] blockId) {
+    public void commitBlock(byte[] blockId) throws UnknownBlock, ReceiveError {
         ByteString value = ByteString.copyFrom(blockId);
         byte[] request = ConsensusCommitBlockRequest.newBuilder().setBlockId(value).build().toByteArray();
 
@@ -148,14 +151,14 @@ public class ZmqService implements Service {
         ConsensusCommitBlockResponse.Status status = response.getStatus();
 
         if (status == ConsensusCommitBlockResponse.Status.UNKNOWN_BLOCK) {
-            throw new RuntimeException("Unknown block");
+            throw new UnknownBlock("Unknown block");
         }
         if (status != ConsensusCommitBlockResponse.Status.OK) {
-            throw new RuntimeException("Receive Error, failed with status: " + status.name());
+            throw new ReceiveError("Receive Error, failed with status: " + status.name());
         }
     }
 
-    public void ignoreBlock(byte[] blockId) {
+    public void ignoreBlock(byte[] blockId) throws UnknownBlock, ReceiveError {
         ByteString id = ByteString.copyFrom(blockId);
 
         byte[] request = ConsensusIgnoreBlockRequest.newBuilder().setBlockId(id).build().toByteArray();
@@ -166,14 +169,14 @@ public class ZmqService implements Service {
         ConsensusIgnoreBlockResponse.Status status = response.getStatus();
 
         if (status == ConsensusIgnoreBlockResponse.Status.UNKNOWN_BLOCK) {
-            throw new RuntimeException("Unknown block");
+            throw new UnknownBlock("Unknown block");
         }
         if (status != ConsensusIgnoreBlockResponse.Status.OK) {
-            throw new RuntimeException("Receive Error, failed with status: " + status.name());
+            throw new ReceiveError("Receive Error, failed with status: " + status.name());
         }
     }
 
-    public void failBlock(byte[] blockId) {
+    public void failBlock(byte[] blockId) throws UnknownBlock, ReceiveError {
         ByteString id = ByteString.copyFrom(blockId);
 
         byte[] request = ConsensusFailBlockRequest.newBuilder().setBlockId(id).build().toByteArray();
@@ -184,17 +187,17 @@ public class ZmqService implements Service {
         ConsensusFailBlockResponse.Status status = response.getStatus();
 
         if (status == ConsensusFailBlockResponse.Status.UNKNOWN_BLOCK) {
-            throw new RuntimeException("Unknown block");
+            throw new UnknownBlock("Unknown block");
         }
         if (status != ConsensusFailBlockResponse.Status.OK) {
-            throw new RuntimeException("Receive Error, failed with status: " + status.name());
+            throw new ReceiveError("Receive Error, failed with status: " + status.name());
         }
     }
 
     // -- Queries --
 
     @Override
-    public Map<byte[], ConsensusBlock> getBlocks(List<byte[]> blockIds) {
+    public Map<byte[], ConsensusBlock> getBlocks(List<byte[]> blockIds) throws UnknownBlock, ReceiveError {
         Map<byte[], ConsensusBlock> toReturn = new HashMap<>();
 
         Iterable<ByteString> byteBlockIds = blockIds.stream().map(ByteString::copyFrom).collect(Collectors.toList());
@@ -206,9 +209,9 @@ public class ZmqService implements Service {
         ConsensusBlocksGetResponse.Status status = response.getStatus();
 
         if (status == ConsensusBlocksGetResponse.Status.UNKNOWN_BLOCK)
-            throw new RuntimeException("Unknown Block");
+            throw new UnknownBlock("Unknown Block");
         if (status != ConsensusBlocksGetResponse.Status.OK)
-            throw new RuntimeException("Receive Error, Failed with status: " + status.name());
+            throw new ReceiveError("Receive Error, Failed with status: " + status.name());
 
         for (ConsensusBlock c : response.getBlocksList()) {
             toReturn.put(c.getBlockId().toByteArray(), c);
@@ -223,7 +226,7 @@ public class ZmqService implements Service {
         return null;
     }
 
-    public Map<String, String> getSettings(byte[] blockId, List<String> settings) {
+    public Map<String, String> getSettings(byte[] blockId, List<String> settings) throws UnknownBlock, ReceiveError {
         Map<String, String> blockSettings = new HashMap<>();
         ByteString id = ByteString.copyFrom(blockId);
 
@@ -237,10 +240,10 @@ public class ZmqService implements Service {
         ConsensusSettingsGetResponse.Status status = response.getStatus();
 
         if (status == ConsensusSettingsGetResponse.Status.UNKNOWN_BLOCK) {
-            throw new RuntimeException("Unknown block");
+            throw new UnknownBlock("Unknown block");
         }
         if (status != ConsensusSettingsGetResponse.Status.OK) {
-            throw new RuntimeException("Receive error, failed with status: " + status.name());
+            throw new ReceiveError("Receive error, failed with status: " + status.name());
         }
 
         for (ConsensusSettingsEntry c : response.getEntriesList()) {
@@ -250,7 +253,7 @@ public class ZmqService implements Service {
         return blockSettings;
     }
 
-    public Map<String, byte[]> getState(byte[] blockId, List<String> addresses) {
+    public Map<String, byte[]> getState(byte[] blockId, List<String> addresses) throws UnknownBlock, ReceiveError {
         ByteString id = ByteString.copyFrom(blockId);
         Map<String, byte[]> toReturn = new HashMap<>();
 
@@ -264,9 +267,9 @@ public class ZmqService implements Service {
         ConsensusStateGetResponse.Status status = response.getStatus();
 
         if (status == ConsensusStateGetResponse.Status.UNKNOWN_BLOCK)
-            throw new RuntimeException("Unknown block");
+            throw new UnknownBlock("Unknown block");
         if (status != ConsensusStateGetResponse.Status.OK)
-            throw new RuntimeException("Receive Error, Failed with status: " + status.name() );
+            throw new ReceiveError("Receive Error, Failed with status: " + status.name() );
 
         for (ConsensusStateEntry e : response.getEntriesList()) {
             toReturn.put(e.getAddress(), e.getData().toByteArray());

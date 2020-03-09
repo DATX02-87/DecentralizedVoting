@@ -5,6 +5,9 @@ import sawtooth.sdk.protobuf.ConsensusBlock;
 import sawtooth.sdk.protobuf.Message;
 import sawtooth.sdk.protobuf.Message.MessageType;
 import se.chalmers.datx02.lib.Service;
+import se.chalmers.datx02.lib.exceptions.InvalidState;
+import se.chalmers.datx02.lib.exceptions.ReceiveError;
+import se.chalmers.datx02.lib.exceptions.UnknownBlock;
 
 
 import java.util.logging.Logger;
@@ -17,7 +20,7 @@ public class DevmodeService {
     private boolean not_ready_to_summarize,
             not_ready_to_finalize;
 
-    private Logger logger = Logger.getLogger(DevmodeService.class.getName());
+    private final static Logger LOGGER = Logger.getLogger(DevmodeService.class.getName());
 
     private final int DEFAULT_WAIT_TIME = 0;
     public final byte[] NULL_BLOCK_IDENTIFIER = {0, 0, 0, 0, 0, 0, 0, 0};
@@ -29,19 +32,19 @@ public class DevmodeService {
     }
 
     public ConsensusBlock getChainHead(){
-        logger.info("Getting chain head");
+        LOGGER.info("Getting chain head");
 
         try{
             return this.service.getChainHead();
         }
         catch(RuntimeException e){
-            logger.warning("Failed to get chain head");
+            LOGGER.warning("Failed to get chain head");
             return null;
         }
     }
 
     public ConsensusBlock getBlock(byte[] blockId){
-        logger.info("Getting block " + HexBin.encode(blockId));
+        LOGGER.info("Getting block " + HexBin.encode(blockId));
 
         // Generate a list of only one block id
         ArrayList<byte[]> blockList = new ArrayList<>();
@@ -54,25 +57,25 @@ public class DevmodeService {
 
             return resultBlock;
         }
-        catch(RuntimeException e){
-            logger.warning("Failed to get block: " + HexBin.encode(blockId));
+        catch(UnknownBlock | ReceiveError e){
+            LOGGER.warning("Failed to get block: " + HexBin.encode(blockId));
 
             return null;
         }
     }
 
     public void initializeBlock(){
-        logger.info("Initializing block");
+        LOGGER.info("Initializing block");
         try {
             this.service.initializeBlock(null);
         }
-        catch(RuntimeException e){
-            logger.warning("Failed to initialize");
+        catch(InvalidState | UnknownBlock | ReceiveError e){
+            LOGGER.warning("Failed to initialize");
         }
     }
 
     public byte[] finalizeBlock(){
-        logger.info("Finalizing block");
+        LOGGER.info("Finalizing block");
 
         // Try to summarize block
         byte[] summary = null;
@@ -82,7 +85,7 @@ public class DevmodeService {
             // Log
             if(!not_ready_to_summarize){
                 not_ready_to_summarize = true;
-                logger.info("Block not ready to summarize");
+                LOGGER.info("Block not ready to summarize");
             }
 
             // Sleep thread
@@ -98,7 +101,7 @@ public class DevmodeService {
                 break;
             }
             catch(RuntimeException e){
-                logger.warning("Failed to summarize block");
+                LOGGER.warning("Failed to summarize block");
                 break;
             }
         }
@@ -107,13 +110,18 @@ public class DevmodeService {
 
         byte[] consensus = summary.clone();
 
-        byte[] block_id = this.service.finalizeBlock(consensus);
+        byte[] block_id = new byte[0];
+        try {
+            block_id = this.service.finalizeBlock(consensus);
+        } catch (InvalidState | UnknownBlock | ReceiveError e) {
+            e.printStackTrace();
+        }
 
         while(true) {
             // Log
             if(!not_ready_to_finalize){
                 not_ready_to_finalize = true;
-                logger.info("Block not ready to finalize");
+                LOGGER.info("Block not ready to finalize");
             }
 
             // Sleep thread
@@ -128,20 +136,20 @@ public class DevmodeService {
                 block_id = this.service.finalizeBlock(consensus);
                 break;
             }
-            catch(RuntimeException e){
-                logger.warning("Failed to finalize block");
+            catch (InvalidState | UnknownBlock | ReceiveError e) {
+                LOGGER.warning("Failed to finalize block");
                 break;
             }
         }
         not_ready_to_finalize = false;
 
-        logger.info("Block has been finalized sucessfully : " + HexBin.encode(block_id));
+        LOGGER.info("Block has been finalized sucessfully : " + HexBin.encode(block_id));
 
         return block_id;
     }
 
     public void checkBlock(byte[] blockId){
-        logger.info("Checking block " + HexBin.encode(blockId));
+        LOGGER.info("Checking block " + HexBin.encode(blockId));
 
         // Generate a list of only one block id
         ArrayList<byte[]> blockList = new ArrayList<>();
@@ -150,63 +158,63 @@ public class DevmodeService {
         try{
             this.service.checkBlocks(blockList);
         }
-        catch(RuntimeException e){
-            logger.warning("Failed to check block");
+        catch(UnknownBlock | ReceiveError e){
+            LOGGER.warning("Failed to check block");
         }
     }
 
     public void failBlock(byte[] blockId){
-        logger.info("Failing block " + HexBin.encode(blockId));
+        LOGGER.info("Failing block " + HexBin.encode(blockId));
 
         try{
             this.service.failBlock(blockId);
         }
-        catch(RuntimeException e){
-            logger.warning("Failed to fail block");
+        catch(UnknownBlock | ReceiveError e){
+            LOGGER.warning("Failed to fail block");
         }
     }
 
     public void ignoreBlock(byte[] blockId){
-        logger.info("Ignoring block " + HexBin.encode(blockId));
+        LOGGER.info("Ignoring block " + HexBin.encode(blockId));
 
         try{
             this.service.ignoreBlock(blockId);
         }
-        catch(RuntimeException e){
-            logger.warning("Failed to ignore block");
+        catch(UnknownBlock | ReceiveError e){
+            LOGGER.warning("Failed to ignore block");
         }
     }
 
     public void commitBlock(byte[] blockId){
-        logger.info("Commiting block " + HexBin.encode(blockId));
+        LOGGER.info("Commiting block " + HexBin.encode(blockId));
 
         try{
             this.service.commitBlock(blockId);
         }
-        catch(RuntimeException e){
-            logger.warning("Failed to commit block");
+        catch(UnknownBlock | ReceiveError e){
+            LOGGER.warning("Failed to commit block");
         }
     }
 
     public void cancelBlock(){
-        logger.info("Canceling block ");
+        LOGGER.info("Canceling block ");
 
         try{
             this.service.cancelBlock();
         }
-        catch(RuntimeException e){
-            logger.warning("Failed to cancel block");
+        catch (InvalidState | ReceiveError e) {
+            LOGGER.warning("Failed to cancel block");
         }
     }
 
     public void broadcastPublishedBlock(byte[] blockId){
-        logger.info("Broadcasting published block " + HexBin.encode(blockId));
+        LOGGER.info("Broadcasting published block " + HexBin.encode(blockId));
 
         try{
             this.service.broadcast("published", blockId);
         }
         catch(RuntimeException e){
-            logger.warning("Failed to broadcast published block");
+            LOGGER.warning("Failed to broadcast published block");
         }
     }
 
@@ -215,7 +223,7 @@ public class DevmodeService {
             this.service.sendTo(block.getSignerId().toByteArray(), MessageType.CONSENSUS_NOTIFY_PEER_MESSAGE, block.getBlockId().toByteArray());
         }
         catch(RuntimeException e){
-            logger.warning("Failed to send block received");
+            LOGGER.warning("Failed to send block received");
         }
     }
 
@@ -224,7 +232,7 @@ public class DevmodeService {
             this.service.sendTo(senderId, MessageType.CONSENSUS_NOTIFY_ACK, blockId);
         }
         catch(RuntimeException e){
-            logger.warning("Failed to send block ack");
+            LOGGER.warning("Failed to send block ack");
         }
     }
 
@@ -242,18 +250,18 @@ public class DevmodeService {
             int min_wait_time = Integer.parseInt(settings.get("sawtooth.consensus.min_wait_time"));
             int max_wait_time = Integer.parseInt(settings.get("sawtooth.consensus.max_wait_time"));
 
-            logger.info("Min: " + min_wait_time + " -- Max: " + max_wait_time);
+            LOGGER.info("Min: " + min_wait_time + " -- Max: " + max_wait_time);
 
             if(min_wait_time >= max_wait_time)
                 wait_time = DEFAULT_WAIT_TIME;
             else
                 wait_time = ThreadLocalRandom.current().nextInt(min_wait_time, max_wait_time + 1);
         }
-        catch(RuntimeException e){
+        catch(UnknownBlock | ReceiveError e){
             wait_time = DEFAULT_WAIT_TIME;
         }
 
-        logger.info("Wait time: " + wait_time);
+        LOGGER.info("Wait time: " + wait_time);
 
         return wait_time;
     }

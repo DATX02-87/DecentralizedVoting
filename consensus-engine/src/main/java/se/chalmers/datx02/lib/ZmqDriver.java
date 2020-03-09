@@ -5,6 +5,7 @@ import com.google.protobuf.Descriptors;
 import com.google.protobuf.Field;
 import com.google.protobuf.InvalidProtocolBufferException;
 import sawtooth.sdk.protobuf.*;
+import se.chalmers.datx02.lib.exceptions.ReceiveError;
 import se.chalmers.datx02.lib.impl.ZmqCommunicator;
 import se.chalmers.datx02.lib.models.ConsensusFuture;
 import se.chalmers.datx02.lib.models.DriverUpdate;
@@ -28,7 +29,12 @@ public class ZmqDriver implements Driver {
     @Override
     public void start(String endpoint) {
         this.communicator = new ZmqCommunicator(endpoint);
-        StartupState startupState = register();
+        StartupState startupState = null;
+        try {
+            startupState = register();
+        } catch (ReceiveError receiveError) {
+            receiveError.printStackTrace();
+        }
         if (startupState == null) {
             this.waitUntilActive();
         }
@@ -92,7 +98,7 @@ public class ZmqDriver implements Driver {
         }
     }
 
-    private StartupState register() {
+    private StartupState register() throws ReceiveError {
         this.communicator.waitForReady();
 
         ConsensusRegisterRequest registerRequest = ConsensusRegisterRequest.newBuilder()
@@ -115,7 +121,7 @@ public class ZmqDriver implements Driver {
                 // TODO if hasfield chain head and local peer info
                 return null;
             }
-            throw new RuntimeException("Registration failed with status " + response.getStatus());
+            throw new ReceiveError("Registration failed with status " + response.getStatus());
 
         }
     }
@@ -195,9 +201,9 @@ public class ZmqDriver implements Driver {
                     case PING_REQUEST:
                         break;
                     default:
-                        throw new RuntimeException("No valid messagetype was sent to the driver");
+                        throw new ReceiveError("No valid messagetype was sent to the driver");
                 }
-            } catch (InvalidProtocolBufferException e) {
+            } catch (InvalidProtocolBufferException | ReceiveError e) {
                 throw new RuntimeException("Message could not be parsed to a protobuf", e);
             }
             // send ack back to the validator
