@@ -51,6 +51,12 @@
             <artifactId>picocli</artifactId>
             <version>4.2.0</version>
         </dependency>
+        <dependency>
+            <groupId>org.testcontainers</groupId>
+            <artifactId>testcontainers</artifactId>
+            <version>1.13.0</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
     <build>
         <extensions>
@@ -64,7 +70,35 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
-                <version>3.0.0-M3</version>
+                <version>3.0.0-M4</version>
+                <executions>
+                    <execution>
+                        <id>integration-tests</id>
+                        <phase>integration-test</phase>
+                        <goals>
+                            <goal>test</goal>
+                        </goals>
+                        <configuration>
+                            <groups>integration</groups>
+                            <skipTests>false</skipTests>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>unit-tests</id>
+                        <phase>test</phase>
+                        <goals>
+                            <goal>test</goal>
+                        </goals>
+                        <configuration>
+                            <excludedGroups>integration</excludedGroups>
+                            <skipTests>false</skipTests>
+                        </configuration>
+                    </execution>
+                </executions>
+                <configuration>
+                    <skipTests>true</skipTests>
+
+                </configuration>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>

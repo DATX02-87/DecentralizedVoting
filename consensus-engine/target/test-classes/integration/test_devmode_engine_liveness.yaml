@@ -19,7 +19,7 @@ services:
 
   test-devmode-engine-liveness:
     build:
-      context: ../
+      context: ../../java/se/chalmers/datx02/lib
       dockerfile: tests/integration-tests.dockerfile
       args:
         - http_proxy
@@ -39,7 +39,7 @@ services:
 
   intkey-workload:
     build:
-      context: ../
+      context: ../../java/se/chalmers/datx02/lib
       dockerfile: tests/integration-tests.dockerfile
       args:
         - http_proxy
@@ -58,7 +58,7 @@ services:
 
   devmode-engine-0:
     build:
-      context: ../
+      context: ../../java/se/chalmers/datx02/lib
       dockerfile: ./Dockerfile
       args:
         - http_proxy
@@ -72,7 +72,7 @@ services:
 
   devmode-engine-1:
     build:
-      context: ../
+      context: ../../java/se/chalmers/datx02/lib
       dockerfile: ./Dockerfile
       args:
         - http_proxy
@@ -86,7 +86,7 @@ services:
 
   devmode-engine-2:
     build:
-      context: ../
+      context: ../../java/se/chalmers/datx02/lib
       dockerfile: ./Dockerfile
       args:
         - http_proxy
@@ -100,7 +100,7 @@ services:
 
   devmode-engine-3:
     build:
-      context: ../
+      context: ../../java/se/chalmers/datx02/lib
       dockerfile: ./Dockerfile
       args:
         - http_proxy
@@ -114,7 +114,7 @@ services:
 
   devmode-engine-4:
     build:
-      context: ../
+      context: ../../java/se/chalmers/datx02/lib
       dockerfile: ./Dockerfile
       args:
         - http_proxy
