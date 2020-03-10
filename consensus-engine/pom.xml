@@ -16,7 +16,12 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <protobuf.version>3.6.1</protobuf.version>
     </properties>
-
+    <repositories>
+        <repository>
+            <id>bintray-palantir</id>
+            <url>https://dl.bintray.com/palantir/releases</url>
+        </repository>
+    </repositories>
     <dependencies>
         <dependency>
             <groupId>com.google.protobuf</groupId>
@@ -52,9 +57,21 @@
             <version>4.2.0</version>
         </dependency>
         <dependency>
-            <groupId>org.testcontainers</groupId>
-            <artifactId>testcontainers</artifactId>
-            <version>1.13.0</version>
+            <groupId>com.palantir.docker.compose</groupId>
+            <artifactId>docker-compose-junit-jupiter</artifactId>
+            <version>1.4.2</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.google.http-client</groupId>
+            <artifactId>google-http-client</artifactId>
+            <version>1.34.2</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.google.http-client</groupId>
+            <artifactId>google-http-client-jackson2</artifactId>
+            <version>1.34.2</version>
             <scope>test</scope>
         </dependency>
     </dependencies>

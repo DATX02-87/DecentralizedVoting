@@ -17,37 +17,28 @@ version: "2.1"
 
 services:
 
-  test-devmode-engine-liveness:
-    build:
-      context: ../../java/se/chalmers/datx02/lib
-      dockerfile: tests/integration-tests.dockerfile
-      args:
-        - http_proxy
-        - https_proxy
-        - no_proxy
-    image: integration-tests:$ISOLATION_ID
-    volumes:
-      - $SAWTOOTH_DEVMODE:/project/sawtooth-devmode
-    command: nose2-3
-        -c /project/sawtooth-devmode/tests/nose2.cfg
-        -vvvv
-        -s /project/sawtooth-devmode/tests
-        test_devmode_engine_liveness
-    expose:
-      - 8008
-    stop_signal: SIGKILL
+  # test-devmode-engine-liveness:
+  #   build:
+  #     context: ../../java/se/chalmers/datx02/lib
+  #     dockerfile: tests/integration-tests.dockerfile
+  #     args:
+  #       - http_proxy
+  #       - https_proxy
+  #       - no_proxy
+  #   image: integration-tests:$ISOLATION_ID
+  #   volumes:
+  #     - $SAWTOOTH_DEVMODE:/project/sawtooth-devmode
+  #   command: nose2-3
+  #       -c /project/sawtooth-devmode/tests/nose2.cfg
+  #       -vvvv
+  #       -s /project/sawtooth-devmode/tests
+  #       test_devmode_engine_liveness
+  #   expose:
+  #     - 8008
+  #   stop_signal: SIGKILL
 
   intkey-workload:
-    build:
-      context: ../../java/se/chalmers/datx02/lib
-      dockerfile: tests/integration-tests.dockerfile
-      args:
-        - http_proxy
-        - https_proxy
-        - no_proxy
-    image: integration-tests:$ISOLATION_ID
-    volumes:
-      - $SAWTOOTH_DEVMODE:/project/sawtooth-devmode
+    image: hyperledger/sawtooth-shell:nightly
     expose:
       - 8008
     command: "bash -c \"\
@@ -56,76 +47,47 @@ services:
       \""
     stop_signal: SIGKILL
 
-  devmode-engine-0:
-    build:
-      context: ../../java/se/chalmers/datx02/lib
-      dockerfile: ./Dockerfile
-      args:
-        - http_proxy
-        - https_proxy
-        - no_proxy
-    image: sawtooth-devmode$INSTALL_TYPE:$ISOLATION_ID
-    volumes:
-      - $SAWTOOTH_DEVMODE:/project/sawtooth-devmode
-    command: devmode-engine-rust --connect tcp://validator-0:5005 -vv
-    stop_signal: SIGKILL
+  # devmode-engine-0:
+  #   image: hyperledger/sawtooth-devmode-engine-rust:latest
+  #   depends_on:
+  #     - validator-0
+  #   entrypoint: devmode-engine-rust -C tcp://validator-0:5005
+  # devmode-engine-1:
+  #   image: hyperledger/sawtooth-devmode-engine-rust:latest
+  #   depends_on:
+  #     - validator-1
+  #   entrypoint: devmode-engine-rust -C tcp://validator-1:5005
+  # devmode-engine-2:
+  #   image: hyperledger/sawtooth-devmode-engine-rust:latest
+  #   depends_on:
+  #     - validator-2
+  #   entrypoint: devmode-engine-rust -C tcp://validator-2:5005
+  # devmode-engine-3:
+  #   image: hyperledger/sawtooth-devmode-engine-rust:latest
+  #   depends_on:
+  #     - validator-3
+  #   entrypoint: devmode-engine-rust -C tcp://validator-3:5005
+  # devmode-engine-4:
+  #   image: hyperledger/sawtooth-devmode-engine-rust:latest
+  #   depends_on:
+  #     - validator-4
+  #   entrypoint: devmode-engine-rust -C tcp://validator-4:5005
 
-  devmode-engine-1:
-    build:
-      context: ../../java/se/chalmers/datx02/lib
-      dockerfile: ./Dockerfile
-      args:
-        - http_proxy
-        - https_proxy
-        - no_proxy
-    image: sawtooth-devmode$INSTALL_TYPE:$ISOLATION_ID
-    volumes:
-      - $SAWTOOTH_DEVMODE:/project/sawtooth-devmode
-    command: devmode-engine-rust --connect tcp://validator-1:5005 -vv
-    stop_signal: SIGKILL
+  # devmode-engine-0:
+  #   build:
+  #     context: ../../java/se/chalmers/datx02/lib
+  #     dockerfile: ./Dockerfile
+  #     args:
+  #       - http_proxy
+  #       - https_proxy
+  #       - no_proxy
+  #   image: sawtooth-devmode$INSTALL_TYPE:$ISOLATION_ID
+  #   volumes:
+  #     - $SAWTOOTH_DEVMODE:/project/sawtooth-devmode
+  #   command: devmode-engine-rust --connect tcp://validator-0:5005 -vv
+  #   stop_signal: SIGKILL
 
-  devmode-engine-2:
-    build:
-      context: ../../java/se/chalmers/datx02/lib
-      dockerfile: ./Dockerfile
-      args:
-        - http_proxy
-        - https_proxy
-        - no_proxy
-    image: sawtooth-devmode$INSTALL_TYPE:$ISOLATION_ID
-    volumes:
-      - $SAWTOOTH_DEVMODE:/project/sawtooth-devmode
-    command: devmode-engine-rust --connect tcp://validator-2:5005 -vv
-    stop_signal: SIGKILL
 
-  devmode-engine-3:
-    build:
-      context: ../../java/se/chalmers/datx02/lib
-      dockerfile: ./Dockerfile
-      args:
-        - http_proxy
-        - https_proxy
-        - no_proxy
-    image: sawtooth-devmode$INSTALL_TYPE:$ISOLATION_ID
-    volumes:
-      - $SAWTOOTH_DEVMODE:/project/sawtooth-devmode
-    command: devmode-engine-rust --connect tcp://validator-3:5005 -vv
-    stop_signal: SIGKILL
-
-  devmode-engine-4:
-    build:
-      context: ../../java/se/chalmers/datx02/lib
-      dockerfile: ./Dockerfile
-      args:
-        - http_proxy
-        - https_proxy
-        - no_proxy
-    image: sawtooth-devmode$INSTALL_TYPE:$ISOLATION_ID
-    volumes:
-      - $SAWTOOTH_DEVMODE:/project/sawtooth-devmode
-    command: |
-      bash -c "sleep 15 && devmode-engine-rust --connect tcp://validator-4:5005 -v"
-    stop_signal: SIGKILL
 
   validator-0:
     image: hyperledger/sawtooth-validator:nightly
@@ -251,6 +213,8 @@ services:
 
   rest-api-0:
     image: hyperledger/sawtooth-rest-api:nightly
+    ports:
+      - 8008
     expose:
       - 4004
       - 8008
@@ -259,6 +223,8 @@ services:
 
   rest-api-1:
     image: hyperledger/sawtooth-rest-api:nightly
+    ports:
+      - 8008
     expose:
       - 4004
       - 8008
@@ -267,6 +233,8 @@ services:
 
   rest-api-2:
     image: hyperledger/sawtooth-rest-api:nightly
+    ports:
+      - 8008
     expose:
       - 4004
       - 8008
@@ -275,6 +243,8 @@ services:
 
   rest-api-3:
     image: hyperledger/sawtooth-rest-api:nightly
+    ports:
+      - 8008
     expose:
       - 4004
       - 8008
@@ -283,6 +253,8 @@ services:
 
   rest-api-4:
     image: hyperledger/sawtooth-rest-api:nightly
+    ports:
+      - 8008
     expose:
       - 4004
       - 8008

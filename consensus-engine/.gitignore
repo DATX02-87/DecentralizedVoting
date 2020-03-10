@@ -82,4 +82,5 @@ target/classes
 target/maven-*
 target/protoc-*
 target/surefire-reports
+target/test-classes/*
 
