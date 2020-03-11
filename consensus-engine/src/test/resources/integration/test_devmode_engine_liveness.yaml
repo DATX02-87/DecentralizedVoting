@@ -16,27 +16,6 @@
 version: "2.1"
 
 services:
-
-  # test-devmode-engine-liveness:
-  #   build:
-  #     context: ../../java/se/chalmers/datx02/lib
-  #     dockerfile: tests/integration-tests.dockerfile
-  #     args:
-  #       - http_proxy
-  #       - https_proxy
-  #       - no_proxy
-  #   image: integration-tests:$ISOLATION_ID
-  #   volumes:
-  #     - $SAWTOOTH_DEVMODE:/project/sawtooth-devmode
-  #   command: nose2-3
-  #       -c /project/sawtooth-devmode/tests/nose2.cfg
-  #       -vvvv
-  #       -s /project/sawtooth-devmode/tests
-  #       test_devmode_engine_liveness
-  #   expose:
-  #     - 8008
-  #   stop_signal: SIGKILL
-
   intkey-workload:
     image: hyperledger/sawtooth-shell:nightly
     expose:
