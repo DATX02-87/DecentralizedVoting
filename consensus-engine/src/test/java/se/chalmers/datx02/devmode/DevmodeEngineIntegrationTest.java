@@ -18,23 +18,30 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
+import se.chalmers.datx02.testutils.Block;
+import se.chalmers.datx02.testutils.Response;
 
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
+import java.util.*;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-import static org.junit.jupiter.api.Assertions.fail;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @Tag(value = "integration")
 class DevmodeEngineIntegrationTest {
+    private final static Logger LOGGER = Logger.getLogger(DevmodeEngineIntegrationTest.class.getName());
     private static HttpTransport HTTP_TRANSPORT = new NetHttpTransport();
     private static JsonFactory JSON_FACTORY = new JacksonFactory();
     private static final int COMPONENT_PORT = 4004;
     public static final int VALIDATOR_PORT = 8800;
     public static final int CONSENSUS_PORT = 5005;
+    public static final int BATCH_PER_BLOCK_MIN = 1;
+    public static final int BATCH_PER_BLOCK_MAX = 100;
+    public static final int BLOCKS_TO_REACH = 55;
+    public static final int BLOCKS_TO_CHECK_CONSENSUS = 52;
+    public static final int MIN_TOTAL_BATCHES = 100;
     public static final int REST_API_PORT = 8008;
     private static final List<Integer> INSTANCES = IntStream.range(0, 5).boxed().collect(Collectors.toList());
     private static HttpRequestFactory requestFactory;
@@ -61,36 +68,107 @@ class DevmodeEngineIntegrationTest {
                             .map(Container::areAllPortsOpen)
                             .filter(SuccessOrFailure::failed)
                             .findAny().orElse(SuccessOrFailure.success()))
+            .saveLogsTo("logs/docker-logs/" + DevmodeEngineIntegrationTest.class.getSimpleName())
             .build();
 
     @Test
-    public void test() {
-        System.out.println("INTEGRATION TEST");
-        while (true) {
-            Block block = null;
-            try {
-                block = getBlock(0);
-            } catch (IOException e) {
-                e.printStackTrace();
+    public void test() throws InterruptedException {
+        Set<Integer> nodesReached = new TreeSet<>();
+        // test that the blockchain reaches a specified size
+        while (nodesReached.size() < INSTANCES.size()) {
+            for (Integer i : INSTANCES) {
+                if (nodesReached.contains(i)) {
+                    continue;
+                }
+                Block block;
+                try {
+                    block = getBlock(i);
+                    if (block == null) {
+                        continue;
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    continue;
+                }
+                // assert that the block has correct number of batches
+                assertTrue(checkBlocksBatchCount(block, BATCH_PER_BLOCK_MIN, BATCH_PER_BLOCK_MAX));
+                if (block.getHeader().getBlockNum() >= BLOCKS_TO_REACH) {
+                    nodesReached.add(i);
+                }
+                logBlock(i, block);
             }
-            if (block == null) {
-                continue;
-            }
-
-            System.out.println(block);
-            break;
+            Thread.sleep(1000);
         }
+        List<List<Block>> chains = getChains();
+        // test that all nodes are in consensus
+        assertTrue(checkConsensus(chains, BLOCKS_TO_CHECK_CONSENSUS));
+        // test that an acceptable number of batches has been committed
+        assertTrue(checkMinBatches(chains.get(0), MIN_TOTAL_BATCHES));
+    }
 
-//        fail();
+    private boolean checkMinBatches(List<Block> blocks, int minBatches) {
+        return blocks.stream()
+                .map(b -> b.getHeader().getBatchIds().size())
+                .reduce(Integer::sum).orElse(0) >= minBatches;
+    }
+
+    private boolean checkConsensus(List<List<Block>> chains, int blockNum) {
+        List<Block> blocksAtNum = chains.stream()
+                .map(chain -> chain
+                        .stream()
+                        .filter(b -> b.getHeader().getBlockNum() == blockNum)
+                        .findAny()
+                        .orElseThrow(() -> new RuntimeException("Block not found in chain")))
+                .collect(Collectors.toList());
+        Block block0 = blocksAtNum.get(0);
+        return blocksAtNum.parallelStream().allMatch(b -> b.getHeaderSignature().equals(block0.getHeaderSignature()));
+    }
+
+    private List<List<Block>> getChains() {
+        return INSTANCES.stream()
+                .map(this::getAllBlocks)
+                .collect(Collectors.toList());
+    }
+
+    private void logBlock(Integer i, Block block) {
+        List<String> batchIds = block.getHeader().getBatchIds()
+                .parallelStream()
+                .map(id -> id.substring(0, 6))
+                .collect(Collectors.toList());
+        LOGGER.info(String.format(
+                "Validator-%s has block %s: %s, batches (%s): %s",
+                i,
+                block.getHeader().getBlockNum(),
+                block.getHeaderSignature().substring(0, 6) + "...",
+                batchIds.size(),
+                batchIds));
+    }
+
+    private boolean checkBlocksBatchCount(Block block, int batchPerBlockMin, int batchPerBlockMax) {
+        int batchCount = block.getHeader().getBatchIds().size();
+        return batchPerBlockMin <= batchCount && batchCount <= batchPerBlockMax;
     }
 
 
     private Block getBlock(int node) throws IOException {
-        Container container = docker.containers().container("rest-api-" + node);
-        DockerPort port = container.port(REST_API_PORT);
-        String address = String.format("http://%s:%s/blocks?count=1", port.getIp(), port.getExternalPort());
+        String address = buildUri(node, "blocks?count=1");
         Response response = getRequest(address);
         return response.getData().get(0);
+    }
+
+    private List<Block> getAllBlocks(int node) {
+        String address = buildUri(node, "blocks");
+        try {
+            return getRequest(address).getData();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private static String buildUri(int node, String path) {
+        Container container = docker.containers().container("rest-api-" + node);
+        DockerPort port = container.port(REST_API_PORT);
+        return String.format("http://%s:%s/%s", port.getIp(), port.getExternalPort(), path);
     }
 
     private Response getRequest(String uri) throws IOException {
@@ -98,79 +176,9 @@ class DevmodeEngineIntegrationTest {
                 .parseAs(Response.class);
     }
 
-    public static class Response extends GenericJson {
-        @Key
-        private String head;
-        @Key
-        private String link;
-        @Key
-        private List<Block> data;
 
-        public String getHead() {
-            return head;
-        }
 
-        public String getLink() {
-            return link;
-        }
 
-        public List<Block> getData() {
-            return data;
-        }
-    }
-
-    public static class Block extends GenericJson {
-        @Key(value = "header_signature")
-        private String headerSignature;
-
-        @Key
-        private Header header;
-
-        public String getHeaderSignature() {
-            return headerSignature;
-        }
-
-        public Header getHeader() {
-            return header;
-        }
-    }
-
-    public static class Header extends GenericJson {
-        @Key(value = "batch_ids")
-        private List<String> batchIds;
-
-        @Key(value = "block_num")
-        private long blockNum;
-
-        @Key(value = "previous_block_id")
-        private String previousBlockId;
-
-        @Key(value = "signer_public_key")
-        private String signerPublicKey;
-
-        @Key(value = "state_root_hash")
-        private String stateRootHash;
-
-        public List<String> getBatchIds() {
-            return batchIds;
-        }
-
-        public long getBlockNum() {
-            return blockNum;
-        }
-
-        public String getPreviousBlockId() {
-            return previousBlockId;
-        }
-
-        public String getSignerPublicKey() {
-            return signerPublicKey;
-        }
-
-        public String getStateRootHash() {
-            return stateRootHash;
-        }
-    }
 
 
 }

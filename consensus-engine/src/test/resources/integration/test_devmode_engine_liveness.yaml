@@ -47,31 +47,31 @@ services:
       \""
     stop_signal: SIGKILL
 
-  # devmode-engine-0:
-  #   image: hyperledger/sawtooth-devmode-engine-rust:latest
-  #   depends_on:
-  #     - validator-0
-  #   entrypoint: devmode-engine-rust -C tcp://validator-0:5005
-  # devmode-engine-1:
-  #   image: hyperledger/sawtooth-devmode-engine-rust:latest
-  #   depends_on:
-  #     - validator-1
-  #   entrypoint: devmode-engine-rust -C tcp://validator-1:5005
-  # devmode-engine-2:
-  #   image: hyperledger/sawtooth-devmode-engine-rust:latest
-  #   depends_on:
-  #     - validator-2
-  #   entrypoint: devmode-engine-rust -C tcp://validator-2:5005
-  # devmode-engine-3:
-  #   image: hyperledger/sawtooth-devmode-engine-rust:latest
-  #   depends_on:
-  #     - validator-3
-  #   entrypoint: devmode-engine-rust -C tcp://validator-3:5005
-  # devmode-engine-4:
-  #   image: hyperledger/sawtooth-devmode-engine-rust:latest
-  #   depends_on:
-  #     - validator-4
-  #   entrypoint: devmode-engine-rust -C tcp://validator-4:5005
+  devmode-engine-0:
+    image: hyperledger/sawtooth-devmode-engine-rust:latest
+    depends_on:
+      - validator-0
+    entrypoint: devmode-engine-rust -C tcp://validator-0:5005
+  devmode-engine-1:
+    image: hyperledger/sawtooth-devmode-engine-rust:latest
+    depends_on:
+      - validator-1
+    entrypoint: devmode-engine-rust -C tcp://validator-1:5005
+  devmode-engine-2:
+    image: hyperledger/sawtooth-devmode-engine-rust:latest
+    depends_on:
+      - validator-2
+    entrypoint: devmode-engine-rust -C tcp://validator-2:5005
+  devmode-engine-3:
+    image: hyperledger/sawtooth-devmode-engine-rust:latest
+    depends_on:
+      - validator-3
+    entrypoint: devmode-engine-rust -C tcp://validator-3:5005
+  devmode-engine-4:
+    image: hyperledger/sawtooth-devmode-engine-rust:latest
+    depends_on:
+      - validator-4
+    entrypoint: devmode-engine-rust -C tcp://validator-4:5005
 
   # devmode-engine-0:
   #   build:
