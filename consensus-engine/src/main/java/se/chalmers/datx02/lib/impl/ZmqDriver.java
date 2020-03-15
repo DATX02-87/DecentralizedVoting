@@ -217,7 +217,7 @@ public class ZmqDriver implements Driver {
                         this.stopCallback.callback();
                         break;
                     case PING_REQUEST:
-                        return new DriverUpdate(msgType, null);
+                        break;
                     default:
                         throw new ReceiveErrorException("No valid messagetype was sent to the driver");
                 }
