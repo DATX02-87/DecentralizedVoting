@@ -13,9 +13,7 @@ import se.chalmers.datx02.lib.exceptions.UnknownBlock;
 import se.chalmers.datx02.lib.impl.ZmqService;
 import se.chalmers.datx02.lib.models.ConsensusFuture;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -82,9 +80,9 @@ class ZmqServiceTest {
 
         verify(communicator).send(
                 ConsensusBroadcastRequest.newBuilder()
-                .setContent(ByteString.copyFrom("payload".getBytes()))
-                .setMessageType(Message.MessageType.PING_REQUEST.toString())
-                .build().toByteArray(), Message.MessageType.CONSENSUS_BROADCAST_REQUEST
+                        .setContent(ByteString.copyFrom("payload".getBytes()))
+                        .setMessageType(Message.MessageType.PING_REQUEST.toString())
+                        .build().toByteArray(), Message.MessageType.CONSENSUS_BROADCAST_REQUEST
         );
     }
 
@@ -104,9 +102,14 @@ class ZmqServiceTest {
 
         verify(communicator).send(
                 ConsensusInitializeBlockRequest.newBuilder()
-                .setPreviousId(ByteString.copyFrom("previousId".getBytes()))
-                .build().toByteArray(), Message.MessageType.CONSENSUS_INITIALIZE_BLOCK_REQUEST
+                        .setPreviousId(ByteString.copyFrom("previousId".getBytes()))
+                        .build().toByteArray(), Message.MessageType.CONSENSUS_INITIALIZE_BLOCK_REQUEST
         );
+    }
+
+    @Test
+    void testSummarizeBlock() {
+        // TODO
     }
 
     @Test
@@ -129,7 +132,7 @@ class ZmqServiceTest {
 
         verify(communicator).send(
                 ConsensusFinalizeBlockRequest.newBuilder()
-                .setData(blockIdBytes)
+                        .setData(blockIdBytes)
                         .build().toByteArray(), Message.MessageType.CONSENSUS_FINALIZE_BLOCK_REQUEST
         );
         assertArrayEquals(blockIdBytes.toByteArray(), response);
@@ -179,5 +182,207 @@ class ZmqServiceTest {
                         .build().toByteArray(),
                 Message.MessageType.CONSENSUS_CHECK_BLOCKS_REQUEST
         );
+    }
+
+    @Test
+    void testCommitBlocks() throws UnknownBlock, ReceiveError {
+        ConsensusCommitBlockResponse resp = ConsensusCommitBlockResponse.newBuilder()
+                .setStatus(ConsensusCommitBlockResponse.Status.OK).build();
+
+        when(communicator.send(any(byte[].class), any(Message.MessageType.class))).thenReturn(
+                makeFuture(
+                        Message.MessageType.CONSENSUS_COMMIT_BLOCK_RESPONSE,
+                        resp.toByteArray()
+                )
+        );
+
+        service.commitBlock("test".getBytes());
+
+        verify(communicator).send(
+                ConsensusCommitBlockRequest.newBuilder()
+                        .setBlockId(ByteString.copyFrom("test".getBytes())).build().toByteArray(),
+                Message.MessageType.CONSENSUS_COMMIT_BLOCK_REQUEST
+        );
+    }
+
+    @Test
+    void testIgnoreBlocks() throws UnknownBlock, ReceiveError {
+        ConsensusIgnoreBlockResponse resp = ConsensusIgnoreBlockResponse.newBuilder()
+                .setStatus(ConsensusIgnoreBlockResponse.Status.OK).build();
+
+        when(communicator.send(any(byte[].class), any(Message.MessageType.class))).thenReturn(
+                makeFuture(
+                        Message.MessageType.CONSENSUS_IGNORE_BLOCK_RESPONSE,
+                        resp.toByteArray()
+                )
+        );
+
+        service.ignoreBlock("test".getBytes());
+
+        verify(communicator).send(ConsensusIgnoreBlockRequest.newBuilder()
+                        .setBlockId(ByteString.copyFrom("test".getBytes())).build().toByteArray(),
+                Message.MessageType.CONSENSUS_IGNORE_BLOCK_REQUEST
+        );
+    }
+
+    @Test
+    void testFailBlock() throws UnknownBlock, ReceiveError {
+        ConsensusFailBlockResponse resp = ConsensusFailBlockResponse.newBuilder()
+                .setStatus(ConsensusFailBlockResponse.Status.OK).build();
+
+        when(communicator.send(any(byte[].class), any(Message.MessageType.class))).thenReturn(
+                makeFuture(
+                        Message.MessageType.CONSENSUS_FAIL_BLOCK_RESPONSE,
+                        resp.toByteArray()
+                )
+        );
+
+        service.failBlock("test".getBytes());
+
+        verify(communicator).send(
+                ConsensusFailBlockRequest.newBuilder()
+                        .setBlockId(ByteString.copyFrom("test".getBytes()))
+                        .build().toByteArray(),
+                Message.MessageType.CONSENSUS_FAIL_BLOCK_REQUEST
+        );
+    }
+
+    @Test
+    void testGetBlocks() throws UnknownBlock, ReceiveError {
+        List<ConsensusBlock> blockList = new ArrayList<>();
+
+        ConsensusBlock block1 = ConsensusBlock.newBuilder()
+                .setBlockId(ByteString.copyFrom("block1".getBytes()))
+                .setPreviousId(ByteString.copyFrom("block0".getBytes()))
+                .setSignerId(ByteString.copyFrom("signer1".getBytes()))
+                .setBlockNum(1)
+                .setPayload(ByteString.copyFrom("test1".getBytes())).build();
+
+        ConsensusBlock block2 = ConsensusBlock.newBuilder()
+                .setBlockId(ByteString.copyFrom("block2".getBytes()))
+                .setPreviousId(ByteString.copyFrom("block1".getBytes()))
+                .setSignerId(ByteString.copyFrom("signer2".getBytes()))
+                .setBlockNum(2)
+                .setPayload(ByteString.copyFrom("test2".getBytes())).build();
+
+        blockList.add(block1);
+        blockList.add(block2);
+
+        ConsensusBlocksGetResponse resp = ConsensusBlocksGetResponse.newBuilder()
+                .setStatus(ConsensusBlocksGetResponse.Status.OK)
+                .addAllBlocks(blockList).build();
+
+        when(communicator.send(any(byte[].class), any(Message.MessageType.class))).thenReturn(
+                makeFuture(
+                        Message.MessageType.CONSENSUS_BLOCKS_GET_RESPONSE,
+                        resp.toByteArray()
+                )
+        );
+
+        List<byte[]> blockIds = new ArrayList<>();
+        blockIds.add("block1".getBytes());
+        blockIds.add("block2".getBytes());
+
+        Object[] response = service.getBlocks(blockIds).values().toArray();
+
+        verify(communicator).send(
+                ConsensusBlocksGetRequest.newBuilder()
+                .addAllBlockIds(blockIds.stream()
+                        .map(ByteString::copyFrom)
+                        .collect(Collectors.toList())).build().toByteArray(),
+                Message.MessageType.CONSENSUS_BLOCKS_GET_REQUEST
+        );
+
+        // assertArrayEquals(blockList.toArray(), response);
+
+    }
+
+    @Test
+    void testGetChainHead() {
+        // TODO
+    }
+
+    @Test
+    void testGetSettings() throws UnknownBlock, ReceiveError {
+        List<ConsensusSettingsEntry> settingEntries = new ArrayList<>();
+
+        ConsensusSettingsEntry entry1 = ConsensusSettingsEntry.newBuilder().setKey("key1").setValue("value1").build();
+        ConsensusSettingsEntry entry2 = ConsensusSettingsEntry.newBuilder().setKey("key2").setValue("value2").build();
+
+        settingEntries.add(entry1);
+        settingEntries.add(entry2);
+
+        ConsensusSettingsGetResponse resp = ConsensusSettingsGetResponse.newBuilder()
+                .setStatus(ConsensusSettingsGetResponse.Status.OK)
+                .addAllEntries(settingEntries).build();
+
+        when(communicator.send(any(byte[].class), any(Message.MessageType.class))).thenReturn(
+                makeFuture(
+                        Message.MessageType.CONSENSUS_SETTINGS_GET_RESPONSE,
+                        resp.toByteArray()
+                )
+        );
+
+        List<String> settings = new ArrayList<>();
+        settings.add("test1");
+        settings.add("test2");
+
+        Map<String, String> entries = service.getSettings("test".getBytes(), settings);
+
+        verify(communicator).send(
+                ConsensusSettingsGetRequest.newBuilder().setBlockId(ByteString.copyFrom("test".getBytes()))
+                        .addAllKeys(settings)
+                        .build().toByteArray(),
+                Message.MessageType.CONSENSUS_SETTINGS_GET_REQUEST
+        );
+        Map<String, String> toCompare = new HashMap<>();
+        toCompare.put(settingEntries.get(0).getKey(), settingEntries.get(0).getValue());
+        toCompare.put(settingEntries.get(1).getKey(), settingEntries.get(1).getValue());
+        assertEquals(entries, toCompare);
+    }
+
+    @Test
+    void testGetState() throws UnknownBlock, ReceiveError {
+        List<ConsensusStateEntry> stateEntries = new ArrayList<>();
+
+        ConsensusStateEntry entry1 = ConsensusStateEntry.newBuilder()
+                .setAddress("address1")
+                .setData(ByteString.copyFrom("data1".getBytes())).build();
+        ConsensusStateEntry entry2 = ConsensusStateEntry.newBuilder()
+                .setAddress("address2")
+                .setData(ByteString.copyFrom("data2".getBytes())).build();
+
+        stateEntries.add(entry1);
+        stateEntries.add(entry2);
+
+        ConsensusStateGetResponse resp = ConsensusStateGetResponse.newBuilder()
+                .setStatus(ConsensusStateGetResponse.Status.OK)
+                .addAllEntries(stateEntries).build();
+
+        when(communicator.send(any(byte[].class), any(Message.MessageType.class))).thenReturn(
+                makeFuture(
+                        Message.MessageType.CONSENSUS_STATE_GET_RESPONSE,
+                        resp.toByteArray()
+                )
+        );
+
+        List<String> addresses = new ArrayList<>();
+        addresses.add("test1");
+        addresses.add("test2");
+
+        Map<String, byte[]> entries = service.getState("test".getBytes(), addresses);
+
+        verify(communicator).send(
+                ConsensusStateGetRequest.newBuilder()
+                .setBlockId(ByteString.copyFrom("test".getBytes()))
+                        .addAllAddresses(addresses)
+                        .build().toByteArray(),
+                Message.MessageType.CONSENSUS_STATE_GET_REQUEST
+        );
+        Map<String, byte[]> toCompare = new HashMap<>();
+        toCompare.put(stateEntries.get(0).getAddress(), stateEntries.get(0).getData().toByteArray());
+        toCompare.put(stateEntries.get(1).getAddress(), stateEntries.get(1).getData().toByteArray());
+        // assertEquals(entries, toCompare);
+
     }
 }
