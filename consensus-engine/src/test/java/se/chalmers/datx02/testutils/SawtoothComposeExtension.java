@@ -63,10 +63,10 @@ public class SawtoothComposeExtension implements BeforeAllCallback, AfterAllCall
         return String.format("http://%s:%s/%s", dockerPort.getIp(), dockerPort.getExternalPort(), path);
     }
 
-    public String buildUri(String transport, String containerName, int port, String path) {
+    public String buildUri(String transport, String containerName, int port) {
         Container container = docker.containers().container(containerName);
         DockerPort dockerPort = container.port(port);
-        return String.format("%s://%s:%s/%s", transport, dockerPort.getIp(), dockerPort.getExternalPort(), path);
+        return String.format("%s://%s:%s", transport, dockerPort.getIp(), dockerPort.getExternalPort());
     }
 
     public <T> T getRequest(String uri, Class<T> clazz) throws IOException {
