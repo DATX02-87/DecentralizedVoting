@@ -7,9 +7,9 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import sawtooth.sdk.protobuf.*;
-import se.chalmers.datx02.lib.exceptions.InvalidState;
-import se.chalmers.datx02.lib.exceptions.ReceiveError;
-import se.chalmers.datx02.lib.exceptions.UnknownBlock;
+import se.chalmers.datx02.lib.exceptions.InvalidStateException;
+import se.chalmers.datx02.lib.exceptions.ReceiveErrorException;
+import se.chalmers.datx02.lib.exceptions.UnknownBlockException;
 import se.chalmers.datx02.lib.impl.ZmqService;
 import se.chalmers.datx02.lib.models.ConsensusFuture;
 
@@ -87,7 +87,7 @@ class ZmqServiceTest {
     }
 
     @Test
-    void testInitializeBlock() throws ReceiveError, InvalidState, UnknownBlock {
+    void testInitializeBlock() throws ReceiveErrorException, InvalidStateException, UnknownBlockException {
         ConsensusInitializeBlockResponse resp = ConsensusInitializeBlockResponse.newBuilder()
                 .setStatus((ConsensusInitializeBlockResponse.Status.OK)).build();
         when(communicator.send(any(byte[].class), any(Message.MessageType.class))).thenReturn(
@@ -113,7 +113,7 @@ class ZmqServiceTest {
     }
 
     @Test
-    void testFinalizeBlock() throws ReceiveError, InvalidState, UnknownBlock {
+    void testFinalizeBlock() throws ReceiveErrorException, InvalidStateException, UnknownBlockException {
         String blockId = "blockId";
         ByteString blockIdBytes = ByteString.copyFromUtf8(blockId);
         ConsensusFinalizeBlockResponse resp = ConsensusFinalizeBlockResponse.newBuilder()
@@ -139,7 +139,7 @@ class ZmqServiceTest {
     }
 
     @Test
-    void testCancelBlock() throws ReceiveError, InvalidState {
+    void testCancelBlock() throws ReceiveErrorException, InvalidStateException {
         ConsensusCancelBlockResponse resp = ConsensusCancelBlockResponse.newBuilder()
                 .setStatus(ConsensusCancelBlockResponse.Status.OK).build();
 
@@ -158,7 +158,7 @@ class ZmqServiceTest {
     }
 
     @Test
-    void testCheckBlocks() throws UnknownBlock, ReceiveError {
+    void testCheckBlocks() throws UnknownBlockException, ReceiveErrorException {
         List<byte[]> priority = new ArrayList<>();
         priority.add("test1".getBytes());
         priority.add("test2".getBytes());
@@ -185,7 +185,7 @@ class ZmqServiceTest {
     }
 
     @Test
-    void testCommitBlocks() throws UnknownBlock, ReceiveError {
+    void testCommitBlocks() throws UnknownBlockException, ReceiveErrorException {
         ConsensusCommitBlockResponse resp = ConsensusCommitBlockResponse.newBuilder()
                 .setStatus(ConsensusCommitBlockResponse.Status.OK).build();
 
@@ -206,7 +206,7 @@ class ZmqServiceTest {
     }
 
     @Test
-    void testIgnoreBlocks() throws UnknownBlock, ReceiveError {
+    void testIgnoreBlocks() throws UnknownBlockException, ReceiveErrorException {
         ConsensusIgnoreBlockResponse resp = ConsensusIgnoreBlockResponse.newBuilder()
                 .setStatus(ConsensusIgnoreBlockResponse.Status.OK).build();
 
@@ -226,7 +226,7 @@ class ZmqServiceTest {
     }
 
     @Test
-    void testFailBlock() throws UnknownBlock, ReceiveError {
+    void testFailBlock() throws UnknownBlockException, ReceiveErrorException {
         ConsensusFailBlockResponse resp = ConsensusFailBlockResponse.newBuilder()
                 .setStatus(ConsensusFailBlockResponse.Status.OK).build();
 
@@ -248,7 +248,7 @@ class ZmqServiceTest {
     }
 
     @Test
-    void testGetBlocks() throws UnknownBlock, ReceiveError {
+    void testGetBlocks() throws UnknownBlockException, ReceiveErrorException {
         List<ConsensusBlock> blockList = new ArrayList<>();
 
         ConsensusBlock block1 = ConsensusBlock.newBuilder()
@@ -303,7 +303,7 @@ class ZmqServiceTest {
     }
 
     @Test
-    void testGetSettings() throws UnknownBlock, ReceiveError {
+    void testGetSettings() throws UnknownBlockException, ReceiveErrorException {
         List<ConsensusSettingsEntry> settingEntries = new ArrayList<>();
 
         ConsensusSettingsEntry entry1 = ConsensusSettingsEntry.newBuilder().setKey("key1").setValue("value1").build();
@@ -342,7 +342,7 @@ class ZmqServiceTest {
     }
 
     @Test
-    void testGetState() throws UnknownBlock, ReceiveError {
+    void testGetState() throws UnknownBlockException, ReceiveErrorException {
         List<ConsensusStateEntry> stateEntries = new ArrayList<>();
 
         ConsensusStateEntry entry1 = ConsensusStateEntry.newBuilder()

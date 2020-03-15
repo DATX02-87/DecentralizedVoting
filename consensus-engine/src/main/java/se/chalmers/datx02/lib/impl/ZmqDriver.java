@@ -2,19 +2,25 @@ package se.chalmers.datx02.lib.impl;
 
 import com.google.protobuf.InvalidProtocolBufferException;
 import sawtooth.sdk.protobuf.*;
+import se.chalmers.datx02.devmode.DevmodeEngine;
 import se.chalmers.datx02.lib.Communicator;
 import se.chalmers.datx02.lib.Driver;
 import se.chalmers.datx02.lib.Engine;
+import se.chalmers.datx02.lib.Service;
+import se.chalmers.datx02.lib.models.PeerMessage;
 import se.chalmers.datx02.lib.models.StartupState;
-import se.chalmers.datx02.lib.exceptions.ReceiveError;
+import se.chalmers.datx02.lib.exceptions.ReceiveErrorException;
 import se.chalmers.datx02.lib.models.ConsensusFuture;
 import se.chalmers.datx02.lib.models.DriverUpdate;
 
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.logging.Logger;
 
 public class ZmqDriver implements Driver {
+    private final static Logger LOGGER = Logger.getLogger(DevmodeEngine.class.getName());
     public static final int REGISTER_TIMEOUT = 300;
+    public static final int SERVICE_TIMEOUT = 300;
     private final Engine engine;
     private Communicator communicator;
     private BlockingQueue<DriverUpdate> driverUpdates;
@@ -32,19 +38,19 @@ public class ZmqDriver implements Driver {
         StartupState startupState = null;
         try {
             startupState = register();
-        } catch (ReceiveError receiveError) {
-            receiveError.printStackTrace();
+        } catch (ReceiveErrorException receiveErrorException) {
+            receiveErrorException.printStackTrace();
         }
         if (startupState == null) {
-            this.waitUntilActive();
+            startupState = this.waitUntilActive();
         }
 
         this.driverUpdates = new LinkedBlockingQueue<>();
         driverThread = new Thread(new DriverThread(this::stop, driverUpdates, communicator, exit));
         driverThread.start();
 
-        // TODO do not use null service
-        this.engine.start(driverUpdates, null, startupState);
+        Service service = new ZmqService(communicator, SERVICE_TIMEOUT);
+        this.engine.start(driverUpdates, service, startupState);
         this.stop();
         try {
             driverThread.join();
@@ -73,11 +79,11 @@ public class ZmqDriver implements Driver {
                     throw new RuntimeException(e);
                 }
                 StartupState startupState = new StartupState(notification.getChainHead(), notification.getPeersList(), notification.getLocalPeerInfo());
-                // TODO log
+                LOGGER.info("Received activation message with startup state: " + startupState.toString());
                 communicator.sendBack(ConsensusNotifyAck.newBuilder().build().toByteArray(), msg.getCorrelationId(), Message.MessageType.CONSENSUS_NOTIFY_ACK);
                 return startupState;
             }
-            // TODO log
+            LOGGER.warning(String.format("Received message of type %s, when we are waiting for activation message", msg.getMessageType()));
             receiveFuture = communicator.receive();
         }
     }
@@ -98,7 +104,7 @@ public class ZmqDriver implements Driver {
         }
     }
 
-    private StartupState register() throws ReceiveError {
+    private StartupState register() throws ReceiveErrorException {
         this.communicator.waitForReady();
 
         ConsensusRegisterRequest registerRequest = ConsensusRegisterRequest.newBuilder()
@@ -118,10 +124,12 @@ public class ZmqDriver implements Driver {
                 continue;
             }
             if (response.getStatus() == ConsensusRegisterResponse.Status.OK) {
-                // TODO if hasfield chain head and local peer info
+                if (response.hasChainHead() && response.hasLocalPeerInfo()) {
+                    return new StartupState(response.getChainHead(), response.getPeersList(), response.getLocalPeerInfo());
+                }
                 return null;
             }
-            throw new ReceiveError("Registration failed with status " + response.getStatus());
+            throw new ReceiveErrorException("Registration failed with status " + response.getStatus());
 
         }
     }
@@ -164,7 +172,7 @@ public class ZmqDriver implements Driver {
 
         private DriverUpdate process(Message msg) {
             Message.MessageType msgType = msg.getMessageType();
-            byte[] data = null;
+            Object data = null;
             try {
                 switch (msgType) {
                     case CONSENSUS_NOTIFY_PEER_CONNECTED:
@@ -177,7 +185,17 @@ public class ZmqDriver implements Driver {
                         break;
                     case CONSENSUS_NOTIFY_PEER_MESSAGE:
                         ConsensusNotifyPeerMessage notifyPeerMessage = ConsensusNotifyPeerMessage.parseFrom(msg.getContent());
-                        data = notifyPeerMessage.toByteArray();
+                        ConsensusPeerMessageHeader header = ConsensusPeerMessageHeader.parseFrom(notifyPeerMessage.getMessage().getHeader());
+                        ConsensusPeerMessage message = notifyPeerMessage.getMessage();
+
+                        PeerMessage peerMessage = new PeerMessage(
+                                header,
+                                message.getHeader().toByteArray(),
+                                message.getHeaderSignature().toByteArray(),
+                                message.getContent().toByteArray(),
+                                notifyPeerMessage.getSenderId().toByteArray());
+
+                        data = peerMessage;
                         break;
                     case CONSENSUS_NOTIFY_BLOCK_NEW:
                         ConsensusNotifyBlockNew notifyBlockNew = ConsensusNotifyBlockNew.parseFrom(msg.getContent());
@@ -199,11 +217,11 @@ public class ZmqDriver implements Driver {
                         this.stopCallback.callback();
                         break;
                     case PING_REQUEST:
-                        break;
+                        return new DriverUpdate(msgType, null);
                     default:
-                        throw new ReceiveError("No valid messagetype was sent to the driver");
+                        throw new ReceiveErrorException("No valid messagetype was sent to the driver");
                 }
-            } catch (InvalidProtocolBufferException | ReceiveError e) {
+            } catch (InvalidProtocolBufferException | ReceiveErrorException e) {
                 throw new RuntimeException("Message could not be parsed to a protobuf", e);
             }
             // send ack back to the validator

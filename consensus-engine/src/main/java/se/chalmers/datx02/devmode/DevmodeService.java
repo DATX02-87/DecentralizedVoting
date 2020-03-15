@@ -4,9 +4,7 @@ import com.sun.org.apache.xerces.internal.impl.dv.util.HexBin;
 import sawtooth.sdk.protobuf.ConsensusBlock;
 import sawtooth.sdk.protobuf.Message.MessageType;
 import se.chalmers.datx02.lib.Service;
-import se.chalmers.datx02.lib.exceptions.InvalidState;
-import se.chalmers.datx02.lib.exceptions.ReceiveError;
-import se.chalmers.datx02.lib.exceptions.UnknownBlock;
+import se.chalmers.datx02.lib.exceptions.*;
 
 
 import java.util.logging.Logger;
@@ -39,6 +37,9 @@ public class DevmodeService {
         catch(RuntimeException e){
             LOGGER.warning("Failed to get chain head");
             return null;
+        } catch (ReceiveErrorException | NoChainHeadException e) {
+            LOGGER.warning(e.getLocalizedMessage());
+            return null;
         }
     }
 
@@ -56,7 +57,7 @@ public class DevmodeService {
 
             return resultBlock;
         }
-        catch(UnknownBlock | ReceiveError e){
+        catch(UnknownBlockException | ReceiveErrorException e){
             LOGGER.warning("Failed to get block: " + HexBin.encode(blockId));
 
             return null;
@@ -68,7 +69,7 @@ public class DevmodeService {
         try {
             this.service.initializeBlock(null);
         }
-        catch(InvalidState | UnknownBlock | ReceiveError e){
+        catch(InvalidStateException | UnknownBlockException | ReceiveErrorException e){
             LOGGER.warning("Failed to initialize");
         }
     }
@@ -102,6 +103,8 @@ public class DevmodeService {
             catch(RuntimeException e){
                 LOGGER.warning("Failed to summarize block");
                 break;
+            } catch (InvalidStateException | BlockNotReadyException | ReceiveErrorException e) {
+                LOGGER.info("Could not summarize block. Retrying...");
             }
         }
 
@@ -112,7 +115,7 @@ public class DevmodeService {
         byte[] block_id = new byte[0];
         try {
             block_id = this.service.finalizeBlock(consensus);
-        } catch (InvalidState | UnknownBlock | ReceiveError e) {
+        } catch (InvalidStateException | UnknownBlockException | ReceiveErrorException e) {
             e.printStackTrace();
         }
 
@@ -135,7 +138,7 @@ public class DevmodeService {
                 block_id = this.service.finalizeBlock(consensus);
                 break;
             }
-            catch (InvalidState | UnknownBlock | ReceiveError e) {
+            catch (InvalidStateException | UnknownBlockException | ReceiveErrorException e) {
                 LOGGER.warning("Failed to finalize block");
                 break;
             }
@@ -157,7 +160,7 @@ public class DevmodeService {
         try{
             this.service.checkBlocks(blockList);
         }
-        catch(UnknownBlock | ReceiveError e){
+        catch(UnknownBlockException | ReceiveErrorException e){
             LOGGER.warning("Failed to check block");
         }
     }
@@ -168,7 +171,7 @@ public class DevmodeService {
         try{
             this.service.failBlock(blockId);
         }
-        catch(UnknownBlock | ReceiveError e){
+        catch(UnknownBlockException | ReceiveErrorException e){
             LOGGER.warning("Failed to fail block");
         }
     }
@@ -179,7 +182,7 @@ public class DevmodeService {
         try{
             this.service.ignoreBlock(blockId);
         }
-        catch(UnknownBlock | ReceiveError e){
+        catch(UnknownBlockException | ReceiveErrorException e){
             LOGGER.warning("Failed to ignore block");
         }
     }
@@ -190,7 +193,7 @@ public class DevmodeService {
         try{
             this.service.commitBlock(blockId);
         }
-        catch(UnknownBlock | ReceiveError e){
+        catch(UnknownBlockException | ReceiveErrorException e){
             LOGGER.warning("Failed to commit block");
         }
     }
@@ -201,8 +204,8 @@ public class DevmodeService {
         try{
             this.service.cancelBlock();
         }
-        catch (InvalidState | ReceiveError e) {
-            LOGGER.warning("Failed to cancel block");
+        catch (InvalidStateException | ReceiveErrorException e) {
+            LOGGER.warning("Failed to cancel block: " + e.getLocalizedMessage());
         }
     }
 
@@ -256,7 +259,7 @@ public class DevmodeService {
             else
                 wait_time = ThreadLocalRandom.current().nextInt(min_wait_time, max_wait_time + 1);
         }
-        catch(UnknownBlock | ReceiveError e){
+        catch(UnknownBlockException | ReceiveErrorException e){
             wait_time = DEFAULT_WAIT_TIME;
         }
 

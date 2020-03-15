@@ -4,9 +4,9 @@ import sawtooth.sdk.protobuf.Message;
 
 public class DriverUpdate {
     private final Message.MessageType messageType;
-    private final byte[] data;
+    private final Object data;
 
-    public DriverUpdate(Message.MessageType messageType, byte[] data) {
+    public DriverUpdate(Message.MessageType messageType, Object data) {
         this.messageType = messageType;
         this.data = data;
     }
@@ -15,7 +15,7 @@ public class DriverUpdate {
         return messageType;
     }
 
-    public byte[] getData() {
+    public Object getData() {
         return data;
     }
 }
