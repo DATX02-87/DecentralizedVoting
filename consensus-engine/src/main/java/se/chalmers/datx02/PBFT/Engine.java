@@ -26,6 +26,9 @@ public class Engine implements se.chalmers.datx02.lib.Engine {
     private BlockingQueue<DriverUpdate> updates;
     private StartupState startupState;
     private Service service;
+    private Config config;
+
+    // TODO: Implementation
 
 
     @Override
@@ -33,6 +36,10 @@ public class Engine implements se.chalmers.datx02.lib.Engine {
         this.service = new Service(service);
         this.startupState = startupState;
         this.updates = updates;
+
+
+        this.config = new Config();
+
         try {
             engineLoop();
         } catch (InvalidProtocolBufferException e) {
