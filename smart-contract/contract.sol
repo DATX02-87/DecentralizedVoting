@@ -24,7 +24,7 @@ contract election{
         _;
     }
     constructor() public {
-        owner = msg.sender;
+        contractOwner = msg.sender;
         electionName = "Valet";
     }
     function addCandidate(string memory _name) isOwner public {
@@ -40,7 +40,7 @@ contract election{
     }
 
     function vote(uint _voteIndex) public {
-        require(!voters[msg.sender].voted);
+        require(!voters[msg.sender].hasVoted);
         require(voters[msg.sender].allowedToVote);
         
         voters[msg.sender].vote = _voteIndex;
