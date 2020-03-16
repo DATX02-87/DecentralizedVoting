@@ -1,6 +1,12 @@
 package se.chalmers.datx02.PBFT;
 
-public class MessageExtensions {
-    private se.chalmers.datx02.lib.Service service;
+public enum MessageExtensions {
+    MessageInfo,
+    Message,
+    Seal,
+    SignedVote,
+    NewView;
 
+    // TODO: Implement hash & toString/display methods
+    // TODO: How to extend SDK messagetypes?
 }
