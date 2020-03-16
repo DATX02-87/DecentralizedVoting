@@ -12,12 +12,6 @@ services:
       \""
     stop_signal: SIGKILL
 
-  # devmode-engine:
-  #   image: hyperledger/sawtooth-devmode-engine-rust:latest
-  #   depends_on:
-  #     - validator
-  #   entrypoint: devmode-engine-rust -C tcp://validator:5005
-
   validator:
     image: hyperledger/sawtooth-validator:nightly
     expose:

@@ -26,50 +26,46 @@ services:
       \""
     stop_signal: SIGKILL
 
-  devmode-engine-0:
-    image: hyperledger/sawtooth-devmode-engine-rust:latest
-    depends_on:
-      - validator-0
-    entrypoint: devmode-engine-rust -C tcp://validator-0:5005
-  devmode-engine-1:
-    image: hyperledger/sawtooth-devmode-engine-rust:latest
-    depends_on:
-      - validator-1
-    entrypoint: devmode-engine-rust -C tcp://validator-1:5005
-  devmode-engine-2:
-    image: hyperledger/sawtooth-devmode-engine-rust:latest
-    depends_on:
-      - validator-2
-    entrypoint: devmode-engine-rust -C tcp://validator-2:5005
-  devmode-engine-3:
-    image: hyperledger/sawtooth-devmode-engine-rust:latest
-    depends_on:
-      - validator-3
-    entrypoint: devmode-engine-rust -C tcp://validator-3:5005
-  devmode-engine-4:
-    image: hyperledger/sawtooth-devmode-engine-rust:latest
-    depends_on:
-      - validator-4
-    entrypoint: devmode-engine-rust -C tcp://validator-4:5005
-
   # devmode-engine-0:
   #   build:
-  #     context: ../../java/se/chalmers/datx02/lib
-  #     dockerfile: ./Dockerfile
-  #     args:
-  #       - http_proxy
-  #       - https_proxy
-  #       - no_proxy
-  #   image: sawtooth-devmode$INSTALL_TYPE:$ISOLATION_ID
-  #   volumes:
-  #     - $SAWTOOTH_DEVMODE:/project/sawtooth-devmode
-  #   command: devmode-engine-rust --connect tcp://validator-0:5005 -vv
-  #   stop_signal: SIGKILL
-
-
+  #     context: ../../../../
+  #     dockerfile: src/test/resources/integration/devmode.dockerfile
+  #   image: sawtooth-devmode-java
+  #   environment:
+  #     VALIDATOR_URI: tcp://validator-0:5005
+  # devmode-engine-1:
+  #   build:
+  #     context: ../../../../
+  #     dockerfile: src/test/resources/integration/devmode.dockerfile
+  #   image: sawtooth-devmode-java
+  #   environment:
+  #     VALIDATOR_URI: tcp://validator-1:5005
+  # devmode-engine-2:
+  #   build:
+  #     context: ../../../../
+  #     dockerfile: src/test/resources/integration/devmode.dockerfile
+  #   image: sawtooth-devmode-java
+  #   environment:
+  #     VALIDATOR_URI: tcp://validator-2:5005
+  # devmode-engine-3:
+  #   build:
+  #     context: ../../../../
+  #     dockerfile: src/test/resources/integration/devmode.dockerfile
+  #   image: sawtooth-devmode-java
+  #   environment:
+  #     VALIDATOR_URI: tcp://validator-3:5005
+  # devmode-engine-4:
+  #   build:
+  #     context: ../../../../
+  #     dockerfile: src/test/resources/integration/devmode.dockerfile
+  #   image: sawtooth-devmode-java
+  #   environment:
+  #     VALIDATOR_URI: tcp://validator-4:5005
 
   validator-0:
     image: hyperledger/sawtooth-validator:nightly
+    ports:
+      - 5005
     expose:
       - 4004
       - 8800
@@ -84,7 +80,7 @@ services:
           -o config-genesis.batch && \
         sawset proposal create \
           -k /etc/sawtooth/keys/validator.priv \
-          sawtooth.consensus.algorithm.name=Devmode \
+          sawtooth.consensus.algorithm.name=Devmode-java \
           sawtooth.consensus.algorithm.version=0.1 \
           sawtooth.consensus.min_wait_time=2 \
           sawtooth.consensus.max_wait_time=4 \
@@ -104,6 +100,8 @@ services:
 
   validator-1:
     image: hyperledger/sawtooth-validator:nightly
+    ports:
+      - 5005
     expose:
       - 4004
       - 8800
@@ -126,6 +124,8 @@ services:
 
   validator-2:
     image: hyperledger/sawtooth-validator:nightly
+    ports:
+      - 5005
     expose:
       - 4004
       - 8800
@@ -148,6 +148,8 @@ services:
 
   validator-3:
     image: hyperledger/sawtooth-validator:nightly
+    ports:
+      - 5005
     expose:
       - 4004
       - 8800
@@ -170,6 +172,8 @@ services:
 
   validator-4:
     image: hyperledger/sawtooth-validator:nightly
+    ports:
+      - 5005
     expose:
       - 4004
       - 8800
@@ -193,7 +197,7 @@ services:
   rest-api-0:
     image: hyperledger/sawtooth-rest-api:nightly
     ports:
-      - 8008
+      - 8008:8008
     expose:
       - 4004
       - 8008
