@@ -7,9 +7,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import sawtooth.sdk.protobuf.*;
-import se.chalmers.datx02.lib.exceptions.InvalidStateException;
-import se.chalmers.datx02.lib.exceptions.ReceiveErrorException;
-import se.chalmers.datx02.lib.exceptions.UnknownBlockException;
+import se.chalmers.datx02.lib.exceptions.*;
 import se.chalmers.datx02.lib.impl.ZmqService;
 import se.chalmers.datx02.lib.models.ConsensusFuture;
 
@@ -108,8 +106,26 @@ class ZmqServiceTest {
     }
 
     @Test
-    void testSummarizeBlock() {
-        // TODO
+    void testSummarizeBlock() throws ReceiveErrorException, InvalidStateException, BlockNotReadyException {
+        ConsensusSummarizeBlockResponse resp = ConsensusSummarizeBlockResponse.newBuilder()
+                .setStatus(ConsensusSummarizeBlockResponse.Status.OK)
+                .setSummary(ByteString.copyFrom("summary".getBytes()))
+                .build();
+
+        when(communicator.send(any(byte[].class), any(Message.MessageType.class))).thenReturn(
+                makeFuture(
+                        Message.MessageType.CONSENSUS_SUMMARIZE_BLOCK_RESPONSE,
+                        resp.toByteArray()
+                )
+        );
+
+        byte[] result = service.summarizeBlock();
+
+        verify(communicator).send(ConsensusSummarizeBlockRequest.newBuilder()
+                        .build().toByteArray(),
+                Message.MessageType.CONSENSUS_SUMMARIZE_BLOCK_REQUEST);
+
+        assertEquals(ByteString.copyFrom(result), ByteString.copyFrom("summary".getBytes()));
     }
 
     @Test
@@ -298,8 +314,37 @@ class ZmqServiceTest {
     }
 
     @Test
-    void testGetChainHead() {
-        // TODO
+    void testGetChainHead() throws NoChainHeadException, ReceiveErrorException {
+        ConsensusBlock block = ConsensusBlock.newBuilder()
+                .setBlockId(ByteString.copyFrom("block".getBytes()))
+                .setPreviousId(ByteString.copyFrom("block0".getBytes()))
+                .setSignerId(ByteString.copyFrom("signer".getBytes()))
+                .setBlockNum(1)
+                .setPayload(ByteString.copyFrom("test".getBytes()))
+                .build();
+
+        ConsensusChainHeadGetResponse resp = ConsensusChainHeadGetResponse.newBuilder()
+                .setBlock(block)
+                .setStatus(ConsensusChainHeadGetResponse.Status.OK)
+                .build();
+
+        when(communicator.send(any(byte[].class), any(Message.MessageType.class))).thenReturn(
+                makeFuture(
+                        Message.MessageType.CONSENSUS_CHAIN_HEAD_GET_RESPONSE,
+                        resp.toByteArray()
+                )
+        );
+
+        ConsensusBlock chainHead = service.getChainHead();
+
+        verify(communicator).send(ConsensusChainHeadGetRequest.newBuilder().build().toByteArray(),
+                Message.MessageType.CONSENSUS_CHAIN_HEAD_GET_REQUEST);
+
+        assertEquals(chainHead.getBlockId(), ByteString.copyFrom("block".getBytes()));
+        assertEquals(chainHead.getPreviousId(), ByteString.copyFrom("block0".getBytes()));
+        assertEquals(chainHead.getSignerId(), ByteString.copyFrom("signer".getBytes()));
+        assertEquals(chainHead.getBlockNum(), 1);
+        assertEquals(chainHead.getPayload(), ByteString.copyFrom("test".getBytes()));
     }
 
     @Test
