@@ -11,7 +11,6 @@ import se.chalmers.datx02.lib.impl.ZmqDriver;
 import se.chalmers.datx02.testutils.Block;
 import se.chalmers.datx02.testutils.Response;
 import se.chalmers.datx02.testutils.SawtoothComposeExtension;
-import sun.jvm.hotspot.runtime.Threads;
 
 import java.io.IOException;
 import java.util.*;
