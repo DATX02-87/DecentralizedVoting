@@ -1,12 +1,12 @@
 package se.chalmers.datx02.devmode;
 
 import com.google.protobuf.ByteString;
-import com.sun.org.apache.xerces.internal.impl.dv.util.HexBin;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import sawtooth.sdk.protobuf.ConsensusBlock;
 import sawtooth.sdk.protobuf.Message.MessageType;
 import se.chalmers.datx02.lib.Service;
+import se.chalmers.datx02.lib.Util;
 import se.chalmers.datx02.lib.exceptions.*;
 
 
@@ -46,7 +46,7 @@ public class DevmodeService {
     }
 
     public ConsensusBlock getBlock(byte[] blockId){
-        logger.info("Getting block " + HexBin.encode(blockId));
+        logger.info("Getting block " + Util.bytesToHex(blockId));
 
         // Generate a list of only one block id
         ArrayList<byte[]> blockList = new ArrayList<>();
@@ -60,7 +60,7 @@ public class DevmodeService {
             return resultBlock;
         }
         catch(UnknownBlockException | ReceiveErrorException e){
-            logger.warn("Failed to get block: " + HexBin.encode(blockId));
+            logger.warn("Failed to get block: " + Util.bytesToHex(blockId));
 
             return null;
         }
@@ -147,13 +147,13 @@ public class DevmodeService {
         }
         not_ready_to_finalize = false;
 
-        logger.info("Block has been finalized sucessfully : " + HexBin.encode(block_id));
+        logger.info("Block has been finalized sucessfully : " + Util.bytesToHex(block_id));
 
         return block_id;
     }
 
     public void checkBlock(byte[] blockId){
-        logger.info("Checking block " + HexBin.encode(blockId));
+        logger.info("Checking block " + Util.bytesToHex(blockId));
 
         // Generate a list of only one block id
         ArrayList<byte[]> blockList = new ArrayList<>();
@@ -168,7 +168,7 @@ public class DevmodeService {
     }
 
     public void failBlock(byte[] blockId){
-        logger.info("Failing block " + HexBin.encode(blockId));
+        logger.info("Failing block " + Util.bytesToHex(blockId));
 
         try{
             this.service.failBlock(blockId);
@@ -179,7 +179,7 @@ public class DevmodeService {
     }
 
     public void ignoreBlock(byte[] blockId){
-        logger.info("Ignoring block " + HexBin.encode(blockId));
+        logger.info("Ignoring block " + Util.bytesToHex(blockId));
 
         try{
             this.service.ignoreBlock(blockId);
@@ -190,7 +190,7 @@ public class DevmodeService {
     }
 
     public void commitBlock(byte[] blockId){
-        logger.info("Commiting block " + HexBin.encode(blockId));
+        logger.info("Commiting block " + Util.bytesToHex(blockId));
 
         try{
             this.service.commitBlock(blockId);
@@ -212,7 +212,7 @@ public class DevmodeService {
     }
 
     public void broadcastPublishedBlock(byte[] blockId){
-        logger.info("Broadcasting published block " + HexBin.encode(blockId));
+        logger.info("Broadcasting published block " + Util.bytesToHex(blockId));
 
         try{
             this.service.broadcast(DevmodeMessage.PUBLISHED.name(), blockId);
