@@ -5,6 +5,9 @@ import java.util.HashMap;
 import java.util.List;
 
 public class Config {
+
+    // TODO: Implementation
+
     private List<String> members;
     private HashMap<String, String> settings;
 
@@ -17,7 +20,7 @@ public class Config {
             view_change_duration;
 
     private int forced_view_change_interval,
-            max_log_size;
+                max_log_size;
 
     private String storage_location;
 
@@ -30,4 +33,8 @@ public class Config {
     public void mergeMillisSetting(Duration field, String key){}
 
     public List<String> getMembersFromSettings(){return null;}
+
+    public int getMaxLogSize(){
+        return this.max_log_size;
+    }
 }
