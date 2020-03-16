@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.Map;
 
 public interface Service {
-    void sendTo(byte[] receiverId, Message.MessageType messageType, byte[] payload);
+    void sendTo(byte[] receiverId, String messageType, byte[] payload);
 
     void broadcast(String messageType, byte[] payload);
 

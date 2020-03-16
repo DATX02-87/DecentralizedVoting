@@ -53,7 +53,7 @@ class ZmqServiceTest {
 
         service.sendTo(
                 "receiverId".getBytes(),
-                Message.MessageType.PING_REQUEST,
+                Message.MessageType.PING_REQUEST.toString(),
                 "payload".getBytes()
         );
 

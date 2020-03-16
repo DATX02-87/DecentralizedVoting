@@ -222,7 +222,8 @@ public class Service {
 
     public void sendBlockReceived(ConsensusBlock block){
         try{
-            this.service.sendTo(block.getSignerId().toByteArray(), MessageType.CONSENSUS_NOTIFY_PEER_MESSAGE, block.getBlockId().toByteArray());
+            // TODO this should use internal messaging constructs
+//            this.service.sendTo(block.getSignerId().toByteArray(), MessageType.CONSENSUS_NOTIFY_PEER_MESSAGE, block.getBlockId().toByteArray());
         }
         catch(RuntimeException e){
             LOGGER.warning("Failed to send block received");
@@ -231,7 +232,8 @@ public class Service {
 
     public void sendBlockAck(byte[] senderId, byte[] blockId){
         try{
-            this.service.sendTo(senderId, MessageType.CONSENSUS_NOTIFY_ACK, blockId);
+            // TODO this should use internal messaging constructs
+//            this.service.sendTo(senderId, MessageType.CONSENSUS_NOTIFY_ACK, blockId);
         }
         catch(RuntimeException e){
             LOGGER.warning("Failed to send block ack");

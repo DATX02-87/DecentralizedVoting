@@ -214,7 +214,7 @@ public class DevmodeService {
         LOGGER.info("Broadcasting published block " + HexBin.encode(blockId));
 
         try{
-            this.service.broadcast("published", blockId);
+            this.service.broadcast(DevmodeMessage.PUBLISHED.name(), blockId);
         }
         catch(RuntimeException e){
             LOGGER.warning("Failed to broadcast published block");
@@ -223,7 +223,7 @@ public class DevmodeService {
 
     public void sendBlockReceived(ConsensusBlock block){
         try{
-            this.service.sendTo(block.getSignerId().toByteArray(), MessageType.CONSENSUS_NOTIFY_PEER_MESSAGE, block.getBlockId().toByteArray());
+            this.service.sendTo(block.getSignerId().toByteArray(), DevmodeMessage.RECEIVED.name(), block.getBlockId().toByteArray());
         }
         catch(RuntimeException e){
             LOGGER.warning("Failed to send block received");
@@ -232,7 +232,7 @@ public class DevmodeService {
 
     public void sendBlockAck(byte[] senderId, byte[] blockId){
         try{
-            this.service.sendTo(senderId, MessageType.CONSENSUS_NOTIFY_ACK, blockId);
+            this.service.sendTo(senderId, DevmodeMessage.ACK.name(), blockId);
         }
         catch(RuntimeException e){
             LOGGER.warning("Failed to send block ack");

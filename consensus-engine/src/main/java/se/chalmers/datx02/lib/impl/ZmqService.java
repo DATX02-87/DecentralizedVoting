@@ -30,12 +30,12 @@ public class ZmqService implements Service {
         }
     }
 
-    public void sendTo(byte[] receiverId, Message.MessageType messageType, byte[] payload) {
+    public void sendTo(byte[] receiverId, String messageType, byte[] payload) {
         ByteString messageContent = ByteString.copyFrom(payload);
         ByteString peerId = ByteString.copyFrom(receiverId);
         byte[] request = ConsensusSendToRequest.newBuilder()
                 .setContent(messageContent)
-                .setMessageType(messageType.toString())
+                .setMessageType(messageType)
                 .setReceiverId(peerId)
                 .build().toByteArray();
 
