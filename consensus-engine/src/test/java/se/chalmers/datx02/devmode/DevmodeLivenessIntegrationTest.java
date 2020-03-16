@@ -3,21 +3,27 @@ package se.chalmers.datx02.devmode;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.slf4j.MDC;
+import se.chalmers.datx02.lib.Driver;
+import se.chalmers.datx02.lib.impl.ZmqDriver;
 import se.chalmers.datx02.testutils.Block;
 import se.chalmers.datx02.testutils.Response;
 import se.chalmers.datx02.testutils.SawtoothComposeExtension;
+import sun.jvm.hotspot.runtime.Threads;
 
 import java.io.IOException;
 import java.util.*;
-import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 @Tag(value = "integration")
 class DevmodeLivenessIntegrationTest {
-    private final static Logger LOGGER = Logger.getLogger(DevmodeLivenessIntegrationTest.class.getName());
+    final Logger logger = LoggerFactory.getLogger(getClass());
     private static final int COMPONENT_PORT = 4004;
     public static final int VALIDATOR_PORT = 8800;
     public static final int CONSENSUS_PORT = 5005;
@@ -28,6 +34,8 @@ class DevmodeLivenessIntegrationTest {
     public static final int MIN_TOTAL_BATCHES = 100;
     public static final int REST_API_PORT = 8008;
     private static final List<Integer> INSTANCES = IntStream.range(0, 5).boxed().collect(Collectors.toList());
+    private final Map<Thread, Driver> engines = new HashMap<>();
+
 
     @RegisterExtension
     public static SawtoothComposeExtension sawtoothComposeExtension = new SawtoothComposeExtension(
@@ -40,6 +48,7 @@ class DevmodeLivenessIntegrationTest {
 
     @Test
     public void test() throws InterruptedException {
+        startConsensusEngines();
         Set<Integer> nodesReached = new TreeSet<>();
         // test that the blockchain reaches a specified size
         while (nodesReached.size() < INSTANCES.size()) {
@@ -58,7 +67,7 @@ class DevmodeLivenessIntegrationTest {
                     continue;
                 }
                 // assert that the block has correct number of batches
-                assertTrue(checkBlocksBatchCount(block, BATCH_PER_BLOCK_MIN, BATCH_PER_BLOCK_MAX));
+                assertTrue(checkBlocksBatchCount(block, BATCH_PER_BLOCK_MIN, BATCH_PER_BLOCK_MAX), String.format("Instance %s har the wrong number of batches, block no. %s", i, block.getHeader().getBlockNum()));
                 if (block.getHeader().getBlockNum() >= BLOCKS_TO_REACH) {
                     nodesReached.add(i);
                 }
@@ -71,7 +80,37 @@ class DevmodeLivenessIntegrationTest {
         assertTrue(checkConsensus(chains, BLOCKS_TO_CHECK_CONSENSUS));
         // test that an acceptable number of batches has been committed
         assertTrue(checkMinBatches(chains.get(0), MIN_TOTAL_BATCHES));
-        LOGGER.info("Test done, now stopping docker compose");
+        logger.info("Test done, now stopping docker compose");
+        stopConsensusEngines();
+    }
+
+    private void stopConsensusEngines() throws InterruptedException {
+        for (Map.Entry<Thread, Driver> e : engines.entrySet()) {
+            e.getValue().stop();
+            e.getKey().join();
+        }
+
+    }
+
+    private void startConsensusEngines() {
+        for (Integer instance : INSTANCES) {
+            Driver driver = new ZmqDriver(new DevmodeEngine());
+            String endpoint = sawtoothComposeExtension.buildUri("tcp", "validator-" + instance, 5005);
+            Thread thread = new Thread(() -> {
+                try {
+                    Thread.currentThread().setName("engine-" + instance);
+                    MDC.put("context", "driver");
+                    driver.start(endpoint);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    fail();
+                    System.exit(1);
+                }
+            });
+            thread.start();
+            engines.put(thread, driver);
+        }
+
     }
 
     private boolean checkMinBatches(List<Block> blocks, int minBatches) {
@@ -103,7 +142,7 @@ class DevmodeLivenessIntegrationTest {
                 .parallelStream()
                 .map(id -> id.substring(0, 6))
                 .collect(Collectors.toList());
-        LOGGER.info(String.format(
+        logger.info(String.format(
                 "Validator-%s has block %s: %s, batches (%s): %s",
                 i,
                 block.getHeader().getBlockNum(),

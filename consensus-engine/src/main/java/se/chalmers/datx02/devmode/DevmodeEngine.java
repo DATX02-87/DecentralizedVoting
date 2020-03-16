@@ -2,9 +2,12 @@ package se.chalmers.datx02.devmode;
 
 import com.google.protobuf.ByteString;
 import com.google.protobuf.InvalidProtocolBufferException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import sawtooth.sdk.protobuf.*;
 import se.chalmers.datx02.lib.Engine;
 import se.chalmers.datx02.lib.Service;
+import se.chalmers.datx02.lib.Util;
 import se.chalmers.datx02.lib.models.PeerMessage;
 import se.chalmers.datx02.lib.models.StartupState;
 import se.chalmers.datx02.lib.models.DriverUpdate;
@@ -19,10 +22,9 @@ import java.util.Map;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.logging.Logger;
 
 public class DevmodeEngine implements Engine {
-    private final static Logger LOGGER = Logger.getLogger(DevmodeEngine.class.getName());
+    final Logger logger = LoggerFactory.getLogger(getClass());
     private final AtomicBoolean exit = new AtomicBoolean(false);
     private BlockingQueue<DriverUpdate> updates;
     private StartupState startupState;
@@ -64,23 +66,23 @@ public class DevmodeEngine implements Engine {
 
             // handle message if existing
             if (update != null) {
-                LOGGER.info("Received message: " + update.getMessageType());
+                logger.info("Received message: " + update.getMessageType());
                 switch (update.getMessageType()) {
                     case CONSENSUS_NOTIFY_ENGINE_DEACTIVATED:
                         this.stop();
                         break;
                     case CONSENSUS_NOTIFY_BLOCK_NEW:
-                        LOGGER.fine("Checking consensus data: ");
+                        logger.debug("Checking consensus data: ");
                         block = ConsensusBlock.parseFrom((byte[]) update.getData());
-                        if (Arrays.equals(block.getBlockId().toByteArray(), service.NULL_BLOCK_IDENTIFIER)) {
-                            LOGGER.warning("WARNING: Received genesis block; ignoring");
+                        if (Arrays.equals(block.getBlockId().toByteArray(), DevmodeService.NULL_BLOCK_IDENTIFIER)) {
+                            logger.warn("WARNING: Received genesis block; ignoring");
                             continue;
                         }
                         if (checkConsensus(block)) {
-                            LOGGER.info("Passed consensus check: " + block.getBlockId());
+                            logger.info("Passed consensus check: " + block.getBlockId());
                             service.checkBlock(block.getBlockId().toByteArray());
                         } else {
-                            LOGGER.info("Failed consensus check: " + block.getBlockId());
+                            logger.info("Failed consensus check: " + block.getBlockId());
                             service.failBlock(block.getBlockId().toByteArray());
                         }
                         break;
@@ -89,30 +91,43 @@ public class DevmodeEngine implements Engine {
                         block = service.getBlock(blockId);
                         service.sendBlockReceived(block);
                         chainHead = service.getChainHead();
-                        LOGGER.info("Choosing between chain heads: \nCurrent: " + chainHead.getBlockId() + "\nNew: " + block.getBlockId());
 
-                        if (block.getBlockNum() > chainHead.getBlockNum() || (
-                                block.getBlockNum() == chainHead.getBlockNum() &&
-                                        block.getBlockId().toStringUtf8().compareTo(chainHead.getBlockId().toStringUtf8()) > 0)
+
+                        long blockNum = block.getBlockNum();
+                        long chainHeadBlockNum = chainHead.getBlockNum();
+                        String blockIdString = Util.bytesToHex(block.getBlockId().toByteArray());
+                        String chainHeadBlockId = Util.bytesToHex(chainHead.getBlockId().toByteArray());
+                        logger.info("Choosing between chain heads: \nCurrent: " + chainHeadBlockId + "\nNew: " + blockIdString);
+                        if (blockNum > chainHeadBlockNum || (
+                                blockNum == chainHeadBlockNum &&
+                                        blockIdString.compareTo(chainHeadBlockId) > 0)
                         ) {
-                            LOGGER.info("Committing: " + block.getBlockId());
+                            logger.info("Committing: " + block.getBlockId());
                             service.commitBlock(block.getBlockId().toByteArray());
                         } else if (block.getBlockNum() < chainHead.getBlockNum()) {
-                            ConsensusBlock chainBlock = service.getBlock(chainHead.getPreviousId().toByteArray());
+                            ConsensusBlock chainBlock = chainHead;
                             // loop backwards till the block has been found
                             while (!Arrays.equals(chainBlock.getBlockId().toByteArray(), block.getBlockId().toByteArray())) {
-                                chainBlock = service.getBlock(chainBlock.getPreviousId().toByteArray());
+                                ByteString previousId = chainBlock.getPreviousId();
+                                chainBlock = service.getBlock(previousId.toByteArray());
+                                if (chainBlock == null) {
+                                    throw new RuntimeException(
+                                            String.format(
+                                                    "Previous block with id: %s was not found when looping through the chain",
+                                                    Util.bytesToHex(previousId.toByteArray()))
+                                    );
+                                }
                             }
                             if (block.getBlockId().toStringUtf8().compareTo(chainBlock.getBlockId().toStringUtf8()) > 0) {
-                                LOGGER.info("Switching to new fork: " + block.getBlockId());
+                                logger.info("Switching to new fork: " + block.getBlockId());
                                 service.commitBlock(block.getBlockId().toByteArray());
                             } else {
-                                LOGGER.info("Ignoring fork: " + block.getBlockId());
+                                logger.info("Ignoring fork: " + block.getBlockId());
                                 service.ignoreBlock(block.getBlockId().toByteArray());
                             }
 
                         } else {
-                            LOGGER.info("Ignoring: " + block.getBlockId());
+                            logger.info("Ignoring: " + block.getBlockId());
                             service.ignoreBlock(block.getBlockId().toByteArray());
                         }
                         break;
@@ -121,7 +136,7 @@ public class DevmodeEngine implements Engine {
                     case CONSENSUS_NOTIFY_BLOCK_COMMIT:
                         ByteString newChainHeadId = ByteString.copyFrom((byte[]) update.getData());
 
-                        LOGGER.info("Chain head updated to " + newChainHeadId + ", abandoning block in progress");
+                        logger.info("Chain head updated to " + newChainHeadId + ", abandoning block in progress");
                         service.cancelBlock();
                         wait_time = service.calculateWaitTime(newChainHeadId.toByteArray());
                         published_at_height = false;
@@ -132,24 +147,24 @@ public class DevmodeEngine implements Engine {
                         PeerMessage peerMessage = (PeerMessage) update.getData();
                         switch (DevmodeMessage.valueOf(peerMessage.getHeader().getMessageType())) {
                             case PUBLISHED:
-                                LOGGER.info(String.format(
-                                        "Received block published message from %s: %s",
+                                logger.info(
+                                        "Received block published message from {}: {}",
                                         Arrays.toString(peerMessage.getSenderId()),
                                         Arrays.toString(peerMessage.getContent())
-                                ));
+                                );
                             case RECEIVED:
-                                LOGGER.info(String.format(
-                                        "Received block received message from %s: %s",
+                                logger.info(
+                                        "Received block received message from {}: {}",
                                         Arrays.toString(peerMessage.getSenderId()),
-                                        Arrays.toString(peerMessage.getContent())));
+                                        Arrays.toString(peerMessage.getContent()));
                                 service.sendBlockAck(peerMessage.getSenderId(), peerMessage.getContent());
                                 break;
                             case ACK:
-                                LOGGER.info(String.format(
-                                        "Received block ack from %s: %s",
+                                logger.info(
+                                        "Received block ack from {}: {}",
                                         Arrays.toString(peerMessage.getSenderId()),
                                         Arrays.toString(peerMessage.getContent())
-                                ));
+                                );
                                 break;
                         }
                         break;
@@ -161,7 +176,7 @@ public class DevmodeEngine implements Engine {
 
             // Publish block when timer expires
             if (!published_at_height && Duration.between(Instant.now(), start).abs().getSeconds() > wait_time) {
-                LOGGER.info("Timer expired - publishing block");
+                logger.info("Timer expired - publishing block");
                 byte[] new_blockId = service.finalizeBlock();
                 published_at_height = true;
 
@@ -170,7 +185,6 @@ public class DevmodeEngine implements Engine {
         }
 
     }
-
 
 
     public static boolean checkConsensus(ConsensusBlock block) {

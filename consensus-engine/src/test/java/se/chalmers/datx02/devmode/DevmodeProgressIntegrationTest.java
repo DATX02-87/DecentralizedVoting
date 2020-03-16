@@ -3,6 +3,8 @@ package se.chalmers.datx02.devmode;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import se.chalmers.datx02.lib.Driver;
 import se.chalmers.datx02.lib.Engine;
 import se.chalmers.datx02.lib.impl.ZmqDriver;
@@ -14,14 +16,13 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
-import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @Tag(value = "integration")
 public class DevmodeProgressIntegrationTest {
-    private final static Logger LOGGER = Logger.getLogger(DevmodeProgressIntegrationTest.class.getName());
+    final Logger logger = LoggerFactory.getLogger(getClass());
     public static final int BATCH_PER_BLOCK_MIN = 1;
     public static final int BATCH_PER_BLOCK_MAX = 100;
     public static final int BLOCKS_TO_REACH = 10;
@@ -47,8 +48,9 @@ public class DevmodeProgressIntegrationTest {
         // check that there is the correct amount of batches in each block
         List<Block> chain = getChain();
         assertTrue(checkChainBatchCount(chain, BATCH_PER_BLOCK_MIN, BATCH_PER_BLOCK_MAX));
-        LOGGER.info("Progress test done, shutting down");
+        logger.info("Progress test done, shutting down");
         driver.stop();
+        driverThread.join();
 
     }
 
@@ -90,12 +92,12 @@ public class DevmodeProgressIntegrationTest {
             throw new RuntimeException(e);
         }
     }
-    public static void logBlock(Block block) {
+    public void logBlock(Block block) {
         List<String> batchIds = block.getHeader().getBatchIds()
                 .parallelStream()
                 .map(id -> id.substring(0, 6))
                 .collect(Collectors.toList());
-        LOGGER.info(String.format(
+        logger.info(String.format(
                 "Block %s: %s, batches (%s): %s",
                 block.getHeader().getBlockNum(),
                 block.getHeaderSignature().substring(0, 6) + "...",

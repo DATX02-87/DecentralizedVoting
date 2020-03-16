@@ -1,24 +1,24 @@
 package se.chalmers.datx02.lib.impl;
 
 import com.google.protobuf.InvalidProtocolBufferException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import sawtooth.sdk.protobuf.*;
-import se.chalmers.datx02.devmode.DevmodeEngine;
 import se.chalmers.datx02.lib.Communicator;
 import se.chalmers.datx02.lib.Driver;
 import se.chalmers.datx02.lib.Engine;
 import se.chalmers.datx02.lib.Service;
-import se.chalmers.datx02.lib.models.PeerMessage;
-import se.chalmers.datx02.lib.models.StartupState;
 import se.chalmers.datx02.lib.exceptions.ReceiveErrorException;
 import se.chalmers.datx02.lib.models.ConsensusFuture;
 import se.chalmers.datx02.lib.models.DriverUpdate;
+import se.chalmers.datx02.lib.models.PeerMessage;
+import se.chalmers.datx02.lib.models.StartupState;
 
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.logging.Logger;
 
 public class ZmqDriver implements Driver {
-    private final static Logger LOGGER = Logger.getLogger(DevmodeEngine.class.getName());
+    final Logger logger = LoggerFactory.getLogger(getClass());
     public static final int REGISTER_TIMEOUT = 300;
     public static final int SERVICE_TIMEOUT = 300;
     private final Engine engine;
@@ -79,11 +79,11 @@ public class ZmqDriver implements Driver {
                     throw new RuntimeException(e);
                 }
                 StartupState startupState = new StartupState(notification.getChainHead(), notification.getPeersList(), notification.getLocalPeerInfo());
-                LOGGER.info("Received activation message with startup state: " + startupState.toString());
+                logger.info("Received activation message with startup state: {}", startupState.toString());
                 communicator.sendBack(ConsensusNotifyAck.newBuilder().build().toByteArray(), msg.getCorrelationId(), Message.MessageType.CONSENSUS_NOTIFY_ACK);
                 return startupState;
             }
-            LOGGER.warning(String.format("Received message of type %s, when we are waiting for activation message", msg.getMessageType()));
+            logger.warn("Received message of type {}, when we are waiting for activation message", msg.getMessageType());
             receiveFuture = communicator.receive();
         }
     }

@@ -2,6 +2,8 @@ package se.chalmers.datx02.PBFT;
 
 import com.google.protobuf.ByteString;
 import com.google.protobuf.InvalidProtocolBufferException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import sawtooth.sdk.protobuf.ConsensusBlock;
 import sawtooth.sdk.protobuf.ConsensusNotifyBlockCommit;
 import sawtooth.sdk.protobuf.ConsensusNotifyPeerMessage;
@@ -18,10 +20,9 @@ import java.util.Map;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.logging.Logger;
 
 public class Engine implements se.chalmers.datx02.lib.Engine {
-    private final static Logger LOGGER = Logger.getLogger(Engine.class.getName());
+    final Logger logger = LoggerFactory.getLogger(getClass());
     private final AtomicBoolean exit = new AtomicBoolean(false);
     private BlockingQueue<DriverUpdate> updates;
     private StartupState startupState;
