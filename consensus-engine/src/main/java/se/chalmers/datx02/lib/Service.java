@@ -1,6 +1,7 @@
 package se.chalmers.datx02.lib;
 
 
+import com.google.protobuf.ByteString;
 import sawtooth.sdk.protobuf.ConsensusBlock;
 import sawtooth.sdk.protobuf.Message;
 import se.chalmers.datx02.lib.exceptions.*;
@@ -29,7 +30,7 @@ public interface Service {
 
     void failBlock(byte[] blockId) throws UnknownBlockException, ReceiveErrorException;
 
-    Map<byte[], ConsensusBlock> getBlocks( List<byte[]> blockIds) throws UnknownBlockException, ReceiveErrorException;
+    Map<ByteString, ConsensusBlock> getBlocks(List<byte[]> blockIds) throws UnknownBlockException, ReceiveErrorException;
 
     ConsensusBlock getChainHead() throws NoChainHeadException, ReceiveErrorException;
 

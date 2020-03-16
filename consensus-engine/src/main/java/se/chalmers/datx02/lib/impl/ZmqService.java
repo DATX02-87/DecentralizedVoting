@@ -210,8 +210,8 @@ public class ZmqService implements Service {
     // -- Queries --
 
     @Override
-    public Map<byte[], ConsensusBlock> getBlocks(List<byte[]> blockIds) throws UnknownBlockException, ReceiveErrorException {
-        Map<byte[], ConsensusBlock> toReturn = new HashMap<>();
+    public Map<ByteString, ConsensusBlock> getBlocks(List<byte[]> blockIds) throws UnknownBlockException, ReceiveErrorException {
+        Map<ByteString, ConsensusBlock> toReturn = new HashMap<>();
 
         Iterable<ByteString> byteBlockIds = blockIds.stream().map(ByteString::copyFrom).collect(Collectors.toList());
 
@@ -227,7 +227,7 @@ public class ZmqService implements Service {
             throw new ReceiveErrorException("Receive Error, Failed with status: " + status.name());
 
         for (ConsensusBlock c : response.getBlocksList()) {
-            toReturn.put(c.getBlockId().toByteArray(), c);
+            toReturn.put(ByteString.copyFrom(c.getBlockId().toByteArray()), c);
         }
 
         return toReturn;

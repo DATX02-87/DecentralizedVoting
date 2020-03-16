@@ -249,7 +249,7 @@ class ZmqServiceTest {
 
     @Test
     void testGetBlocks() throws UnknownBlockException, ReceiveErrorException {
-        List<ConsensusBlock> blockList = new ArrayList<>();
+        Map<ByteString, ConsensusBlock> blockList = new HashMap<>();
 
         ConsensusBlock block1 = ConsensusBlock.newBuilder()
                 .setBlockId(ByteString.copyFrom("block1".getBytes()))
@@ -265,12 +265,12 @@ class ZmqServiceTest {
                 .setBlockNum(2)
                 .setPayload(ByteString.copyFrom("test2".getBytes())).build();
 
-        blockList.add(block1);
-        blockList.add(block2);
+        blockList.put(block1.getBlockId(), block1);
+        blockList.put(block2.getBlockId(), block2);
 
         ConsensusBlocksGetResponse resp = ConsensusBlocksGetResponse.newBuilder()
                 .setStatus(ConsensusBlocksGetResponse.Status.OK)
-                .addAllBlocks(blockList).build();
+                .addAllBlocks(blockList.values()).build();
 
         when(communicator.send(any(byte[].class), any(Message.MessageType.class))).thenReturn(
                 makeFuture(
@@ -283,7 +283,7 @@ class ZmqServiceTest {
         blockIds.add("block1".getBytes());
         blockIds.add("block2".getBytes());
 
-        Object[] response = service.getBlocks(blockIds).values().toArray();
+        Map<ByteString, ConsensusBlock> response = service.getBlocks(blockIds);
 
         verify(communicator).send(
                 ConsensusBlocksGetRequest.newBuilder()
@@ -293,7 +293,7 @@ class ZmqServiceTest {
                 Message.MessageType.CONSENSUS_BLOCKS_GET_REQUEST
         );
 
-        // assertArrayEquals(blockList.toArray(), response);
+        assertEquals(blockList, response);
 
     }
 

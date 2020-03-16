@@ -1,5 +1,6 @@
 package se.chalmers.datx02.PBFT;
 
+import com.google.protobuf.ByteString;
 import com.sun.org.apache.xerces.internal.impl.dv.util.HexBin;
 import sawtooth.sdk.protobuf.ConsensusBlock;
 import sawtooth.sdk.protobuf.Message.MessageType;
@@ -50,7 +51,7 @@ public class Service {
         blockList.add(blockId);
 
         try{
-            Map<byte[], ConsensusBlock> result = this.service.getBlocks(blockList);
+            Map<ByteString, ConsensusBlock> result = this.service.getBlocks(blockList);
 
             ConsensusBlock resultBlock = (ConsensusBlock) result.values().toArray()[0];
 
