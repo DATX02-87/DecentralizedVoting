@@ -36,6 +36,6 @@ public interface Service {
 
     Map<String, String> getSettings(byte[] blockId, List<String> settings) throws UnknownBlockException, ReceiveErrorException;
 
-    Map<String, byte[]> getState(byte[] blockId, List<String> addresses) throws UnknownBlockException, ReceiveErrorException;
+    Map<String, ByteString> getState(byte[] blockId, List<String> addresses) throws UnknownBlockException, ReceiveErrorException;
 
 }

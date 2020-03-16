@@ -370,7 +370,7 @@ class ZmqServiceTest {
         addresses.add("test1");
         addresses.add("test2");
 
-        Map<String, byte[]> entries = service.getState("test".getBytes(), addresses);
+        Map<String, ByteString> entries = service.getState("test".getBytes(), addresses);
 
         verify(communicator).send(
                 ConsensusStateGetRequest.newBuilder()
@@ -379,10 +379,13 @@ class ZmqServiceTest {
                         .build().toByteArray(),
                 Message.MessageType.CONSENSUS_STATE_GET_REQUEST
         );
-        Map<String, byte[]> toCompare = new HashMap<>();
-        toCompare.put(stateEntries.get(0).getAddress(), stateEntries.get(0).getData().toByteArray());
-        toCompare.put(stateEntries.get(1).getAddress(), stateEntries.get(1).getData().toByteArray());
-        // assertEquals(entries, toCompare);
+
+        Map<String, ByteString> toCompare = new HashMap<>();
+
+        toCompare.put(stateEntries.get(0).getAddress(), stateEntries.get(0).getData());
+        toCompare.put(stateEntries.get(1).getAddress(), stateEntries.get(1).getData());
+
+        assertEquals(entries, toCompare);
 
     }
 }

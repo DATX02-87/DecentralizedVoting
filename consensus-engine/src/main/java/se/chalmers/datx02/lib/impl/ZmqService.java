@@ -275,9 +275,9 @@ public class ZmqService implements Service {
         return blockSettings;
     }
 
-    public Map<String, byte[]> getState(byte[] blockId, List<String> addresses) throws UnknownBlockException, ReceiveErrorException {
+    public Map<String, ByteString> getState(byte[] blockId, List<String> addresses) throws UnknownBlockException, ReceiveErrorException {
         ByteString id = ByteString.copyFrom(blockId);
-        Map<String, byte[]> toReturn = new HashMap<>();
+        Map<String, ByteString> toReturn = new HashMap<>();
 
         byte[] request = ConsensusStateGetRequest.newBuilder()
                 .setBlockId(id)
@@ -294,7 +294,7 @@ public class ZmqService implements Service {
             throw new ReceiveErrorException("Receive Error, Failed with status: " + status.name());
 
         for (ConsensusStateEntry e : response.getEntriesList()) {
-            toReturn.put(e.getAddress(), e.getData().toByteArray());
+            toReturn.put(e.getAddress(), e.getData());
         }
 
         return toReturn;
