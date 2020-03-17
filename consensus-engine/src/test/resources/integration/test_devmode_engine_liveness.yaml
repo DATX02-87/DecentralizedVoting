@@ -17,7 +17,7 @@ version: "2.1"
 
 services:
   intkey-workload:
-    image: hyperledger/sawtooth-shell:nightly
+    image: hyperledger/sawtooth-shell
     expose:
       - 8008
     command: "bash -c \"\
@@ -63,7 +63,7 @@ services:
   #     VALIDATOR_URI: tcp://validator-4:5005
 
   validator-0:
-    image: hyperledger/sawtooth-validator:nightly
+    image: hyperledger/sawtooth-validator
     ports:
       - 5005
     expose:
@@ -99,7 +99,7 @@ services:
     stop_signal: SIGKILL
 
   validator-1:
-    image: hyperledger/sawtooth-validator:nightly
+    image: hyperledger/sawtooth-validator
     ports:
       - 5005
     expose:
@@ -123,7 +123,7 @@ services:
     stop_signal: SIGKILL
 
   validator-2:
-    image: hyperledger/sawtooth-validator:nightly
+    image: hyperledger/sawtooth-validator
     ports:
       - 5005
     expose:
@@ -147,7 +147,7 @@ services:
     stop_signal: SIGKILL
 
   validator-3:
-    image: hyperledger/sawtooth-validator:nightly
+    image: hyperledger/sawtooth-validator
     ports:
       - 5005
     expose:
@@ -171,7 +171,7 @@ services:
     stop_signal: SIGKILL
 
   validator-4:
-    image: hyperledger/sawtooth-validator:nightly
+    image: hyperledger/sawtooth-validator
     ports:
       - 5005
     expose:
@@ -195,7 +195,7 @@ services:
     stop_signal: SIGKILL
 
   rest-api-0:
-    image: hyperledger/sawtooth-rest-api:nightly
+    image: hyperledger/sawtooth-rest-api
     ports:
       - 8008:8008
     expose:
@@ -205,7 +205,7 @@ services:
     stop_signal: SIGKILL
 
   rest-api-1:
-    image: hyperledger/sawtooth-rest-api:nightly
+    image: hyperledger/sawtooth-rest-api
     ports:
       - 8008
     expose:
@@ -215,7 +215,7 @@ services:
     stop_signal: SIGKILL
 
   rest-api-2:
-    image: hyperledger/sawtooth-rest-api:nightly
+    image: hyperledger/sawtooth-rest-api
     ports:
       - 8008
     expose:
@@ -225,7 +225,7 @@ services:
     stop_signal: SIGKILL
 
   rest-api-3:
-    image: hyperledger/sawtooth-rest-api:nightly
+    image: hyperledger/sawtooth-rest-api
     ports:
       - 8008
     expose:
@@ -235,7 +235,7 @@ services:
     stop_signal: SIGKILL
 
   rest-api-4:
-    image: hyperledger/sawtooth-rest-api:nightly
+    image: hyperledger/sawtooth-rest-api
     ports:
       - 8008
     expose:
@@ -245,70 +245,70 @@ services:
     stop_signal: SIGKILL
 
   intkey-tp-0:
-    image: hyperledger/sawtooth-intkey-tp-python:nightly
+    image: hyperledger/sawtooth-intkey-tp-python
     expose:
       - 4004
     command: intkey-tp-python -C tcp://validator-0:4004
     stop_signal: SIGKILL
 
   intkey-tp-1:
-    image: hyperledger/sawtooth-intkey-tp-python:nightly
+    image: hyperledger/sawtooth-intkey-tp-python
     expose:
       - 4004
     command: intkey-tp-python -C tcp://validator-1:4004
     stop_signal: SIGKILL
 
   intkey-tp-2:
-    image: hyperledger/sawtooth-intkey-tp-python:nightly
+    image: hyperledger/sawtooth-intkey-tp-python
     expose:
       - 4004
     command: intkey-tp-python -C tcp://validator-2:4004
     stop_signal: SIGKILL
 
   intkey-tp-3:
-    image: hyperledger/sawtooth-intkey-tp-python:nightly
+    image: hyperledger/sawtooth-intkey-tp-python
     expose:
       - 4004
     command: intkey-tp-python -C tcp://validator-3:4004
     stop_signal: SIGKILL
 
   intkey-tp-4:
-    image: hyperledger/sawtooth-intkey-tp-python:nightly
+    image: hyperledger/sawtooth-intkey-tp-python
     expose:
       - 4004
     command: intkey-tp-python -C tcp://validator-4:4004
     stop_signal: SIGKILL
 
   settings-tp-0:
-    image: hyperledger/sawtooth-settings-tp:nightly
+    image: hyperledger/sawtooth-settings-tp
     expose:
       - 4004
     command: settings-tp -C tcp://validator-0:4004
     stop_signal: SIGKILL
 
   settings-tp-1:
-    image: hyperledger/sawtooth-settings-tp:nightly
+    image: hyperledger/sawtooth-settings-tp
     expose:
       - 4004
     command: settings-tp -C tcp://validator-1:4004
     stop_signal: SIGKILL
 
   settings-tp-2:
-    image: hyperledger/sawtooth-settings-tp:nightly
+    image: hyperledger/sawtooth-settings-tp
     expose:
       - 4004
     command: settings-tp -C tcp://validator-2:4004
     stop_signal: SIGKILL
 
   settings-tp-3:
-    image: hyperledger/sawtooth-settings-tp:nightly
+    image: hyperledger/sawtooth-settings-tp
     expose:
       - 4004
     command: settings-tp -C tcp://validator-3:4004
     stop_signal: SIGKILL
 
   settings-tp-4:
-    image: hyperledger/sawtooth-settings-tp:nightly
+    image: hyperledger/sawtooth-settings-tp
     expose:
       - 4004
     command: settings-tp -C tcp://validator-4:4004
