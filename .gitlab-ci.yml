@@ -1,0 +1,2 @@
+include:
+    - local: '/consensus-engine/.gitlab-ci.yml'
