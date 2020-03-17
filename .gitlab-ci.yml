@@ -1,2 +1,3 @@
-include:
-    - local: '/consensus-engine/.gitlab-ci.yml'
+trigger_job:
+    trigger:
+      include: consensus-engine/.gitlab-ci.yml
