@@ -107,7 +107,8 @@ public class DevmodeEngine implements Engine {
                         } else if (block.getBlockNum() < chainHead.getBlockNum()) {
                             ConsensusBlock chainBlock = chainHead;
                             // loop backwards till the block has been found
-                            while (!Arrays.equals(chainBlock.getBlockId().toByteArray(), block.getBlockId().toByteArray())) {
+//                            while (!Arrays.equals(chainBlock.getBlockId().toByteArray(), block.getBlockId().toByteArray())) {
+                            while(chainBlock.getBlockNum() != block.getBlockNum()) {
                                 ByteString previousId = chainBlock.getPreviousId();
                                 chainBlock = service.getBlock(previousId.toByteArray());
                                 if (chainBlock == null) {
@@ -118,7 +119,8 @@ public class DevmodeEngine implements Engine {
                                     );
                                 }
                             }
-                            if (block.getBlockId().toStringUtf8().compareTo(chainBlock.getBlockId().toStringUtf8()) > 0) {
+                            String chainBlockId = Util.bytesToHex(chainBlock.getBlockId().toByteArray());
+                            if (blockIdString.compareTo(chainBlockId) > 0) {
                                 logger.info("Switching to new fork: " + block.getBlockId());
                                 service.commitBlock(block.getBlockId().toByteArray());
                             } else {

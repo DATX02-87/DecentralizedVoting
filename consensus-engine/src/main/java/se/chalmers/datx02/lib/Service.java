@@ -18,7 +18,7 @@ public interface Service {
 
     byte[] summarizeBlock() throws InvalidStateException, BlockNotReadyException, ReceiveErrorException;
 
-    byte[] finalizeBlock(byte[] data) throws InvalidStateException, UnknownBlockException, ReceiveErrorException;
+    byte[] finalizeBlock(byte[] data) throws InvalidStateException, UnknownBlockException, ReceiveErrorException, BlockNotReadyException;
 
     void cancelBlock() throws InvalidStateException, ReceiveErrorException;
 

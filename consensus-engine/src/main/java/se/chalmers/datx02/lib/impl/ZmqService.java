@@ -94,7 +94,7 @@ public class ZmqService implements Service {
         return response.getSummary().toByteArray();
     }
 
-    public byte[] finalizeBlock(byte[] data) throws InvalidStateException, UnknownBlockException, ReceiveErrorException {
+    public byte[] finalizeBlock(byte[] data) throws InvalidStateException, ReceiveErrorException, BlockNotReadyException {
         ByteString content = ByteString.copyFrom(data);
         byte[] request = ConsensusFinalizeBlockRequest.newBuilder().setData(content).build().toByteArray();
 
@@ -107,7 +107,7 @@ public class ZmqService implements Service {
             throw new InvalidStateException("cannot finalize block in current state");
         }
         if (status == ConsensusFinalizeBlockResponse.Status.NOT_READY) {
-            throw new UnknownBlockException("Block not ready to be finalized");
+            throw new BlockNotReadyException("Block not ready to be finalized");
         }
         if (status != ConsensusFinalizeBlockResponse.Status.OK) {
             throw new ReceiveErrorException("Receive Error, failed with status: " + status.name());

@@ -4,22 +4,17 @@ import com.google.protobuf.ByteString;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import sawtooth.sdk.protobuf.ConsensusBlock;
-import sawtooth.sdk.protobuf.Message.MessageType;
 import se.chalmers.datx02.lib.Service;
 import se.chalmers.datx02.lib.Util;
 import se.chalmers.datx02.lib.exceptions.*;
 
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
 
 public class DevmodeService {
-    private boolean not_ready_to_summarize,
-            not_ready_to_finalize;
-
     final Logger logger = LoggerFactory.getLogger(getClass());
+
+    private final StateLog stateLog = new StateLog();
 
     private final int DEFAULT_WAIT_TIME = 0;
     public final static byte[] NULL_BLOCK_IDENTIFIER = {0, 0, 0, 0, 0, 0, 0, 0};
@@ -70,86 +65,72 @@ public class DevmodeService {
         logger.info("Initializing block");
         try {
             this.service.initializeBlock(null);
+            stateLog.setState(DevmodeState.INITIALIZED);
         }
         catch(InvalidStateException | UnknownBlockException | ReceiveErrorException e){
             logger.warn("Failed to initialize");
+            throw new RuntimeException(e);
         }
     }
 
     public byte[] finalizeBlock(){
         logger.info("Finalizing block");
 
-        // Try to summarize block
+        // summarize the block
         byte[] summary = null;
+        try {
+            summary = service.summarizeBlock();
+        } catch (InvalidStateException | ReceiveErrorException e) {
+            throw new RuntimeException(e);
+        } catch (BlockNotReadyException e) {
+            logger.debug("Block not ready to summarize");
+        }
 
-
-        while(true) {
-            // Log
-            if(!not_ready_to_summarize){
-                not_ready_to_summarize = true;
-                logger.info("Block not ready to summarize");
-            }
-
-            // Sleep thread
+        while(summary == null) {
             try {
-                Thread.sleep(1000);
-            } catch (InterruptedException ex) {
-                throw new RuntimeException("Could not sleep thread");
+                Thread.sleep(100);
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
             }
-
-            // Try to get summarized block
-            try{
-                summary = this.service.summarizeBlock();
-                break;
-            }
-            catch(RuntimeException e){
-                logger.warn("Failed to summarize block");
-                break;
-            } catch (InvalidStateException | BlockNotReadyException | ReceiveErrorException e) {
-                logger.info("Could not summarize block. Retrying...");
+            try {
+                summary = service.summarizeBlock();
+            } catch (InvalidStateException | ReceiveErrorException e) {
+                throw new RuntimeException(e);
+            } catch (BlockNotReadyException e) {
+                logger.debug("Block not ready to summarize");
             }
         }
 
-        not_ready_to_summarize = false;
-
+        // create consensus
         byte[] consensus = DevmodeEngine.createConsensus(summary);
 
-        byte[] block_id = new byte[0];
+        // finalize the block
+        byte[] blockId = null;
         try {
-            block_id = this.service.finalizeBlock(consensus);
-        } catch (InvalidStateException | UnknownBlockException | ReceiveErrorException e) {
-            e.printStackTrace();
+            blockId = service.finalizeBlock(consensus);
+        } catch (UnknownBlockException | InvalidStateException | ReceiveErrorException e) {
+            throw new RuntimeException(e);
+        } catch (BlockNotReadyException e) {
+            logger.debug("Block not ready when finalizing", e);
         }
-
-        while(true) {
-            // Log
-            if(!not_ready_to_finalize){
-                not_ready_to_finalize = true;
-                logger.info("Block not ready to finalize");
-            }
-
-            // Sleep thread
+        while(blockId == null) {
             try {
-                Thread.sleep(1000);
-            } catch (InterruptedException ex) {
-                throw new RuntimeException("Could not sleep thread");
+                Thread.sleep(100);
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
             }
-
-            // Try to get summarized block
-            try{
-                block_id = this.service.finalizeBlock(consensus);
-                break;
-            }
-            catch (InvalidStateException | UnknownBlockException | ReceiveErrorException e) {
-                logger.warn("Failed to finalize block", e);
-                break;
+            try {
+                blockId = service.finalizeBlock(consensus);
+            } catch (UnknownBlockException | InvalidStateException | ReceiveErrorException e) {
+                throw new RuntimeException(e);
+            } catch (BlockNotReadyException e) {
+                logger.debug("Block not ready when finalizing", e);
             }
         }
-        not_ready_to_finalize = false;
 
-        logger.info("Block has been finalized sucessfully : " + Util.bytesToHex(block_id));
+        stateLog.setState(DevmodeState.FINALIZED);
+        return blockId;
 
-        return block_id;
     }
 
     public void checkBlock(byte[] blockId){
@@ -161,6 +142,7 @@ public class DevmodeService {
 
         try{
             this.service.checkBlocks(blockList);
+            stateLog.setState(DevmodeState.CHECKED);
         }
         catch(UnknownBlockException | ReceiveErrorException e){
             logger.warn("Failed to check block");
@@ -172,6 +154,7 @@ public class DevmodeService {
 
         try{
             this.service.failBlock(blockId);
+            stateLog.setState(DevmodeState.FAILED);
         }
         catch(UnknownBlockException | ReceiveErrorException e){
             logger.warn("Failed to fail block");
@@ -183,6 +166,7 @@ public class DevmodeService {
 
         try{
             this.service.ignoreBlock(blockId);
+            stateLog.setState(DevmodeState.IGNORED);
         }
         catch(UnknownBlockException | ReceiveErrorException e){
             logger.warn("Failed to ignore block");
@@ -194,6 +178,7 @@ public class DevmodeService {
 
         try{
             this.service.commitBlock(blockId);
+            stateLog.setState(DevmodeState.COMMITTED);
         }
         catch(UnknownBlockException | ReceiveErrorException e){
             logger.warn("Failed to commit block");
@@ -205,8 +190,11 @@ public class DevmodeService {
 
         try{
             this.service.cancelBlock();
+            stateLog.setState(DevmodeState.CANCELLED);
         }
-        catch (InvalidStateException | ReceiveErrorException e) {
+        catch (InvalidStateException e) {
+            // do nothing, this might be expected
+        } catch (ReceiveErrorException e) {
             logger.warn("Failed to cancel block: " + e.getLocalizedMessage());
         }
     }
@@ -268,5 +256,21 @@ public class DevmodeService {
         logger.info("Wait time: " + wait_time);
 
         return wait_time;
+    }
+
+    private enum DevmodeState {
+        NONE, INITIALIZED, FINALIZED, CHECKED, FAILED, CANCELLED, COMMITTED, IGNORED
+    }
+
+    private static class StateLog {
+        private final Queue<DevmodeState> log = new LinkedList<>();
+
+        public DevmodeState getCurrentState() {
+            return log.peek();
+        }
+
+        public void setState(DevmodeState state) {
+            log.add(state);
+        }
     }
 }

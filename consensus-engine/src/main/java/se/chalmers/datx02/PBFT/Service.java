@@ -116,7 +116,7 @@ public class Service {
         byte[] block_id = new byte[0];
         try {
             block_id = this.service.finalizeBlock(consensus);
-        } catch (InvalidStateException | UnknownBlockException | ReceiveErrorException e) {
+        } catch (InvalidStateException | UnknownBlockException | ReceiveErrorException | BlockNotReadyException e) {
             e.printStackTrace();
         }
 
@@ -139,7 +139,7 @@ public class Service {
                 block_id = this.service.finalizeBlock(consensus);
                 break;
             }
-            catch (InvalidStateException | UnknownBlockException | ReceiveErrorException e) {
+            catch (InvalidStateException | UnknownBlockException | ReceiveErrorException | BlockNotReadyException e) {
                 logger.warn("Failed to finalize block");
                 break;
             }

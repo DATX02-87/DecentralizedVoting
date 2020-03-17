@@ -129,7 +129,7 @@ class ZmqServiceTest {
     }
 
     @Test
-    void testFinalizeBlock() throws ReceiveErrorException, InvalidStateException, UnknownBlockException {
+    void testFinalizeBlock() throws ReceiveErrorException, InvalidStateException, UnknownBlockException, BlockNotReadyException {
         String blockId = "blockId";
         ByteString blockIdBytes = ByteString.copyFromUtf8(blockId);
         ConsensusFinalizeBlockResponse resp = ConsensusFinalizeBlockResponse.newBuilder()
