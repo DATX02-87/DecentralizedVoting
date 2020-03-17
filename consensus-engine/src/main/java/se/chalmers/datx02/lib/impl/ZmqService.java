@@ -86,7 +86,7 @@ public class ZmqService implements Service {
         if (status == ConsensusSummarizeBlockResponse.Status.INVALID_STATE) {
 
             throw new InvalidStateException("Cannot summarize block in current state");
-        } else if (status == ConsensusSummarizeBlockResponse.Status.BLOCK_NOT_READY) {
+        } else if (status == ConsensusSummarizeBlockResponse.Status.BLOCK_NOT_READY || status == ConsensusSummarizeBlockResponse.Status.NOT_READY) {
             throw new BlockNotReadyException("Block not ready to be summarized");
         } else if (status != ConsensusSummarizeBlockResponse.Status.OK) {
             throw new ReceiveErrorException(String.format("Failed with status %s", status));
@@ -106,7 +106,7 @@ public class ZmqService implements Service {
         if (status == ConsensusFinalizeBlockResponse.Status.INVALID_STATE) {
             throw new InvalidStateException("cannot finalize block in current state");
         }
-        if (status == ConsensusFinalizeBlockResponse.Status.NOT_READY) {
+        if (status == ConsensusFinalizeBlockResponse.Status.NOT_READY || status == ConsensusFinalizeBlockResponse.Status.BLOCK_NOT_READY) {
             throw new BlockNotReadyException("Block not ready to be finalized");
         }
         if (status != ConsensusFinalizeBlockResponse.Status.OK) {
