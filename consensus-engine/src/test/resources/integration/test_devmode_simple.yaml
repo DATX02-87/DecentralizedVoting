@@ -3,7 +3,7 @@ version: "2.1"
 
 services:
   intkey-workload:
-    image: hyperledger/sawtooth-shell:nightly
+    image: hyperledger/sawtooth-shell
     expose:
       - 8008
     command: "bash -c \"\
@@ -13,7 +13,7 @@ services:
     stop_signal: SIGKILL
 
   validator:
-    image: hyperledger/sawtooth-validator:nightly
+    image: hyperledger/sawtooth-validator
     expose:
       - 4004
       - 8800
@@ -46,7 +46,7 @@ services:
     stop_signal: SIGKILL
 
   rest-api:
-    image: hyperledger/sawtooth-rest-api:nightly
+    image: hyperledger/sawtooth-rest-api
     ports:
       - 8008
     expose:
@@ -56,14 +56,14 @@ services:
     stop_signal: SIGKILL
 
   intkey-tp:
-    image: hyperledger/sawtooth-intkey-tp-python:nightly
+    image: hyperledger/sawtooth-intkey-tp-python
     expose:
       - 4004
     command: intkey-tp-python -C tcp://validator:4004
     stop_signal: SIGKILL
 
   settings-tp:
-    image: hyperledger/sawtooth-settings-tp:nightly
+    image: hyperledger/sawtooth-settings-tp
     expose:
       - 4004
     command: settings-tp -C tcp://validator:4004
