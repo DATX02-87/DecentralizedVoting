@@ -30,10 +30,6 @@ public class DevmodeService {
 
         try{
             return this.service.getChainHead();
-        }
-        catch(RuntimeException e){
-            logger.warn("Failed to get chain head");
-            return null;
         } catch (ReceiveErrorException | NoChainHeadException e) {
             logger.warn(e.getLocalizedMessage());
             return null;
@@ -111,7 +107,7 @@ public class DevmodeService {
         } catch (UnknownBlockException | InvalidStateException | ReceiveErrorException e) {
             throw new RuntimeException(e);
         } catch (BlockNotReadyException e) {
-            logger.debug("Block not ready when finalizing", e);
+            logger.info("Block not ready when finalizing", e);
         }
         while(blockId == null) {
             try {
@@ -124,7 +120,7 @@ public class DevmodeService {
             } catch (UnknownBlockException | InvalidStateException | ReceiveErrorException e) {
                 throw new RuntimeException(e);
             } catch (BlockNotReadyException e) {
-                logger.debug("Block not ready when finalizing", e);
+                logger.info("Block not ready when finalizing", e);
             }
         }
 
