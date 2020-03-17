@@ -62,8 +62,7 @@ public class DevmodeEngine implements Engine {
         DriverUpdate update;
         ConsensusBlock block;
         while (!exit.get()) {
-            update = updates.poll(Duration.ofMillis(10).getSeconds(), TimeUnit.SECONDS);
-
+            update = updates.poll(10, TimeUnit.MILLISECONDS);
             // handle message if existing
             if (update != null) {
                 logger.info("Received message: " + update.getMessageType());
@@ -82,7 +81,7 @@ public class DevmodeEngine implements Engine {
                             logger.info("Passed consensus check: " + block.getBlockId());
                             service.checkBlock(block.getBlockId().toByteArray());
                         } else {
-                            logger.info("Failed consensus check: " + block.getBlockId());
+                            logger.error("Failed consensus check: " + block.getBlockId());
                             service.failBlock(block.getBlockId().toByteArray());
                         }
                         break;
@@ -92,11 +91,11 @@ public class DevmodeEngine implements Engine {
                         service.sendBlockReceived(block);
                         chainHead = service.getChainHead();
 
-
                         long blockNum = block.getBlockNum();
                         long chainHeadBlockNum = chainHead.getBlockNum();
                         String blockIdString = Util.bytesToHex(block.getBlockId().toByteArray());
                         String chainHeadBlockId = Util.bytesToHex(chainHead.getBlockId().toByteArray());
+
                         logger.info("Choosing between chain heads: \nCurrent: " + chainHeadBlockId + "\nNew: " + blockIdString);
                         if (blockNum > chainHeadBlockNum || (
                                 blockNum == chainHeadBlockNum &&
