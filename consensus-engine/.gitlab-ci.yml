@@ -1,5 +1,6 @@
 image: maven:latest
-
+tags:
+  - docker
 variables:
   MAVEN_CLI_OPTS: "--batch-mode"
   MAVEN_OPTS: "-Dmaven.repo.local=.m2/repository"
