@@ -102,12 +102,12 @@ public class DevmodeEngine implements Engine {
                                         blockIdString.compareTo(chainHeadBlockId) > 0)
                         ) {
                             logger.info("Committing: " + block.getBlockId());
-                            service.commitBlock(block.getBlockId().toByteArray());
+                            service.commitBlock(blockId);
                         } else if (block.getBlockNum() < chainHead.getBlockNum()) {
                             ConsensusBlock chainBlock = chainHead;
                             // loop backwards till the block has been found
 //                            while (!Arrays.equals(chainBlock.getBlockId().toByteArray(), block.getBlockId().toByteArray())) {
-                            while(chainBlock.getBlockNum() != block.getBlockNum()) {
+                            while (chainBlock.getBlockNum() != block.getBlockNum()) {
                                 ByteString previousId = chainBlock.getPreviousId();
                                 chainBlock = service.getBlock(previousId.toByteArray());
                                 if (chainBlock == null) {
@@ -121,15 +121,15 @@ public class DevmodeEngine implements Engine {
                             String chainBlockId = Util.bytesToHex(chainBlock.getBlockId().toByteArray());
                             if (blockIdString.compareTo(chainBlockId) > 0) {
                                 logger.info("Switching to new fork: " + block.getBlockId());
-                                service.commitBlock(block.getBlockId().toByteArray());
+                                service.commitBlock(blockId);
                             } else {
                                 logger.info("Ignoring fork: " + block.getBlockId());
-                                service.ignoreBlock(block.getBlockId().toByteArray());
+                                service.ignoreBlock(blockId);
                             }
 
                         } else {
                             logger.info("Ignoring: " + block.getBlockId());
-                            service.ignoreBlock(block.getBlockId().toByteArray());
+                            service.ignoreBlock(blockId);
                         }
                         break;
                     // The chain head was updated, so abandon the
