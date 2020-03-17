@@ -26,10 +26,11 @@ class DevmodeLivenessIntegrationTest {
     private static final int COMPONENT_PORT = 4004;
     public static final int VALIDATOR_PORT = 8800;
     public static final int CONSENSUS_PORT = 5005;
-    public static final int BATCH_PER_BLOCK_MIN = 1;
+    public static final int BATCH_PER_BLOCK_MIN = 0;
     public static final int BATCH_PER_BLOCK_MAX = 100;
     public static final int BLOCKS_TO_REACH = 55;
-    public static final int BLOCKS_TO_CHECK_CONSENSUS = 52;
+    public static final int CONSENSUS_BLOCK_THRESHOLD = 3;
+    public static final int BLOCKS_TO_CHECK_CONSENSUS = BLOCKS_TO_REACH - CONSENSUS_BLOCK_THRESHOLD;
     public static final int MIN_TOTAL_BATCHES = 100;
     public static final int REST_API_PORT = 8008;
     private static final List<Integer> INSTANCES = IntStream.range(0, 5).boxed().collect(Collectors.toList());
@@ -50,6 +51,8 @@ class DevmodeLivenessIntegrationTest {
         startConsensusEngines();
         Set<Integer> nodesReached = new TreeSet<>();
         // test that the blockchain reaches a specified size
+        Map<Integer, Long> heights = new HashMap<>();
+        long testedHeight = 0;
         while (nodesReached.size() < INSTANCES.size()) {
             for (Integer i : INSTANCES) {
                 if (nodesReached.contains(i)) {
@@ -67,11 +70,21 @@ class DevmodeLivenessIntegrationTest {
                 }
                 // assert that the block has correct number of batches
                 assertTrue(checkBlocksBatchCount(block, BATCH_PER_BLOCK_MIN, BATCH_PER_BLOCK_MAX), String.format("Instance %s har the wrong number of batches, block no. %s", i, block.getHeader().getBlockNum()));
+                // check they are currently in consensus
+                // if (!heights.containsKey(i) || heights.get(i) < block.getHeader().getBlockNum()) {
+                //     heights.put(i, block.getHeader().getBlockNum());
+                // }
                 if (block.getHeader().getBlockNum() >= BLOCKS_TO_REACH) {
                     nodesReached.add(i);
                 }
                 logBlock(i, block);
             }
+            // long height = heights.values().stream().reduce((one, two) -> one > two ? two : one).orElse(0L);
+            // if (height > testedHeight && height > CONSENSUS_BLOCK_THRESHOLD + 1) {
+            //     testedHeight = height;
+            //     List<List<Block>> chains = getChains();
+            //     assertTrue(checkConsensus(chains, (int) (height - CONSENSUS_BLOCK_THRESHOLD)), "Consensus failed at height: " + (height - CONSENSUS_BLOCK_THRESHOLD));
+            // }
             Thread.sleep(5000);
         }
         List<List<Block>> chains = getChains();
@@ -96,17 +109,24 @@ class DevmodeLivenessIntegrationTest {
             Driver driver = new ZmqDriver(new DevmodeEngine());
             String endpoint = sawtoothComposeExtension.buildUri("tcp", "validator-" + instance, 5005);
             Thread thread = new Thread(() -> {
+                Thread.currentThread().setName("engine-" + instance);
+                MDC.put("context", "driver");
                 try {
-                    Thread.currentThread().setName("engine-" + instance);
-                    MDC.put("context", "driver");
                     driver.start(endpoint);
                 } catch (Exception e) {
-                    e.printStackTrace();
-                    fail();
-                    System.exit(1);
+                    throw e;
                 }
             });
             thread.start();
+            thread.setUncaughtExceptionHandler((t, e) -> {
+                logger.error("Engine {} exited", instance, e);
+                fail();
+                try {
+                    stopConsensusEngines();
+                } catch (InterruptedException ex) {
+                    ex.printStackTrace();
+                }
+            });
             engines.put(thread, driver);
         }
 
