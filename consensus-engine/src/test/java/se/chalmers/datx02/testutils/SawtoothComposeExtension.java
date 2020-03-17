@@ -1,13 +1,11 @@
 package se.chalmers.datx02.testutils;
 
-import com.google.api.client.http.GenericUrl;
-import com.google.api.client.http.HttpRequest;
-import com.google.api.client.http.HttpRequestFactory;
-import com.google.api.client.http.HttpTransport;
+import com.google.api.client.http.*;
 import com.google.api.client.http.javanet.NetHttpTransport;
 import com.google.api.client.json.JsonFactory;
 import com.google.api.client.json.JsonObjectParser;
 import com.google.api.client.json.jackson2.JacksonFactory;
+import com.google.api.client.util.ExponentialBackOff;
 import com.palantir.docker.compose.DockerComposeExtension;
 import com.palantir.docker.compose.connection.Container;
 import com.palantir.docker.compose.connection.DockerPort;
@@ -70,7 +68,16 @@ public class SawtoothComposeExtension implements BeforeAllCallback, AfterAllCall
     }
 
     public <T> T getRequest(String uri, Class<T> clazz) throws IOException {
-        return requestFactory.buildGetRequest(new GenericUrl(uri)).execute()
+        ExponentialBackOff exponentialBackOff = new ExponentialBackOff.Builder()
+                .setInitialIntervalMillis(500)
+                .setMaxElapsedTimeMillis(900000)
+                .setMaxIntervalMillis(6000)
+                .setMultiplier(1.5)
+                .setRandomizationFactor(0.5)
+                .build();
+        return requestFactory.buildGetRequest(new GenericUrl(uri))
+                .setUnsuccessfulResponseHandler(new HttpBackOffUnsuccessfulResponseHandler(exponentialBackOff))
+                .execute()
                 .parseAs(clazz);
     }
 
