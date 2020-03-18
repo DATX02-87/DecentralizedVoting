@@ -1,42 +1,41 @@
 package se.chalmers.datx02.lib;
 
 
+import com.google.protobuf.ByteString;
 import sawtooth.sdk.protobuf.ConsensusBlock;
 import sawtooth.sdk.protobuf.Message;
-import se.chalmers.datx02.lib.exceptions.InvalidState;
-import se.chalmers.datx02.lib.exceptions.ReceiveError;
-import se.chalmers.datx02.lib.exceptions.UnknownBlock;
+import se.chalmers.datx02.lib.exceptions.*;
 
 import java.util.List;
 import java.util.Map;
 
 public interface Service {
-    void sendTo(byte[] receiverId, Message.MessageType messageType, byte[] payload);
+    void sendTo(byte[] receiverId, String messageType, byte[] payload);
 
     void broadcast(String messageType, byte[] payload);
 
-    void initializeBlock(byte[] previousId) throws InvalidState, UnknownBlock, ReceiveError;
+    void initializeBlock(byte[] previousId) throws InvalidStateException, UnknownBlockException, ReceiveErrorException;
 
-    byte[] summarizeBlock();
+    byte[] summarizeBlock() throws InvalidStateException, BlockNotReadyException, ReceiveErrorException;
 
-    byte[] finalizeBlock(byte[] data) throws InvalidState, UnknownBlock, ReceiveError;
+    byte[] finalizeBlock(byte[] data) throws InvalidStateException, UnknownBlockException, ReceiveErrorException, BlockNotReadyException;
 
-    void cancelBlock() throws InvalidState, ReceiveError;
+    void cancelBlock() throws InvalidStateException, ReceiveErrorException;
 
-    void checkBlocks(List<byte[]> priority) throws UnknownBlock, ReceiveError;
+    void checkBlocks(List<byte[]> priority) throws UnknownBlockException, ReceiveErrorException;
 
-    void commitBlock(byte[] blockId) throws UnknownBlock, ReceiveError;
+    void commitBlock(byte[] blockId) throws UnknownBlockException, ReceiveErrorException;
 
-    void ignoreBlock(byte[] blockId) throws UnknownBlock, ReceiveError;
+    void ignoreBlock(byte[] blockId) throws UnknownBlockException, ReceiveErrorException;
 
-    void failBlock(byte[] blockId) throws UnknownBlock, ReceiveError;
+    void failBlock(byte[] blockId) throws UnknownBlockException, ReceiveErrorException;
 
-    Map<byte[], ConsensusBlock> getBlocks( List<byte[]> blockIds) throws UnknownBlock, ReceiveError;
+    Map<ByteString, ConsensusBlock> getBlocks(List<byte[]> blockIds) throws UnknownBlockException, ReceiveErrorException;
 
-    ConsensusBlock getChainHead();
+    ConsensusBlock getChainHead() throws NoChainHeadException, ReceiveErrorException;
 
-    Map<String, String> getSettings(byte[] blockId, List<String> settings) throws UnknownBlock, ReceiveError;
+    Map<String, String> getSettings(byte[] blockId, List<String> settings) throws UnknownBlockException, ReceiveErrorException;
 
-    Map<String, byte[]> getState(byte[] blockId, List<String> addresses) throws UnknownBlock, ReceiveError;
+    Map<String, ByteString> getState(byte[] blockId, List<String> addresses) throws UnknownBlockException, ReceiveErrorException;
 
 }

@@ -2,6 +2,8 @@ package se.chalmers.datx02.lib.impl;
 
 import com.google.protobuf.ByteString;
 import com.google.protobuf.InvalidProtocolBufferException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.zeromq.SocketType;
 import org.zeromq.ZContext;
 import org.zeromq.ZMQ;
@@ -14,9 +16,10 @@ import java.util.Queue;
 import java.util.UUID;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.logging.Logger;
+
 
 public class ZmqCommunicator implements Communicator {
+    final Logger logger = LoggerFactory.getLogger(getClass());
     private final String url;
     private final byte[] zmqId;
     private final ConcurrentMap<String, ConsensusFuture> futures;
@@ -30,8 +33,6 @@ public class ZmqCommunicator implements Communicator {
     private final Thread socketThread;
 
     private final AtomicBoolean exit;
-
-    private final static Logger LOGGER = Logger.getLogger(ZmqCommunicator.class.getName());
 
     public ZmqCommunicator(String url) {
         this.url = url;
@@ -123,6 +124,7 @@ public class ZmqCommunicator implements Communicator {
     }
 
     private static class SocketRunnable implements Runnable, AutoCloseable {
+        final Logger logger = LoggerFactory.getLogger(getClass());
         private final Queue<Message> sendQueue;
         private final Queue<Message> receiveQueue;
         private final byte[] identity;
@@ -153,7 +155,7 @@ public class ZmqCommunicator implements Communicator {
                 socket = ctx.createSocket(SocketType.DEALER);
                 socket.setIdentity(identity);
                 socket.connect(addr);
-                LOGGER.info(String.format("ZMQ socket listening on %s", addr));
+                logger.info("ZMQ socket listening on {}", addr);
                 state = SocketRunnableState.RUNNING;
                 eventLoop();
             } finally {
@@ -175,7 +177,7 @@ public class ZmqCommunicator implements Communicator {
             if (recv == null) {
                 return;
             }
-            LOGGER.fine("Received message");
+            logger.debug("Received message");
             try {
                 Message received = Message.parseFrom(recv);
                 ConsensusFuture consensusFuture = futures.get(received.getCorrelationId());
@@ -187,7 +189,7 @@ public class ZmqCommunicator implements Communicator {
                 }
 
             } catch (InvalidProtocolBufferException e) {
-                LOGGER.warning("Parsing message failed");
+                logger.warn("Parsing message failed");
                 e.printStackTrace();
             }
         }
@@ -197,14 +199,14 @@ public class ZmqCommunicator implements Communicator {
             if(msg == null) {
                 return;
             }
-            LOGGER.fine("Sending message");
+            logger.debug("Sending message");
             socket.send(msg.toByteArray(), 0);
-            LOGGER.fine("Message sent");
+            logger.debug("Message sent");
         }
 
         @Override
         public void close() {
-            LOGGER.info("SocketRunnable closing down");
+            logger.info("SocketRunnable closing down");
             if (socket != null) {
                 socket.close();
             }

@@ -1,80 +1,58 @@
 package se.chalmers.datx02.devmode;
 
-import com.google.api.client.http.GenericUrl;
-import com.google.api.client.http.HttpRequest;
-import com.google.api.client.http.HttpRequestFactory;
-import com.google.api.client.http.HttpTransport;
-import com.google.api.client.http.javanet.NetHttpTransport;
-import com.google.api.client.json.GenericJson;
-import com.google.api.client.json.JsonFactory;
-import com.google.api.client.json.JsonObjectParser;
-import com.google.api.client.json.jackson2.JacksonFactory;
-import com.google.api.client.util.Key;
-import com.palantir.docker.compose.DockerComposeExtension;
-import com.palantir.docker.compose.connection.Container;
-import com.palantir.docker.compose.connection.DockerPort;
-import com.palantir.docker.compose.connection.waiting.SuccessOrFailure;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.slf4j.MDC;
+import se.chalmers.datx02.lib.Driver;
+import se.chalmers.datx02.lib.impl.ZmqDriver;
 import se.chalmers.datx02.testutils.Block;
 import se.chalmers.datx02.testutils.Response;
+import se.chalmers.datx02.testutils.SawtoothComposeExtension;
 
 import java.io.IOException;
 import java.util.*;
-import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 @Tag(value = "integration")
-class DevmodeEngineIntegrationTest {
-    private final static Logger LOGGER = Logger.getLogger(DevmodeEngineIntegrationTest.class.getName());
-    private static HttpTransport HTTP_TRANSPORT = new NetHttpTransport();
-    private static JsonFactory JSON_FACTORY = new JacksonFactory();
+class DevmodeLivenessIntegrationTest {
+    final Logger logger = LoggerFactory.getLogger(getClass());
     private static final int COMPONENT_PORT = 4004;
     public static final int VALIDATOR_PORT = 8800;
     public static final int CONSENSUS_PORT = 5005;
-    public static final int BATCH_PER_BLOCK_MIN = 1;
+    public static final int BATCH_PER_BLOCK_MIN = 0;
     public static final int BATCH_PER_BLOCK_MAX = 100;
     public static final int BLOCKS_TO_REACH = 55;
-    public static final int BLOCKS_TO_CHECK_CONSENSUS = 52;
+    public static final int CONSENSUS_BLOCK_THRESHOLD = 3;
+    public static final int BLOCKS_TO_CHECK_CONSENSUS = BLOCKS_TO_REACH - CONSENSUS_BLOCK_THRESHOLD;
     public static final int MIN_TOTAL_BATCHES = 100;
     public static final int REST_API_PORT = 8008;
     private static final List<Integer> INSTANCES = IntStream.range(0, 5).boxed().collect(Collectors.toList());
-    private static HttpRequestFactory requestFactory;
+    private final Map<Thread, Driver> engines = new HashMap<>();
 
-
-    @BeforeAll
-    public static void before() {
-        requestFactory
-                = HTTP_TRANSPORT.createRequestFactory(
-                (HttpRequest request) -> {
-                    request.setParser(new JsonObjectParser(JSON_FACTORY));
-                });
-    }
 
     @RegisterExtension
-    public static DockerComposeExtension docker = DockerComposeExtension.builder()
-            .file("src/test/resources/integration/test_devmode_engine_liveness.yaml")
-            .waitingForServices(
-                    INSTANCES.stream()
-                            .map(i -> Arrays.asList("validator-" + i, "rest-api-" + i, "intkey-tp-" + i, "settings-tp-" + i))
-                            .flatMap(Collection::stream)
-                            .collect(Collectors.toList()),
-                    target -> target.stream()
-                            .map(Container::areAllPortsOpen)
-                            .filter(SuccessOrFailure::failed)
-                            .findAny().orElse(SuccessOrFailure.success()))
-            .saveLogsTo("logs/docker-logs/" + DevmodeEngineIntegrationTest.class.getSimpleName())
-            .build();
+    public static SawtoothComposeExtension sawtoothComposeExtension = new SawtoothComposeExtension(
+            INSTANCES.stream()
+                    .map(i -> Arrays.asList("validator-" + i, "rest-api-" + i, "intkey-tp-" + i, "settings-tp-" + i))
+                    .flatMap(Collection::stream)
+                    .collect(Collectors.toList()),
+            "src/test/resources/integration/test_devmode_engine_liveness.yaml"
+    );
 
     @Test
     public void test() throws InterruptedException {
+        startConsensusEngines();
         Set<Integer> nodesReached = new TreeSet<>();
         // test that the blockchain reaches a specified size
+        Map<Integer, Long> heights = new HashMap<>();
+        long testedHeight = 0;
         while (nodesReached.size() < INSTANCES.size()) {
             for (Integer i : INSTANCES) {
                 if (nodesReached.contains(i)) {
@@ -91,19 +69,67 @@ class DevmodeEngineIntegrationTest {
                     continue;
                 }
                 // assert that the block has correct number of batches
-                assertTrue(checkBlocksBatchCount(block, BATCH_PER_BLOCK_MIN, BATCH_PER_BLOCK_MAX));
+                assertTrue(checkBlocksBatchCount(block, BATCH_PER_BLOCK_MIN, BATCH_PER_BLOCK_MAX), String.format("Instance %s har the wrong number of batches, block no. %s", i, block.getHeader().getBlockNum()));
+                // check they are currently in consensus
+                // if (!heights.containsKey(i) || heights.get(i) < block.getHeader().getBlockNum()) {
+                //     heights.put(i, block.getHeader().getBlockNum());
+                // }
                 if (block.getHeader().getBlockNum() >= BLOCKS_TO_REACH) {
                     nodesReached.add(i);
                 }
                 logBlock(i, block);
             }
-            Thread.sleep(1000);
+            // long height = heights.values().stream().reduce((one, two) -> one > two ? two : one).orElse(0L);
+            // if (height > testedHeight && height > CONSENSUS_BLOCK_THRESHOLD + 1) {
+            //     testedHeight = height;
+            //     List<List<Block>> chains = getChains();
+            //     assertTrue(checkConsensus(chains, (int) (height - CONSENSUS_BLOCK_THRESHOLD)), "Consensus failed at height: " + (height - CONSENSUS_BLOCK_THRESHOLD));
+            // }
+            Thread.sleep(5000);
         }
         List<List<Block>> chains = getChains();
         // test that all nodes are in consensus
         assertTrue(checkConsensus(chains, BLOCKS_TO_CHECK_CONSENSUS));
         // test that an acceptable number of batches has been committed
         assertTrue(checkMinBatches(chains.get(0), MIN_TOTAL_BATCHES));
+        logger.info("Test done, now stopping docker compose");
+        stopConsensusEngines();
+    }
+
+    private void stopConsensusEngines() throws InterruptedException {
+        for (Map.Entry<Thread, Driver> e : engines.entrySet()) {
+            e.getValue().stop();
+            e.getKey().join();
+        }
+
+    }
+
+    private void startConsensusEngines() {
+        for (Integer instance : INSTANCES) {
+            Driver driver = new ZmqDriver(new DevmodeEngine());
+            String endpoint = sawtoothComposeExtension.buildUri("tcp", "validator-" + instance, 5005);
+            Thread thread = new Thread(() -> {
+                Thread.currentThread().setName("engine-" + instance);
+                MDC.put("context", "driver");
+                try {
+                    driver.start(endpoint);
+                } catch (Exception e) {
+                    throw e;
+                }
+            });
+            thread.start();
+            thread.setUncaughtExceptionHandler((t, e) -> {
+                logger.error("Engine {} exited", instance, e);
+                fail();
+                try {
+                    stopConsensusEngines();
+                } catch (InterruptedException ex) {
+                    ex.printStackTrace();
+                }
+            });
+            engines.put(thread, driver);
+        }
+
     }
 
     private boolean checkMinBatches(List<Block> blocks, int minBatches) {
@@ -135,7 +161,7 @@ class DevmodeEngineIntegrationTest {
                 .parallelStream()
                 .map(id -> id.substring(0, 6))
                 .collect(Collectors.toList());
-        LOGGER.info(String.format(
+        logger.info(String.format(
                 "Validator-%s has block %s: %s, batches (%s): %s",
                 i,
                 block.getHeader().getBlockNum(),
@@ -151,34 +177,18 @@ class DevmodeEngineIntegrationTest {
 
 
     private Block getBlock(int node) throws IOException {
-        String address = buildUri(node, "blocks?count=1");
-        Response response = getRequest(address);
+        String address = sawtoothComposeExtension.buildUri("rest-api-" + node, REST_API_PORT, "blocks?count=1");
+        Response response = sawtoothComposeExtension.getRequest(address, Response.class);
         return response.getData().get(0);
     }
 
     private List<Block> getAllBlocks(int node) {
-        String address = buildUri(node, "blocks");
+        String address = sawtoothComposeExtension.buildUri("rest-api-" + node, REST_API_PORT, "blocks");
         try {
-            return getRequest(address).getData();
+            return sawtoothComposeExtension.getRequest(address, Response.class).getData();
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }
-
-    private static String buildUri(int node, String path) {
-        Container container = docker.containers().container("rest-api-" + node);
-        DockerPort port = container.port(REST_API_PORT);
-        return String.format("http://%s:%s/%s", port.getIp(), port.getExternalPort(), path);
-    }
-
-    private Response getRequest(String uri) throws IOException {
-        return requestFactory.buildGetRequest(new GenericUrl(uri)).execute()
-                .parseAs(Response.class);
-    }
-
-
-
-
-
 
 }

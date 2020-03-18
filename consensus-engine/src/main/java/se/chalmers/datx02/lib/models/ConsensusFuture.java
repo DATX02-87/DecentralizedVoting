@@ -25,7 +25,6 @@ public class ConsensusFuture {
         try {
             return future.get(timeout, TimeUnit.SECONDS);
         } catch (InterruptedException | ExecutionException | TimeoutException e) {
-            // TODO handle
             e.printStackTrace();
             return null;
         }
@@ -35,7 +34,6 @@ public class ConsensusFuture {
         try {
             return future.get();
         } catch (InterruptedException | ExecutionException e) {
-            // TODO handle
             e.printStackTrace();
             return null;
         }

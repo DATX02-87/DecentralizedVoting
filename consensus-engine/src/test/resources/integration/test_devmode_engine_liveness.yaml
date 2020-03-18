@@ -1,3 +1,5 @@
+--- # ------------------------------------------------------------------------------
+
 # Copyright 2017 Intel Corporation
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -11,34 +13,11 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-# ------------------------------------------------------------------------------
-
 version: "2.1"
 
 services:
-
-  # test-devmode-engine-liveness:
-  #   build:
-  #     context: ../../java/se/chalmers/datx02/lib
-  #     dockerfile: tests/integration-tests.dockerfile
-  #     args:
-  #       - http_proxy
-  #       - https_proxy
-  #       - no_proxy
-  #   image: integration-tests:$ISOLATION_ID
-  #   volumes:
-  #     - $SAWTOOTH_DEVMODE:/project/sawtooth-devmode
-  #   command: nose2-3
-  #       -c /project/sawtooth-devmode/tests/nose2.cfg
-  #       -vvvv
-  #       -s /project/sawtooth-devmode/tests
-  #       test_devmode_engine_liveness
-  #   expose:
-  #     - 8008
-  #   stop_signal: SIGKILL
-
   intkey-workload:
-    image: hyperledger/sawtooth-shell:nightly
+    image: hyperledger/sawtooth-shell
     expose:
       - 8008
     command: "bash -c \"\
@@ -46,51 +25,37 @@ services:
       intkey workload --rate 1 --display-frequency 15 --urls http://rest-api-0:8008,http://rest-api-1:8008,http://rest-api-2:8008,http://rest-api-3:8008,http://rest-api-4:8008 \
       \""
     stop_signal: SIGKILL
-
-  devmode-engine-0:
-    image: hyperledger/sawtooth-devmode-engine-rust:latest
-    depends_on:
-      - validator-0
-    entrypoint: devmode-engine-rust -C tcp://validator-0:5005
-  devmode-engine-1:
-    image: hyperledger/sawtooth-devmode-engine-rust:latest
-    depends_on:
-      - validator-1
-    entrypoint: devmode-engine-rust -C tcp://validator-1:5005
-  devmode-engine-2:
-    image: hyperledger/sawtooth-devmode-engine-rust:latest
-    depends_on:
-      - validator-2
-    entrypoint: devmode-engine-rust -C tcp://validator-2:5005
-  devmode-engine-3:
-    image: hyperledger/sawtooth-devmode-engine-rust:latest
-    depends_on:
-      - validator-3
-    entrypoint: devmode-engine-rust -C tcp://validator-3:5005
-  devmode-engine-4:
-    image: hyperledger/sawtooth-devmode-engine-rust:latest
-    depends_on:
-      - validator-4
-    entrypoint: devmode-engine-rust -C tcp://validator-4:5005
-
+    
   # devmode-engine-0:
-  #   build:
-  #     context: ../../java/se/chalmers/datx02/lib
-  #     dockerfile: ./Dockerfile
-  #     args:
-  #       - http_proxy
-  #       - https_proxy
-  #       - no_proxy
-  #   image: sawtooth-devmode$INSTALL_TYPE:$ISOLATION_ID
-  #   volumes:
-  #     - $SAWTOOTH_DEVMODE:/project/sawtooth-devmode
-  #   command: devmode-engine-rust --connect tcp://validator-0:5005 -vv
-  #   stop_signal: SIGKILL
-
-
+  #   image: hyperledger/sawtooth-devmode-engine-rust:latest
+  #   depends_on:
+  #     - validator-0
+  #   entrypoint: devmode-engine-rust -C tcp://validator-0:5005
+  # devmode-engine-1:
+  #   image: hyperledger/sawtooth-devmode-engine-rust:latest
+  #   depends_on:
+  #     - validator-1
+  #   entrypoint: devmode-engine-rust -C tcp://validator-1:5005
+  # devmode-engine-2:
+  #   image: hyperledger/sawtooth-devmode-engine-rust:latest
+  #   depends_on:
+  #     - validator-2
+  #   entrypoint: devmode-engine-rust -C tcp://validator-2:5005
+  # devmode-engine-3:
+  #   image: hyperledger/sawtooth-devmode-engine-rust:latest
+  #   depends_on:
+  #     - validator-3
+  #   entrypoint: devmode-engine-rust -C tcp://validator-3:5005
+  # devmode-engine-4:
+  #   image: hyperledger/sawtooth-devmode-engine-rust:latest
+  #   depends_on:
+  #     - validator-4
+  #   entrypoint: devmode-engine-rust -C tcp://validator-4:5005
 
   validator-0:
-    image: hyperledger/sawtooth-validator:nightly
+    image: hyperledger/sawtooth-validator
+    ports:
+      - 5005
     expose:
       - 4004
       - 8800
@@ -99,32 +64,34 @@ services:
     environment:
       RUST_BACKTRACE: full
     command: "bash -c \"\
-        sawadm keygen && \
-        sawset genesis \
-          -k /etc/sawtooth/keys/validator.priv \
-          -o config-genesis.batch && \
-        sawset proposal create \
-          -k /etc/sawtooth/keys/validator.priv \
-          sawtooth.consensus.algorithm.name=Devmode \
-          sawtooth.consensus.algorithm.version=0.1 \
-          sawtooth.consensus.min_wait_time=2 \
-          sawtooth.consensus.max_wait_time=4 \
-          -o config.batch && \
-        sawadm genesis \
-          config-genesis.batch config.batch && \
-        sawtooth-validator -v \
-            --endpoint tcp://validator-0:8800 \
-            --bind component:tcp://eth0:4004 \
-            --bind network:tcp://eth0:8800 \
-            --bind consensus:tcp://eth0:5005 \
-            --peering dynamic \
-            --scheduler parallel \
-            --fork-cache-keep-time 0 \
-    \""
+      sawadm keygen && \
+      sawset genesis \
+      -k /etc/sawtooth/keys/validator.priv \
+      -o config-genesis.batch && \
+      sawset proposal create \
+      -k /etc/sawtooth/keys/validator.priv \
+      sawtooth.consensus.algorithm.name=Devmode-java \
+      sawtooth.consensus.algorithm.version=0.1 \
+      sawtooth.consensus.min_wait_time=2 \
+      sawtooth.consensus.max_wait_time=4 \
+      -o config.batch && \
+      sawadm genesis \
+      config-genesis.batch config.batch && \
+      sawtooth-validator -v \
+      --endpoint tcp://validator-0:8800 \
+      --bind component:tcp://eth0:4004 \
+      --bind network:tcp://eth0:8800 \
+      --bind consensus:tcp://eth0:5005 \
+      --peering dynamic \
+      --scheduler parallel \
+      --fork-cache-keep-time 0 \
+      \""
     stop_signal: SIGKILL
 
   validator-1:
-    image: hyperledger/sawtooth-validator:nightly
+    image: hyperledger/sawtooth-validator
+    ports:
+      - 5005
     expose:
       - 4004
       - 8800
@@ -132,21 +99,23 @@ services:
     environment:
       RUST_BACKTRACE: full
     command: "bash -c \"\
-        sawadm keygen && \
-        sawtooth-validator -v \
-            --endpoint tcp://validator-1:8800 \
-            --bind component:tcp://eth0:4004 \
-            --bind network:tcp://eth0:8800 \
-            --bind consensus:tcp://eth0:5005 \
-            --peering dynamic \
-            --seeds tcp://validator-0:8800 \
-            --scheduler parallel \
-            --fork-cache-keep-time 0 \
-    \""
+      sawadm keygen && \
+      sawtooth-validator -v \
+      --endpoint tcp://validator-1:8800 \
+      --bind component:tcp://eth0:4004 \
+      --bind network:tcp://eth0:8800 \
+      --bind consensus:tcp://eth0:5005 \
+      --peering dynamic \
+      --seeds tcp://validator-0:8800 \
+      --scheduler parallel \
+      --fork-cache-keep-time 0 \
+      \""
     stop_signal: SIGKILL
 
   validator-2:
-    image: hyperledger/sawtooth-validator:nightly
+    image: hyperledger/sawtooth-validator
+    ports:
+      - 5005
     expose:
       - 4004
       - 8800
@@ -154,21 +123,23 @@ services:
     environment:
       RUST_BACKTRACE: full
     command: "bash -c \"\
-        sawadm keygen && \
-        sawtooth-validator -v \
-            --endpoint tcp://validator-2:8800 \
-            --bind component:tcp://eth0:4004 \
-            --bind network:tcp://eth0:8800 \
-            --bind consensus:tcp://eth0:5005 \
-            --peering dynamic \
-            --seeds tcp://validator-0:8800 \
-            --scheduler parallel \
-            --fork-cache-keep-time 0 \
-    \""
+      sawadm keygen && \
+      sawtooth-validator -v \
+      --endpoint tcp://validator-2:8800 \
+      --bind component:tcp://eth0:4004 \
+      --bind network:tcp://eth0:8800 \
+      --bind consensus:tcp://eth0:5005 \
+      --peering dynamic \
+      --seeds tcp://validator-0:8800 \
+      --scheduler parallel \
+      --fork-cache-keep-time 0 \
+      \""
     stop_signal: SIGKILL
 
   validator-3:
-    image: hyperledger/sawtooth-validator:nightly
+    image: hyperledger/sawtooth-validator
+    ports:
+      - 5005
     expose:
       - 4004
       - 8800
@@ -176,21 +147,23 @@ services:
     environment:
       RUST_BACKTRACE: full
     command: "bash -c \"\
-        sawadm keygen && \
-        sawtooth-validator -v \
-            --endpoint tcp://validator-3:8800 \
-            --bind component:tcp://eth0:4004 \
-            --bind network:tcp://eth0:8800 \
-            --bind consensus:tcp://eth0:5005 \
-            --peering dynamic \
-            --seeds tcp://validator-0:8800 \
-            --scheduler parallel \
-            --fork-cache-keep-time 0 \
-    \""
+      sawadm keygen && \
+      sawtooth-validator -v \
+      --endpoint tcp://validator-3:8800 \
+      --bind component:tcp://eth0:4004 \
+      --bind network:tcp://eth0:8800 \
+      --bind consensus:tcp://eth0:5005 \
+      --peering dynamic \
+      --seeds tcp://validator-0:8800 \
+      --scheduler parallel \
+      --fork-cache-keep-time 0 \
+      \""
     stop_signal: SIGKILL
 
   validator-4:
-    image: hyperledger/sawtooth-validator:nightly
+    image: hyperledger/sawtooth-validator
+    ports:
+      - 5005
     expose:
       - 4004
       - 8800
@@ -198,23 +171,23 @@ services:
     environment:
       RUST_BACKTRACE: full
     command: "bash -c \"\
-        sawadm keygen && \
-        sawtooth-validator -v \
-            --endpoint tcp://validator-4:8800 \
-            --bind component:tcp://eth0:4004 \
-            --bind network:tcp://eth0:8800 \
-            --bind consensus:tcp://eth0:5005 \
-            --peering dynamic \
-            --seeds tcp://validator-0:8800 \
-            --scheduler parallel \
-            --fork-cache-keep-time 30 \
-    \""
+      sawadm keygen && \
+      sawtooth-validator -v \
+      --endpoint tcp://validator-4:8800 \
+      --bind component:tcp://eth0:4004 \
+      --bind network:tcp://eth0:8800 \
+      --bind consensus:tcp://eth0:5005 \
+      --peering dynamic \
+      --seeds tcp://validator-0:8800 \
+      --scheduler parallel \
+      --fork-cache-keep-time 30 \
+      \""
     stop_signal: SIGKILL
 
   rest-api-0:
-    image: hyperledger/sawtooth-rest-api:nightly
+    image: hyperledger/sawtooth-rest-api
     ports:
-      - 8008
+      - 8008:8008
     expose:
       - 4004
       - 8008
@@ -222,7 +195,7 @@ services:
     stop_signal: SIGKILL
 
   rest-api-1:
-    image: hyperledger/sawtooth-rest-api:nightly
+    image: hyperledger/sawtooth-rest-api
     ports:
       - 8008
     expose:
@@ -232,7 +205,7 @@ services:
     stop_signal: SIGKILL
 
   rest-api-2:
-    image: hyperledger/sawtooth-rest-api:nightly
+    image: hyperledger/sawtooth-rest-api
     ports:
       - 8008
     expose:
@@ -242,7 +215,7 @@ services:
     stop_signal: SIGKILL
 
   rest-api-3:
-    image: hyperledger/sawtooth-rest-api:nightly
+    image: hyperledger/sawtooth-rest-api
     ports:
       - 8008
     expose:
@@ -252,7 +225,7 @@ services:
     stop_signal: SIGKILL
 
   rest-api-4:
-    image: hyperledger/sawtooth-rest-api:nightly
+    image: hyperledger/sawtooth-rest-api
     ports:
       - 8008
     expose:
@@ -262,70 +235,70 @@ services:
     stop_signal: SIGKILL
 
   intkey-tp-0:
-    image: hyperledger/sawtooth-intkey-tp-python:nightly
+    image: hyperledger/sawtooth-intkey-tp-python
     expose:
       - 4004
     command: intkey-tp-python -C tcp://validator-0:4004
     stop_signal: SIGKILL
 
   intkey-tp-1:
-    image: hyperledger/sawtooth-intkey-tp-python:nightly
+    image: hyperledger/sawtooth-intkey-tp-python
     expose:
       - 4004
     command: intkey-tp-python -C tcp://validator-1:4004
     stop_signal: SIGKILL
 
   intkey-tp-2:
-    image: hyperledger/sawtooth-intkey-tp-python:nightly
+    image: hyperledger/sawtooth-intkey-tp-python
     expose:
       - 4004
     command: intkey-tp-python -C tcp://validator-2:4004
     stop_signal: SIGKILL
 
   intkey-tp-3:
-    image: hyperledger/sawtooth-intkey-tp-python:nightly
+    image: hyperledger/sawtooth-intkey-tp-python
     expose:
       - 4004
     command: intkey-tp-python -C tcp://validator-3:4004
     stop_signal: SIGKILL
 
   intkey-tp-4:
-    image: hyperledger/sawtooth-intkey-tp-python:nightly
+    image: hyperledger/sawtooth-intkey-tp-python
     expose:
       - 4004
     command: intkey-tp-python -C tcp://validator-4:4004
     stop_signal: SIGKILL
 
   settings-tp-0:
-    image: hyperledger/sawtooth-settings-tp:nightly
+    image: hyperledger/sawtooth-settings-tp
     expose:
       - 4004
     command: settings-tp -C tcp://validator-0:4004
     stop_signal: SIGKILL
 
   settings-tp-1:
-    image: hyperledger/sawtooth-settings-tp:nightly
+    image: hyperledger/sawtooth-settings-tp
     expose:
       - 4004
     command: settings-tp -C tcp://validator-1:4004
     stop_signal: SIGKILL
 
   settings-tp-2:
-    image: hyperledger/sawtooth-settings-tp:nightly
+    image: hyperledger/sawtooth-settings-tp
     expose:
       - 4004
     command: settings-tp -C tcp://validator-2:4004
     stop_signal: SIGKILL
 
   settings-tp-3:
-    image: hyperledger/sawtooth-settings-tp:nightly
+    image: hyperledger/sawtooth-settings-tp
     expose:
       - 4004
     command: settings-tp -C tcp://validator-3:4004
     stop_signal: SIGKILL
 
   settings-tp-4:
-    image: hyperledger/sawtooth-settings-tp:nightly
+    image: hyperledger/sawtooth-settings-tp
     expose:
       - 4004
     command: settings-tp -C tcp://validator-4:4004
