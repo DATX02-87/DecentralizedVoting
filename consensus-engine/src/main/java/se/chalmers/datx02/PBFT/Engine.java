@@ -5,8 +5,8 @@ import com.google.protobuf.InvalidProtocolBufferException;
 import sawtooth.sdk.protobuf.ConsensusBlock;
 import sawtooth.sdk.protobuf.ConsensusNotifyBlockCommit;
 import sawtooth.sdk.protobuf.ConsensusNotifyPeerMessage;
-import se.chalmers.datx02.lib.StartupState;
 import se.chalmers.datx02.lib.models.DriverUpdate;
+import se.chalmers.datx02.lib.models.StartupState;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -26,6 +26,9 @@ public class Engine implements se.chalmers.datx02.lib.Engine {
     private BlockingQueue<DriverUpdate> updates;
     private StartupState startupState;
     private Service service;
+    private Config config;
+
+    // TODO: Implementation
 
 
     @Override
@@ -33,6 +36,10 @@ public class Engine implements se.chalmers.datx02.lib.Engine {
         this.service = new Service(service);
         this.startupState = startupState;
         this.updates = updates;
+
+
+        this.config = new Config();
+
         try {
             engineLoop();
         } catch (InvalidProtocolBufferException e) {

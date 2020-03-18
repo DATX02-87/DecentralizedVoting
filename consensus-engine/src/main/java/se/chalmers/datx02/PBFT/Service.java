@@ -14,6 +14,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ThreadLocalRandom;
 
+// TODO: Not sure if this service is needed since no "custom" service is present in sawtooth-pbft rust
+
 public class Service {
     private boolean not_ready_to_summarize,
             not_ready_to_finalize;
