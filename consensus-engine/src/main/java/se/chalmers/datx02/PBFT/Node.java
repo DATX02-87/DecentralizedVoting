@@ -3,6 +3,7 @@ package se.chalmers.datx02.PBFT;
 import sawtooth.sdk.protobuf.Block;
 import sawtooth.sdk.protobuf.ConsensusPeerInfo;
 import sawtooth.sdk.protobuf.Message;
+import se.chalmers.datx02.PBFT.message.PBFTMessage;
 import se.chalmers.datx02.lib.Service;
 
 import java.util.List;
@@ -145,7 +146,7 @@ public class Node {
     }
 
     // TODO: Change to correct MessageType
-    public void broadcastPBFTMessage(int view, int seq_num, MessageType msg_type, byte[] blockId, State state){
+    public void broadcastPBFTMessage(int view, int seq_num, PBFTMessage msg_type, byte[] blockId, State state){
 
     }
 
