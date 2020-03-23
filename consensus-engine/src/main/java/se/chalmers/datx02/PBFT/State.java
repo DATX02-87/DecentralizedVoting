@@ -1,7 +1,8 @@
 package se.chalmers.datx02.PBFT;
 
+import se.chalmers.datx02.PBFT.lib.Timeout;
+
 import java.time.Duration;
-import java.time.Instant;
 import java.util.List;
 
 public class State {

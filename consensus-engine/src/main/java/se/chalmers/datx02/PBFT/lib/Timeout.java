@@ -1,4 +1,4 @@
-package se.chalmers.datx02.PBFT;
+package se.chalmers.datx02.PBFT.lib;
 
 import java.time.Duration;
 import java.time.Instant;
