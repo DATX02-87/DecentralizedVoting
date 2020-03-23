@@ -22,7 +22,6 @@ public final class PbftMessageOuterClass {
      * </pre>
      *
      * <code>string msg_type = 1;</code>
-     * @return The msgType.
      */
     java.lang.String getMsgType();
     /**
@@ -31,7 +30,6 @@ public final class PbftMessageOuterClass {
      * </pre>
      *
      * <code>string msg_type = 1;</code>
-     * @return The bytes for msgType.
      */
     com.google.protobuf.ByteString
         getMsgTypeBytes();
@@ -42,7 +40,6 @@ public final class PbftMessageOuterClass {
      * </pre>
      *
      * <code>uint64 view = 2;</code>
-     * @return The view.
      */
     long getView();
 
@@ -52,7 +49,6 @@ public final class PbftMessageOuterClass {
      * </pre>
      *
      * <code>uint64 seq_num = 3;</code>
-     * @return The seqNum.
      */
     long getSeqNum();
 
@@ -62,7 +58,6 @@ public final class PbftMessageOuterClass {
      * </pre>
      *
      * <code>bytes signer_id = 4;</code>
-     * @return The signerId.
      */
     com.google.protobuf.ByteString getSignerId();
   }
@@ -84,14 +79,9 @@ public final class PbftMessageOuterClass {
     }
     private PbftMessageInfo() {
       msgType_ = "";
+      view_ = 0L;
+      seqNum_ = 0L;
       signerId_ = com.google.protobuf.ByteString.EMPTY;
-    }
-
-    @java.lang.Override
-    @SuppressWarnings({"unused"})
-    protected java.lang.Object newInstance(
-        UnusedPrivateParameter unused) {
-      return new PbftMessageInfo();
     }
 
     @java.lang.Override
@@ -107,6 +97,7 @@ public final class PbftMessageOuterClass {
       if (extensionRegistry == null) {
         throw new java.lang.NullPointerException();
       }
+      int mutable_bitField0_ = 0;
       com.google.protobuf.UnknownFieldSet.Builder unknownFields =
           com.google.protobuf.UnknownFieldSet.newBuilder();
       try {
@@ -139,7 +130,7 @@ public final class PbftMessageOuterClass {
               break;
             }
             default: {
-              if (!parseUnknownField(
+              if (!parseUnknownFieldProto3(
                   input, unknownFields, extensionRegistry, tag)) {
                 done = true;
               }
@@ -178,7 +169,6 @@ public final class PbftMessageOuterClass {
      * </pre>
      *
      * <code>string msg_type = 1;</code>
-     * @return The msgType.
      */
     public java.lang.String getMsgType() {
       java.lang.Object ref = msgType_;
@@ -198,7 +188,6 @@ public final class PbftMessageOuterClass {
      * </pre>
      *
      * <code>string msg_type = 1;</code>
-     * @return The bytes for msgType.
      */
     public com.google.protobuf.ByteString
         getMsgTypeBytes() {
@@ -222,7 +211,6 @@ public final class PbftMessageOuterClass {
      * </pre>
      *
      * <code>uint64 view = 2;</code>
-     * @return The view.
      */
     public long getView() {
       return view_;
@@ -236,7 +224,6 @@ public final class PbftMessageOuterClass {
      * </pre>
      *
      * <code>uint64 seq_num = 3;</code>
-     * @return The seqNum.
      */
     public long getSeqNum() {
       return seqNum_;
@@ -250,7 +237,6 @@ public final class PbftMessageOuterClass {
      * </pre>
      *
      * <code>bytes signer_id = 4;</code>
-     * @return The signerId.
      */
     public com.google.protobuf.ByteString getSignerId() {
       return signerId_;
@@ -321,16 +307,17 @@ public final class PbftMessageOuterClass {
       }
       PbftMessageOuterClass.PbftMessageInfo other = (PbftMessageOuterClass.PbftMessageInfo) obj;
 
-      if (!getMsgType()
-          .equals(other.getMsgType())) return false;
-      if (getView()
-          != other.getView()) return false;
-      if (getSeqNum()
-          != other.getSeqNum()) return false;
-      if (!getSignerId()
-          .equals(other.getSignerId())) return false;
-      if (!unknownFields.equals(other.unknownFields)) return false;
-      return true;
+      boolean result = true;
+      result = result && getMsgType()
+          .equals(other.getMsgType());
+      result = result && (getView()
+          == other.getView());
+      result = result && (getSeqNum()
+          == other.getSeqNum());
+      result = result && getSignerId()
+          .equals(other.getSignerId());
+      result = result && unknownFields.equals(other.unknownFields);
+      return result;
     }
 
     @java.lang.Override
@@ -531,35 +518,35 @@ public final class PbftMessageOuterClass {
 
       @java.lang.Override
       public Builder clone() {
-        return super.clone();
+        return (Builder) super.clone();
       }
       @java.lang.Override
       public Builder setField(
           com.google.protobuf.Descriptors.FieldDescriptor field,
           java.lang.Object value) {
-        return super.setField(field, value);
+        return (Builder) super.setField(field, value);
       }
       @java.lang.Override
       public Builder clearField(
           com.google.protobuf.Descriptors.FieldDescriptor field) {
-        return super.clearField(field);
+        return (Builder) super.clearField(field);
       }
       @java.lang.Override
       public Builder clearOneof(
           com.google.protobuf.Descriptors.OneofDescriptor oneof) {
-        return super.clearOneof(oneof);
+        return (Builder) super.clearOneof(oneof);
       }
       @java.lang.Override
       public Builder setRepeatedField(
           com.google.protobuf.Descriptors.FieldDescriptor field,
           int index, java.lang.Object value) {
-        return super.setRepeatedField(field, index, value);
+        return (Builder) super.setRepeatedField(field, index, value);
       }
       @java.lang.Override
       public Builder addRepeatedField(
           com.google.protobuf.Descriptors.FieldDescriptor field,
           java.lang.Object value) {
-        return super.addRepeatedField(field, value);
+        return (Builder) super.addRepeatedField(field, value);
       }
       @java.lang.Override
       public Builder mergeFrom(com.google.protobuf.Message other) {
@@ -622,7 +609,6 @@ public final class PbftMessageOuterClass {
        * </pre>
        *
        * <code>string msg_type = 1;</code>
-       * @return The msgType.
        */
       public java.lang.String getMsgType() {
         java.lang.Object ref = msgType_;
@@ -642,7 +628,6 @@ public final class PbftMessageOuterClass {
        * </pre>
        *
        * <code>string msg_type = 1;</code>
-       * @return The bytes for msgType.
        */
       public com.google.protobuf.ByteString
           getMsgTypeBytes() {
@@ -663,8 +648,6 @@ public final class PbftMessageOuterClass {
        * </pre>
        *
        * <code>string msg_type = 1;</code>
-       * @param value The msgType to set.
-       * @return This builder for chaining.
        */
       public Builder setMsgType(
           java.lang.String value) {
@@ -682,7 +665,6 @@ public final class PbftMessageOuterClass {
        * </pre>
        *
        * <code>string msg_type = 1;</code>
-       * @return This builder for chaining.
        */
       public Builder clearMsgType() {
         
@@ -696,8 +678,6 @@ public final class PbftMessageOuterClass {
        * </pre>
        *
        * <code>string msg_type = 1;</code>
-       * @param value The bytes for msgType to set.
-       * @return This builder for chaining.
        */
       public Builder setMsgTypeBytes(
           com.google.protobuf.ByteString value) {
@@ -718,7 +698,6 @@ public final class PbftMessageOuterClass {
        * </pre>
        *
        * <code>uint64 view = 2;</code>
-       * @return The view.
        */
       public long getView() {
         return view_;
@@ -729,8 +708,6 @@ public final class PbftMessageOuterClass {
        * </pre>
        *
        * <code>uint64 view = 2;</code>
-       * @param value The view to set.
-       * @return This builder for chaining.
        */
       public Builder setView(long value) {
         
@@ -744,7 +721,6 @@ public final class PbftMessageOuterClass {
        * </pre>
        *
        * <code>uint64 view = 2;</code>
-       * @return This builder for chaining.
        */
       public Builder clearView() {
         
@@ -760,7 +736,6 @@ public final class PbftMessageOuterClass {
        * </pre>
        *
        * <code>uint64 seq_num = 3;</code>
-       * @return The seqNum.
        */
       public long getSeqNum() {
         return seqNum_;
@@ -771,8 +746,6 @@ public final class PbftMessageOuterClass {
        * </pre>
        *
        * <code>uint64 seq_num = 3;</code>
-       * @param value The seqNum to set.
-       * @return This builder for chaining.
        */
       public Builder setSeqNum(long value) {
         
@@ -786,7 +759,6 @@ public final class PbftMessageOuterClass {
        * </pre>
        *
        * <code>uint64 seq_num = 3;</code>
-       * @return This builder for chaining.
        */
       public Builder clearSeqNum() {
         
@@ -802,7 +774,6 @@ public final class PbftMessageOuterClass {
        * </pre>
        *
        * <code>bytes signer_id = 4;</code>
-       * @return The signerId.
        */
       public com.google.protobuf.ByteString getSignerId() {
         return signerId_;
@@ -813,8 +784,6 @@ public final class PbftMessageOuterClass {
        * </pre>
        *
        * <code>bytes signer_id = 4;</code>
-       * @param value The signerId to set.
-       * @return This builder for chaining.
        */
       public Builder setSignerId(com.google.protobuf.ByteString value) {
         if (value == null) {
@@ -831,7 +800,6 @@ public final class PbftMessageOuterClass {
        * </pre>
        *
        * <code>bytes signer_id = 4;</code>
-       * @return This builder for chaining.
        */
       public Builder clearSignerId() {
         
@@ -842,7 +810,7 @@ public final class PbftMessageOuterClass {
       @java.lang.Override
       public final Builder setUnknownFields(
           final com.google.protobuf.UnknownFieldSet unknownFields) {
-        return super.setUnknownFields(unknownFields);
+        return super.setUnknownFieldsProto3(unknownFields);
       }
 
       @java.lang.Override
@@ -902,7 +870,6 @@ public final class PbftMessageOuterClass {
      * </pre>
      *
      * <code>.PbftMessageInfo info = 1;</code>
-     * @return Whether the info field is set.
      */
     boolean hasInfo();
     /**
@@ -911,7 +878,6 @@ public final class PbftMessageOuterClass {
      * </pre>
      *
      * <code>.PbftMessageInfo info = 1;</code>
-     * @return The info.
      */
     PbftMessageOuterClass.PbftMessageInfo getInfo();
     /**
@@ -929,7 +895,6 @@ public final class PbftMessageOuterClass {
      * </pre>
      *
      * <code>bytes block_id = 2;</code>
-     * @return The blockId.
      */
     com.google.protobuf.ByteString getBlockId();
   }
@@ -954,13 +919,6 @@ public final class PbftMessageOuterClass {
     }
 
     @java.lang.Override
-    @SuppressWarnings({"unused"})
-    protected java.lang.Object newInstance(
-        UnusedPrivateParameter unused) {
-      return new PbftMessage();
-    }
-
-    @java.lang.Override
     public final com.google.protobuf.UnknownFieldSet
     getUnknownFields() {
       return this.unknownFields;
@@ -973,6 +931,7 @@ public final class PbftMessageOuterClass {
       if (extensionRegistry == null) {
         throw new java.lang.NullPointerException();
       }
+      int mutable_bitField0_ = 0;
       com.google.protobuf.UnknownFieldSet.Builder unknownFields =
           com.google.protobuf.UnknownFieldSet.newBuilder();
       try {
@@ -1002,7 +961,7 @@ public final class PbftMessageOuterClass {
               break;
             }
             default: {
-              if (!parseUnknownField(
+              if (!parseUnknownFieldProto3(
                   input, unknownFields, extensionRegistry, tag)) {
                 done = true;
               }
@@ -1041,7 +1000,6 @@ public final class PbftMessageOuterClass {
      * </pre>
      *
      * <code>.PbftMessageInfo info = 1;</code>
-     * @return Whether the info field is set.
      */
     public boolean hasInfo() {
       return info_ != null;
@@ -1052,7 +1010,6 @@ public final class PbftMessageOuterClass {
      * </pre>
      *
      * <code>.PbftMessageInfo info = 1;</code>
-     * @return The info.
      */
     public PbftMessageOuterClass.PbftMessageInfo getInfo() {
       return info_ == null ? PbftMessageOuterClass.PbftMessageInfo.getDefaultInstance() : info_;
@@ -1076,7 +1033,6 @@ public final class PbftMessageOuterClass {
      * </pre>
      *
      * <code>bytes block_id = 2;</code>
-     * @return The blockId.
      */
     public com.google.protobuf.ByteString getBlockId() {
       return blockId_;
@@ -1134,15 +1090,16 @@ public final class PbftMessageOuterClass {
       }
       PbftMessageOuterClass.PbftMessage other = (PbftMessageOuterClass.PbftMessage) obj;
 
-      if (hasInfo() != other.hasInfo()) return false;
+      boolean result = true;
+      result = result && (hasInfo() == other.hasInfo());
       if (hasInfo()) {
-        if (!getInfo()
-            .equals(other.getInfo())) return false;
+        result = result && getInfo()
+            .equals(other.getInfo());
       }
-      if (!getBlockId()
-          .equals(other.getBlockId())) return false;
-      if (!unknownFields.equals(other.unknownFields)) return false;
-      return true;
+      result = result && getBlockId()
+          .equals(other.getBlockId());
+      result = result && unknownFields.equals(other.unknownFields);
+      return result;
     }
 
     @java.lang.Override
@@ -1341,35 +1298,35 @@ public final class PbftMessageOuterClass {
 
       @java.lang.Override
       public Builder clone() {
-        return super.clone();
+        return (Builder) super.clone();
       }
       @java.lang.Override
       public Builder setField(
           com.google.protobuf.Descriptors.FieldDescriptor field,
           java.lang.Object value) {
-        return super.setField(field, value);
+        return (Builder) super.setField(field, value);
       }
       @java.lang.Override
       public Builder clearField(
           com.google.protobuf.Descriptors.FieldDescriptor field) {
-        return super.clearField(field);
+        return (Builder) super.clearField(field);
       }
       @java.lang.Override
       public Builder clearOneof(
           com.google.protobuf.Descriptors.OneofDescriptor oneof) {
-        return super.clearOneof(oneof);
+        return (Builder) super.clearOneof(oneof);
       }
       @java.lang.Override
       public Builder setRepeatedField(
           com.google.protobuf.Descriptors.FieldDescriptor field,
           int index, java.lang.Object value) {
-        return super.setRepeatedField(field, index, value);
+        return (Builder) super.setRepeatedField(field, index, value);
       }
       @java.lang.Override
       public Builder addRepeatedField(
           com.google.protobuf.Descriptors.FieldDescriptor field,
           java.lang.Object value) {
-        return super.addRepeatedField(field, value);
+        return (Builder) super.addRepeatedField(field, value);
       }
       @java.lang.Override
       public Builder mergeFrom(com.google.protobuf.Message other) {
@@ -1418,7 +1375,7 @@ public final class PbftMessageOuterClass {
         return this;
       }
 
-      private PbftMessageOuterClass.PbftMessageInfo info_;
+      private PbftMessageOuterClass.PbftMessageInfo info_ = null;
       private com.google.protobuf.SingleFieldBuilderV3<
           PbftMessageOuterClass.PbftMessageInfo, PbftMessageOuterClass.PbftMessageInfo.Builder, PbftMessageOuterClass.PbftMessageInfoOrBuilder> infoBuilder_;
       /**
@@ -1427,7 +1384,6 @@ public final class PbftMessageOuterClass {
        * </pre>
        *
        * <code>.PbftMessageInfo info = 1;</code>
-       * @return Whether the info field is set.
        */
       public boolean hasInfo() {
         return infoBuilder_ != null || info_ != null;
@@ -1438,7 +1394,6 @@ public final class PbftMessageOuterClass {
        * </pre>
        *
        * <code>.PbftMessageInfo info = 1;</code>
-       * @return The info.
        */
       public PbftMessageOuterClass.PbftMessageInfo getInfo() {
         if (infoBuilder_ == null) {
@@ -1580,7 +1535,6 @@ public final class PbftMessageOuterClass {
        * </pre>
        *
        * <code>bytes block_id = 2;</code>
-       * @return The blockId.
        */
       public com.google.protobuf.ByteString getBlockId() {
         return blockId_;
@@ -1591,8 +1545,6 @@ public final class PbftMessageOuterClass {
        * </pre>
        *
        * <code>bytes block_id = 2;</code>
-       * @param value The blockId to set.
-       * @return This builder for chaining.
        */
       public Builder setBlockId(com.google.protobuf.ByteString value) {
         if (value == null) {
@@ -1609,7 +1561,6 @@ public final class PbftMessageOuterClass {
        * </pre>
        *
        * <code>bytes block_id = 2;</code>
-       * @return This builder for chaining.
        */
       public Builder clearBlockId() {
         
@@ -1620,7 +1571,7 @@ public final class PbftMessageOuterClass {
       @java.lang.Override
       public final Builder setUnknownFields(
           final com.google.protobuf.UnknownFieldSet unknownFields) {
-        return super.setUnknownFields(unknownFields);
+        return super.setUnknownFieldsProto3(unknownFields);
       }
 
       @java.lang.Override
@@ -1680,7 +1631,6 @@ public final class PbftMessageOuterClass {
      * </pre>
      *
      * <code>.PbftMessageInfo info = 1;</code>
-     * @return Whether the info field is set.
      */
     boolean hasInfo();
     /**
@@ -1689,7 +1639,6 @@ public final class PbftMessageOuterClass {
      * </pre>
      *
      * <code>.PbftMessageInfo info = 1;</code>
-     * @return The info.
      */
     PbftMessageOuterClass.PbftMessageInfo getInfo();
     /**
@@ -1772,13 +1721,6 @@ public final class PbftMessageOuterClass {
     }
 
     @java.lang.Override
-    @SuppressWarnings({"unused"})
-    protected java.lang.Object newInstance(
-        UnusedPrivateParameter unused) {
-      return new PbftNewView();
-    }
-
-    @java.lang.Override
     public final com.google.protobuf.UnknownFieldSet
     getUnknownFields() {
       return this.unknownFields;
@@ -1816,16 +1758,16 @@ public final class PbftMessageOuterClass {
               break;
             }
             case 18: {
-              if (!((mutable_bitField0_ & 0x00000001) != 0)) {
+              if (!((mutable_bitField0_ & 0x00000002) == 0x00000002)) {
                 viewChanges_ = new java.util.ArrayList<PbftMessageOuterClass.PbftSignedVote>();
-                mutable_bitField0_ |= 0x00000001;
+                mutable_bitField0_ |= 0x00000002;
               }
               viewChanges_.add(
                   input.readMessage(PbftMessageOuterClass.PbftSignedVote.parser(), extensionRegistry));
               break;
             }
             default: {
-              if (!parseUnknownField(
+              if (!parseUnknownFieldProto3(
                   input, unknownFields, extensionRegistry, tag)) {
                 done = true;
               }
@@ -1839,7 +1781,7 @@ public final class PbftMessageOuterClass {
         throw new com.google.protobuf.InvalidProtocolBufferException(
             e).setUnfinishedMessage(this);
       } finally {
-        if (((mutable_bitField0_ & 0x00000001) != 0)) {
+        if (((mutable_bitField0_ & 0x00000002) == 0x00000002)) {
           viewChanges_ = java.util.Collections.unmodifiableList(viewChanges_);
         }
         this.unknownFields = unknownFields.build();
@@ -1859,6 +1801,7 @@ public final class PbftMessageOuterClass {
               PbftMessageOuterClass.PbftNewView.class, PbftMessageOuterClass.PbftNewView.Builder.class);
     }
 
+    private int bitField0_;
     public static final int INFO_FIELD_NUMBER = 1;
     private PbftMessageOuterClass.PbftMessageInfo info_;
     /**
@@ -1867,7 +1810,6 @@ public final class PbftMessageOuterClass {
      * </pre>
      *
      * <code>.PbftMessageInfo info = 1;</code>
-     * @return Whether the info field is set.
      */
     public boolean hasInfo() {
       return info_ != null;
@@ -1878,7 +1820,6 @@ public final class PbftMessageOuterClass {
      * </pre>
      *
      * <code>.PbftMessageInfo info = 1;</code>
-     * @return The info.
      */
     public PbftMessageOuterClass.PbftMessageInfo getInfo() {
       return info_ == null ? PbftMessageOuterClass.PbftMessageInfo.getDefaultInstance() : info_;
@@ -2006,15 +1947,16 @@ public final class PbftMessageOuterClass {
       }
       PbftMessageOuterClass.PbftNewView other = (PbftMessageOuterClass.PbftNewView) obj;
 
-      if (hasInfo() != other.hasInfo()) return false;
+      boolean result = true;
+      result = result && (hasInfo() == other.hasInfo());
       if (hasInfo()) {
-        if (!getInfo()
-            .equals(other.getInfo())) return false;
+        result = result && getInfo()
+            .equals(other.getInfo());
       }
-      if (!getViewChangesList()
-          .equals(other.getViewChangesList())) return false;
-      if (!unknownFields.equals(other.unknownFields)) return false;
-      return true;
+      result = result && getViewChangesList()
+          .equals(other.getViewChangesList());
+      result = result && unknownFields.equals(other.unknownFields);
+      return result;
     }
 
     @java.lang.Override
@@ -2179,7 +2121,7 @@ public final class PbftMessageOuterClass {
         }
         if (viewChangesBuilder_ == null) {
           viewChanges_ = java.util.Collections.emptyList();
-          bitField0_ = (bitField0_ & ~0x00000001);
+          bitField0_ = (bitField0_ & ~0x00000002);
         } else {
           viewChangesBuilder_.clear();
         }
@@ -2210,55 +2152,57 @@ public final class PbftMessageOuterClass {
       public PbftMessageOuterClass.PbftNewView buildPartial() {
         PbftMessageOuterClass.PbftNewView result = new PbftMessageOuterClass.PbftNewView(this);
         int from_bitField0_ = bitField0_;
+        int to_bitField0_ = 0;
         if (infoBuilder_ == null) {
           result.info_ = info_;
         } else {
           result.info_ = infoBuilder_.build();
         }
         if (viewChangesBuilder_ == null) {
-          if (((bitField0_ & 0x00000001) != 0)) {
+          if (((bitField0_ & 0x00000002) == 0x00000002)) {
             viewChanges_ = java.util.Collections.unmodifiableList(viewChanges_);
-            bitField0_ = (bitField0_ & ~0x00000001);
+            bitField0_ = (bitField0_ & ~0x00000002);
           }
           result.viewChanges_ = viewChanges_;
         } else {
           result.viewChanges_ = viewChangesBuilder_.build();
         }
+        result.bitField0_ = to_bitField0_;
         onBuilt();
         return result;
       }
 
       @java.lang.Override
       public Builder clone() {
-        return super.clone();
+        return (Builder) super.clone();
       }
       @java.lang.Override
       public Builder setField(
           com.google.protobuf.Descriptors.FieldDescriptor field,
           java.lang.Object value) {
-        return super.setField(field, value);
+        return (Builder) super.setField(field, value);
       }
       @java.lang.Override
       public Builder clearField(
           com.google.protobuf.Descriptors.FieldDescriptor field) {
-        return super.clearField(field);
+        return (Builder) super.clearField(field);
       }
       @java.lang.Override
       public Builder clearOneof(
           com.google.protobuf.Descriptors.OneofDescriptor oneof) {
-        return super.clearOneof(oneof);
+        return (Builder) super.clearOneof(oneof);
       }
       @java.lang.Override
       public Builder setRepeatedField(
           com.google.protobuf.Descriptors.FieldDescriptor field,
           int index, java.lang.Object value) {
-        return super.setRepeatedField(field, index, value);
+        return (Builder) super.setRepeatedField(field, index, value);
       }
       @java.lang.Override
       public Builder addRepeatedField(
           com.google.protobuf.Descriptors.FieldDescriptor field,
           java.lang.Object value) {
-        return super.addRepeatedField(field, value);
+        return (Builder) super.addRepeatedField(field, value);
       }
       @java.lang.Override
       public Builder mergeFrom(com.google.protobuf.Message other) {
@@ -2279,7 +2223,7 @@ public final class PbftMessageOuterClass {
           if (!other.viewChanges_.isEmpty()) {
             if (viewChanges_.isEmpty()) {
               viewChanges_ = other.viewChanges_;
-              bitField0_ = (bitField0_ & ~0x00000001);
+              bitField0_ = (bitField0_ & ~0x00000002);
             } else {
               ensureViewChangesIsMutable();
               viewChanges_.addAll(other.viewChanges_);
@@ -2292,7 +2236,7 @@ public final class PbftMessageOuterClass {
               viewChangesBuilder_.dispose();
               viewChangesBuilder_ = null;
               viewChanges_ = other.viewChanges_;
-              bitField0_ = (bitField0_ & ~0x00000001);
+              bitField0_ = (bitField0_ & ~0x00000002);
               viewChangesBuilder_ = 
                 com.google.protobuf.GeneratedMessageV3.alwaysUseFieldBuilders ?
                    getViewChangesFieldBuilder() : null;
@@ -2331,7 +2275,7 @@ public final class PbftMessageOuterClass {
       }
       private int bitField0_;
 
-      private PbftMessageOuterClass.PbftMessageInfo info_;
+      private PbftMessageOuterClass.PbftMessageInfo info_ = null;
       private com.google.protobuf.SingleFieldBuilderV3<
           PbftMessageOuterClass.PbftMessageInfo, PbftMessageOuterClass.PbftMessageInfo.Builder, PbftMessageOuterClass.PbftMessageInfoOrBuilder> infoBuilder_;
       /**
@@ -2340,7 +2284,6 @@ public final class PbftMessageOuterClass {
        * </pre>
        *
        * <code>.PbftMessageInfo info = 1;</code>
-       * @return Whether the info field is set.
        */
       public boolean hasInfo() {
         return infoBuilder_ != null || info_ != null;
@@ -2351,7 +2294,6 @@ public final class PbftMessageOuterClass {
        * </pre>
        *
        * <code>.PbftMessageInfo info = 1;</code>
-       * @return The info.
        */
       public PbftMessageOuterClass.PbftMessageInfo getInfo() {
         if (infoBuilder_ == null) {
@@ -2489,9 +2431,9 @@ public final class PbftMessageOuterClass {
       private java.util.List<PbftMessageOuterClass.PbftSignedVote> viewChanges_ =
         java.util.Collections.emptyList();
       private void ensureViewChangesIsMutable() {
-        if (!((bitField0_ & 0x00000001) != 0)) {
+        if (!((bitField0_ & 0x00000002) == 0x00000002)) {
           viewChanges_ = new java.util.ArrayList<PbftMessageOuterClass.PbftSignedVote>(viewChanges_);
-          bitField0_ |= 0x00000001;
+          bitField0_ |= 0x00000002;
          }
       }
 
@@ -2696,7 +2638,7 @@ public final class PbftMessageOuterClass {
       public Builder clearViewChanges() {
         if (viewChangesBuilder_ == null) {
           viewChanges_ = java.util.Collections.emptyList();
-          bitField0_ = (bitField0_ & ~0x00000001);
+          bitField0_ = (bitField0_ & ~0x00000002);
           onChanged();
         } else {
           viewChangesBuilder_.clear();
@@ -2808,7 +2750,7 @@ public final class PbftMessageOuterClass {
           viewChangesBuilder_ = new com.google.protobuf.RepeatedFieldBuilderV3<
               PbftMessageOuterClass.PbftSignedVote, PbftMessageOuterClass.PbftSignedVote.Builder, PbftMessageOuterClass.PbftSignedVoteOrBuilder>(
                   viewChanges_,
-                  ((bitField0_ & 0x00000001) != 0),
+                  ((bitField0_ & 0x00000002) == 0x00000002),
                   getParentForChildren(),
                   isClean());
           viewChanges_ = null;
@@ -2818,7 +2760,7 @@ public final class PbftMessageOuterClass {
       @java.lang.Override
       public final Builder setUnknownFields(
           final com.google.protobuf.UnknownFieldSet unknownFields) {
-        return super.setUnknownFields(unknownFields);
+        return super.setUnknownFieldsProto3(unknownFields);
       }
 
       @java.lang.Override
@@ -2878,7 +2820,6 @@ public final class PbftMessageOuterClass {
      * </pre>
      *
      * <code>bytes header_bytes = 1;</code>
-     * @return The headerBytes.
      */
     com.google.protobuf.ByteString getHeaderBytes();
 
@@ -2888,7 +2829,6 @@ public final class PbftMessageOuterClass {
      * </pre>
      *
      * <code>bytes header_signature = 2;</code>
-     * @return The headerSignature.
      */
     com.google.protobuf.ByteString getHeaderSignature();
 
@@ -2898,7 +2838,6 @@ public final class PbftMessageOuterClass {
      * </pre>
      *
      * <code>bytes message_bytes = 3;</code>
-     * @return The messageBytes.
      */
     com.google.protobuf.ByteString getMessageBytes();
   }
@@ -2921,13 +2860,6 @@ public final class PbftMessageOuterClass {
     }
 
     @java.lang.Override
-    @SuppressWarnings({"unused"})
-    protected java.lang.Object newInstance(
-        UnusedPrivateParameter unused) {
-      return new PbftSignedVote();
-    }
-
-    @java.lang.Override
     public final com.google.protobuf.UnknownFieldSet
     getUnknownFields() {
       return this.unknownFields;
@@ -2940,6 +2872,7 @@ public final class PbftMessageOuterClass {
       if (extensionRegistry == null) {
         throw new java.lang.NullPointerException();
       }
+      int mutable_bitField0_ = 0;
       com.google.protobuf.UnknownFieldSet.Builder unknownFields =
           com.google.protobuf.UnknownFieldSet.newBuilder();
       try {
@@ -2966,7 +2899,7 @@ public final class PbftMessageOuterClass {
               break;
             }
             default: {
-              if (!parseUnknownField(
+              if (!parseUnknownFieldProto3(
                   input, unknownFields, extensionRegistry, tag)) {
                 done = true;
               }
@@ -3005,7 +2938,6 @@ public final class PbftMessageOuterClass {
      * </pre>
      *
      * <code>bytes header_bytes = 1;</code>
-     * @return The headerBytes.
      */
     public com.google.protobuf.ByteString getHeaderBytes() {
       return headerBytes_;
@@ -3019,7 +2951,6 @@ public final class PbftMessageOuterClass {
      * </pre>
      *
      * <code>bytes header_signature = 2;</code>
-     * @return The headerSignature.
      */
     public com.google.protobuf.ByteString getHeaderSignature() {
       return headerSignature_;
@@ -3033,7 +2964,6 @@ public final class PbftMessageOuterClass {
      * </pre>
      *
      * <code>bytes message_bytes = 3;</code>
-     * @return The messageBytes.
      */
     public com.google.protobuf.ByteString getMessageBytes() {
       return messageBytes_;
@@ -3098,14 +3028,15 @@ public final class PbftMessageOuterClass {
       }
       PbftMessageOuterClass.PbftSignedVote other = (PbftMessageOuterClass.PbftSignedVote) obj;
 
-      if (!getHeaderBytes()
-          .equals(other.getHeaderBytes())) return false;
-      if (!getHeaderSignature()
-          .equals(other.getHeaderSignature())) return false;
-      if (!getMessageBytes()
-          .equals(other.getMessageBytes())) return false;
-      if (!unknownFields.equals(other.unknownFields)) return false;
-      return true;
+      boolean result = true;
+      result = result && getHeaderBytes()
+          .equals(other.getHeaderBytes());
+      result = result && getHeaderSignature()
+          .equals(other.getHeaderSignature());
+      result = result && getMessageBytes()
+          .equals(other.getMessageBytes());
+      result = result && unknownFields.equals(other.unknownFields);
+      return result;
     }
 
     @java.lang.Override
@@ -3295,35 +3226,35 @@ public final class PbftMessageOuterClass {
 
       @java.lang.Override
       public Builder clone() {
-        return super.clone();
+        return (Builder) super.clone();
       }
       @java.lang.Override
       public Builder setField(
           com.google.protobuf.Descriptors.FieldDescriptor field,
           java.lang.Object value) {
-        return super.setField(field, value);
+        return (Builder) super.setField(field, value);
       }
       @java.lang.Override
       public Builder clearField(
           com.google.protobuf.Descriptors.FieldDescriptor field) {
-        return super.clearField(field);
+        return (Builder) super.clearField(field);
       }
       @java.lang.Override
       public Builder clearOneof(
           com.google.protobuf.Descriptors.OneofDescriptor oneof) {
-        return super.clearOneof(oneof);
+        return (Builder) super.clearOneof(oneof);
       }
       @java.lang.Override
       public Builder setRepeatedField(
           com.google.protobuf.Descriptors.FieldDescriptor field,
           int index, java.lang.Object value) {
-        return super.setRepeatedField(field, index, value);
+        return (Builder) super.setRepeatedField(field, index, value);
       }
       @java.lang.Override
       public Builder addRepeatedField(
           com.google.protobuf.Descriptors.FieldDescriptor field,
           java.lang.Object value) {
-        return super.addRepeatedField(field, value);
+        return (Builder) super.addRepeatedField(field, value);
       }
       @java.lang.Override
       public Builder mergeFrom(com.google.protobuf.Message other) {
@@ -3382,7 +3313,6 @@ public final class PbftMessageOuterClass {
        * </pre>
        *
        * <code>bytes header_bytes = 1;</code>
-       * @return The headerBytes.
        */
       public com.google.protobuf.ByteString getHeaderBytes() {
         return headerBytes_;
@@ -3393,8 +3323,6 @@ public final class PbftMessageOuterClass {
        * </pre>
        *
        * <code>bytes header_bytes = 1;</code>
-       * @param value The headerBytes to set.
-       * @return This builder for chaining.
        */
       public Builder setHeaderBytes(com.google.protobuf.ByteString value) {
         if (value == null) {
@@ -3411,7 +3339,6 @@ public final class PbftMessageOuterClass {
        * </pre>
        *
        * <code>bytes header_bytes = 1;</code>
-       * @return This builder for chaining.
        */
       public Builder clearHeaderBytes() {
         
@@ -3427,7 +3354,6 @@ public final class PbftMessageOuterClass {
        * </pre>
        *
        * <code>bytes header_signature = 2;</code>
-       * @return The headerSignature.
        */
       public com.google.protobuf.ByteString getHeaderSignature() {
         return headerSignature_;
@@ -3438,8 +3364,6 @@ public final class PbftMessageOuterClass {
        * </pre>
        *
        * <code>bytes header_signature = 2;</code>
-       * @param value The headerSignature to set.
-       * @return This builder for chaining.
        */
       public Builder setHeaderSignature(com.google.protobuf.ByteString value) {
         if (value == null) {
@@ -3456,7 +3380,6 @@ public final class PbftMessageOuterClass {
        * </pre>
        *
        * <code>bytes header_signature = 2;</code>
-       * @return This builder for chaining.
        */
       public Builder clearHeaderSignature() {
         
@@ -3472,7 +3395,6 @@ public final class PbftMessageOuterClass {
        * </pre>
        *
        * <code>bytes message_bytes = 3;</code>
-       * @return The messageBytes.
        */
       public com.google.protobuf.ByteString getMessageBytes() {
         return messageBytes_;
@@ -3483,8 +3405,6 @@ public final class PbftMessageOuterClass {
        * </pre>
        *
        * <code>bytes message_bytes = 3;</code>
-       * @param value The messageBytes to set.
-       * @return This builder for chaining.
        */
       public Builder setMessageBytes(com.google.protobuf.ByteString value) {
         if (value == null) {
@@ -3501,7 +3421,6 @@ public final class PbftMessageOuterClass {
        * </pre>
        *
        * <code>bytes message_bytes = 3;</code>
-       * @return This builder for chaining.
        */
       public Builder clearMessageBytes() {
         
@@ -3512,7 +3431,7 @@ public final class PbftMessageOuterClass {
       @java.lang.Override
       public final Builder setUnknownFields(
           final com.google.protobuf.UnknownFieldSet unknownFields) {
-        return super.setUnknownFields(unknownFields);
+        return super.setUnknownFieldsProto3(unknownFields);
       }
 
       @java.lang.Override
@@ -3572,7 +3491,6 @@ public final class PbftMessageOuterClass {
      * </pre>
      *
      * <code>.PbftMessageInfo info = 1;</code>
-     * @return Whether the info field is set.
      */
     boolean hasInfo();
     /**
@@ -3581,7 +3499,6 @@ public final class PbftMessageOuterClass {
      * </pre>
      *
      * <code>.PbftMessageInfo info = 1;</code>
-     * @return The info.
      */
     PbftMessageOuterClass.PbftMessageInfo getInfo();
     /**
@@ -3599,7 +3516,6 @@ public final class PbftMessageOuterClass {
      * </pre>
      *
      * <code>bytes block_id = 2;</code>
-     * @return The blockId.
      */
     com.google.protobuf.ByteString getBlockId();
 
@@ -3670,13 +3586,6 @@ public final class PbftMessageOuterClass {
     }
 
     @java.lang.Override
-    @SuppressWarnings({"unused"})
-    protected java.lang.Object newInstance(
-        UnusedPrivateParameter unused) {
-      return new PbftSeal();
-    }
-
-    @java.lang.Override
     public final com.google.protobuf.UnknownFieldSet
     getUnknownFields() {
       return this.unknownFields;
@@ -3719,16 +3628,16 @@ public final class PbftMessageOuterClass {
               break;
             }
             case 26: {
-              if (!((mutable_bitField0_ & 0x00000001) != 0)) {
+              if (!((mutable_bitField0_ & 0x00000004) == 0x00000004)) {
                 commitVotes_ = new java.util.ArrayList<PbftMessageOuterClass.PbftSignedVote>();
-                mutable_bitField0_ |= 0x00000001;
+                mutable_bitField0_ |= 0x00000004;
               }
               commitVotes_.add(
                   input.readMessage(PbftMessageOuterClass.PbftSignedVote.parser(), extensionRegistry));
               break;
             }
             default: {
-              if (!parseUnknownField(
+              if (!parseUnknownFieldProto3(
                   input, unknownFields, extensionRegistry, tag)) {
                 done = true;
               }
@@ -3742,7 +3651,7 @@ public final class PbftMessageOuterClass {
         throw new com.google.protobuf.InvalidProtocolBufferException(
             e).setUnfinishedMessage(this);
       } finally {
-        if (((mutable_bitField0_ & 0x00000001) != 0)) {
+        if (((mutable_bitField0_ & 0x00000004) == 0x00000004)) {
           commitVotes_ = java.util.Collections.unmodifiableList(commitVotes_);
         }
         this.unknownFields = unknownFields.build();
@@ -3762,6 +3671,7 @@ public final class PbftMessageOuterClass {
               PbftMessageOuterClass.PbftSeal.class, PbftMessageOuterClass.PbftSeal.Builder.class);
     }
 
+    private int bitField0_;
     public static final int INFO_FIELD_NUMBER = 1;
     private PbftMessageOuterClass.PbftMessageInfo info_;
     /**
@@ -3770,7 +3680,6 @@ public final class PbftMessageOuterClass {
      * </pre>
      *
      * <code>.PbftMessageInfo info = 1;</code>
-     * @return Whether the info field is set.
      */
     public boolean hasInfo() {
       return info_ != null;
@@ -3781,7 +3690,6 @@ public final class PbftMessageOuterClass {
      * </pre>
      *
      * <code>.PbftMessageInfo info = 1;</code>
-     * @return The info.
      */
     public PbftMessageOuterClass.PbftMessageInfo getInfo() {
       return info_ == null ? PbftMessageOuterClass.PbftMessageInfo.getDefaultInstance() : info_;
@@ -3805,7 +3713,6 @@ public final class PbftMessageOuterClass {
      * </pre>
      *
      * <code>bytes block_id = 2;</code>
-     * @return The blockId.
      */
     public com.google.protobuf.ByteString getBlockId() {
       return blockId_;
@@ -3930,17 +3837,18 @@ public final class PbftMessageOuterClass {
       }
       PbftMessageOuterClass.PbftSeal other = (PbftMessageOuterClass.PbftSeal) obj;
 
-      if (hasInfo() != other.hasInfo()) return false;
+      boolean result = true;
+      result = result && (hasInfo() == other.hasInfo());
       if (hasInfo()) {
-        if (!getInfo()
-            .equals(other.getInfo())) return false;
+        result = result && getInfo()
+            .equals(other.getInfo());
       }
-      if (!getBlockId()
-          .equals(other.getBlockId())) return false;
-      if (!getCommitVotesList()
-          .equals(other.getCommitVotesList())) return false;
-      if (!unknownFields.equals(other.unknownFields)) return false;
-      return true;
+      result = result && getBlockId()
+          .equals(other.getBlockId());
+      result = result && getCommitVotesList()
+          .equals(other.getCommitVotesList());
+      result = result && unknownFields.equals(other.unknownFields);
+      return result;
     }
 
     @java.lang.Override
@@ -4104,7 +4012,7 @@ public final class PbftMessageOuterClass {
 
         if (commitVotesBuilder_ == null) {
           commitVotes_ = java.util.Collections.emptyList();
-          bitField0_ = (bitField0_ & ~0x00000001);
+          bitField0_ = (bitField0_ & ~0x00000004);
         } else {
           commitVotesBuilder_.clear();
         }
@@ -4135,6 +4043,7 @@ public final class PbftMessageOuterClass {
       public PbftMessageOuterClass.PbftSeal buildPartial() {
         PbftMessageOuterClass.PbftSeal result = new PbftMessageOuterClass.PbftSeal(this);
         int from_bitField0_ = bitField0_;
+        int to_bitField0_ = 0;
         if (infoBuilder_ == null) {
           result.info_ = info_;
         } else {
@@ -4142,49 +4051,50 @@ public final class PbftMessageOuterClass {
         }
         result.blockId_ = blockId_;
         if (commitVotesBuilder_ == null) {
-          if (((bitField0_ & 0x00000001) != 0)) {
+          if (((bitField0_ & 0x00000004) == 0x00000004)) {
             commitVotes_ = java.util.Collections.unmodifiableList(commitVotes_);
-            bitField0_ = (bitField0_ & ~0x00000001);
+            bitField0_ = (bitField0_ & ~0x00000004);
           }
           result.commitVotes_ = commitVotes_;
         } else {
           result.commitVotes_ = commitVotesBuilder_.build();
         }
+        result.bitField0_ = to_bitField0_;
         onBuilt();
         return result;
       }
 
       @java.lang.Override
       public Builder clone() {
-        return super.clone();
+        return (Builder) super.clone();
       }
       @java.lang.Override
       public Builder setField(
           com.google.protobuf.Descriptors.FieldDescriptor field,
           java.lang.Object value) {
-        return super.setField(field, value);
+        return (Builder) super.setField(field, value);
       }
       @java.lang.Override
       public Builder clearField(
           com.google.protobuf.Descriptors.FieldDescriptor field) {
-        return super.clearField(field);
+        return (Builder) super.clearField(field);
       }
       @java.lang.Override
       public Builder clearOneof(
           com.google.protobuf.Descriptors.OneofDescriptor oneof) {
-        return super.clearOneof(oneof);
+        return (Builder) super.clearOneof(oneof);
       }
       @java.lang.Override
       public Builder setRepeatedField(
           com.google.protobuf.Descriptors.FieldDescriptor field,
           int index, java.lang.Object value) {
-        return super.setRepeatedField(field, index, value);
+        return (Builder) super.setRepeatedField(field, index, value);
       }
       @java.lang.Override
       public Builder addRepeatedField(
           com.google.protobuf.Descriptors.FieldDescriptor field,
           java.lang.Object value) {
-        return super.addRepeatedField(field, value);
+        return (Builder) super.addRepeatedField(field, value);
       }
       @java.lang.Override
       public Builder mergeFrom(com.google.protobuf.Message other) {
@@ -4208,7 +4118,7 @@ public final class PbftMessageOuterClass {
           if (!other.commitVotes_.isEmpty()) {
             if (commitVotes_.isEmpty()) {
               commitVotes_ = other.commitVotes_;
-              bitField0_ = (bitField0_ & ~0x00000001);
+              bitField0_ = (bitField0_ & ~0x00000004);
             } else {
               ensureCommitVotesIsMutable();
               commitVotes_.addAll(other.commitVotes_);
@@ -4221,7 +4131,7 @@ public final class PbftMessageOuterClass {
               commitVotesBuilder_.dispose();
               commitVotesBuilder_ = null;
               commitVotes_ = other.commitVotes_;
-              bitField0_ = (bitField0_ & ~0x00000001);
+              bitField0_ = (bitField0_ & ~0x00000004);
               commitVotesBuilder_ = 
                 com.google.protobuf.GeneratedMessageV3.alwaysUseFieldBuilders ?
                    getCommitVotesFieldBuilder() : null;
@@ -4260,7 +4170,7 @@ public final class PbftMessageOuterClass {
       }
       private int bitField0_;
 
-      private PbftMessageOuterClass.PbftMessageInfo info_;
+      private PbftMessageOuterClass.PbftMessageInfo info_ = null;
       private com.google.protobuf.SingleFieldBuilderV3<
           PbftMessageOuterClass.PbftMessageInfo, PbftMessageOuterClass.PbftMessageInfo.Builder, PbftMessageOuterClass.PbftMessageInfoOrBuilder> infoBuilder_;
       /**
@@ -4269,7 +4179,6 @@ public final class PbftMessageOuterClass {
        * </pre>
        *
        * <code>.PbftMessageInfo info = 1;</code>
-       * @return Whether the info field is set.
        */
       public boolean hasInfo() {
         return infoBuilder_ != null || info_ != null;
@@ -4280,7 +4189,6 @@ public final class PbftMessageOuterClass {
        * </pre>
        *
        * <code>.PbftMessageInfo info = 1;</code>
-       * @return The info.
        */
       public PbftMessageOuterClass.PbftMessageInfo getInfo() {
         if (infoBuilder_ == null) {
@@ -4422,7 +4330,6 @@ public final class PbftMessageOuterClass {
        * </pre>
        *
        * <code>bytes block_id = 2;</code>
-       * @return The blockId.
        */
       public com.google.protobuf.ByteString getBlockId() {
         return blockId_;
@@ -4433,8 +4340,6 @@ public final class PbftMessageOuterClass {
        * </pre>
        *
        * <code>bytes block_id = 2;</code>
-       * @param value The blockId to set.
-       * @return This builder for chaining.
        */
       public Builder setBlockId(com.google.protobuf.ByteString value) {
         if (value == null) {
@@ -4451,7 +4356,6 @@ public final class PbftMessageOuterClass {
        * </pre>
        *
        * <code>bytes block_id = 2;</code>
-       * @return This builder for chaining.
        */
       public Builder clearBlockId() {
         
@@ -4463,9 +4367,9 @@ public final class PbftMessageOuterClass {
       private java.util.List<PbftMessageOuterClass.PbftSignedVote> commitVotes_ =
         java.util.Collections.emptyList();
       private void ensureCommitVotesIsMutable() {
-        if (!((bitField0_ & 0x00000001) != 0)) {
+        if (!((bitField0_ & 0x00000004) == 0x00000004)) {
           commitVotes_ = new java.util.ArrayList<PbftMessageOuterClass.PbftSignedVote>(commitVotes_);
-          bitField0_ |= 0x00000001;
+          bitField0_ |= 0x00000004;
          }
       }
 
@@ -4670,7 +4574,7 @@ public final class PbftMessageOuterClass {
       public Builder clearCommitVotes() {
         if (commitVotesBuilder_ == null) {
           commitVotes_ = java.util.Collections.emptyList();
-          bitField0_ = (bitField0_ & ~0x00000001);
+          bitField0_ = (bitField0_ & ~0x00000004);
           onChanged();
         } else {
           commitVotesBuilder_.clear();
@@ -4782,7 +4686,7 @@ public final class PbftMessageOuterClass {
           commitVotesBuilder_ = new com.google.protobuf.RepeatedFieldBuilderV3<
               PbftMessageOuterClass.PbftSignedVote, PbftMessageOuterClass.PbftSignedVote.Builder, PbftMessageOuterClass.PbftSignedVoteOrBuilder>(
                   commitVotes_,
-                  ((bitField0_ & 0x00000001) != 0),
+                  ((bitField0_ & 0x00000004) == 0x00000004),
                   getParentForChildren(),
                   isClean());
           commitVotes_ = null;
@@ -4792,7 +4696,7 @@ public final class PbftMessageOuterClass {
       @java.lang.Override
       public final Builder setUnknownFields(
           final com.google.protobuf.UnknownFieldSet unknownFields) {
-        return super.setUnknownFields(unknownFields);
+        return super.setUnknownFieldsProto3(unknownFields);
       }
 
       @java.lang.Override
@@ -4889,10 +4793,18 @@ public final class PbftMessageOuterClass {
       "_id\030\002 \001(\014\022%\n\014commit_votes\030\003 \003(\0132\017.PbftSi" +
       "gnedVoteb\006proto3"
     };
-    descriptor = com.google.protobuf.Descriptors.FileDescriptor
+    com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
+        new com.google.protobuf.Descriptors.FileDescriptor.    InternalDescriptorAssigner() {
+          public com.google.protobuf.ExtensionRegistry assignDescriptors(
+              com.google.protobuf.Descriptors.FileDescriptor root) {
+            descriptor = root;
+            return null;
+          }
+        };
+    com.google.protobuf.Descriptors.FileDescriptor
       .internalBuildGeneratedFileFrom(descriptorData,
         new com.google.protobuf.Descriptors.FileDescriptor[] {
-        });
+        }, assigner);
     internal_static_PbftMessageInfo_descriptor =
       getDescriptor().getMessageTypes().get(0);
     internal_static_PbftMessageInfo_fieldAccessorTable = new
