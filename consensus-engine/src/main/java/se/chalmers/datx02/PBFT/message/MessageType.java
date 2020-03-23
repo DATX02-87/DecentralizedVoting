@@ -1,6 +1,6 @@
 package se.chalmers.datx02.PBFT.message;
 
-public enum MessageExtensions {
+public enum MessageType {
     /// Basic message types for the multicast protocol
     PrePrepare,
     Prepare,
