@@ -1,7 +1,5 @@
 package se.chalmers.datx02.PBFT.message;
 
-
-
 public class PBFTMessage {
     private MessageExtensions msg_type;
     private int view, seq_num;
