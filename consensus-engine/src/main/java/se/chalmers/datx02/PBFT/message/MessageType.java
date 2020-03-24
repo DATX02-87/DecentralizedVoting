@@ -45,7 +45,7 @@ public enum MessageType {
             case "SealRequest": return SealRequest;
             case "Seal": return Seal;
             default:
-                logger.error("Unhandled PBFT message type: " + msg_type);
+                logger.warn("Unhandled PBFT message type: " + msg_type);
                 return Unset;
         }
     }
