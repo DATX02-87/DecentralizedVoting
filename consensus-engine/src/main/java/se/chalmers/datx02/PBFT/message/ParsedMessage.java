@@ -5,6 +5,8 @@ import com.google.protobuf.InvalidProtocolBufferException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import pbft.sdk.protobuf.*;
+import se.chalmers.datx02.PBFT.lib.exceptions.InvalidMessage;
+import se.chalmers.datx02.PBFT.lib.exceptions.SerializationError;
 import se.chalmers.datx02.lib.models.PeerMessage;
 
 public class ParsedMessage {
@@ -15,7 +17,7 @@ public class ParsedMessage {
 
     private Object message;
 
-    public ParsedMessage(PeerMessage message, byte[] own_id){
+    public ParsedMessage(PeerMessage message, byte[] own_id) throws SerializationError, InvalidMessage {
         String messageType = message.getHeader().getMessageType();
         Object deserialized_message = null;
 
@@ -24,24 +26,21 @@ public class ParsedMessage {
                 try {
                     deserialized_message = PbftSeal.parseFrom(message.getContent());
                 } catch (InvalidProtocolBufferException e) {
-                    logger.error("Error parsing PbftSeal");
-                    return;
+                    throw new SerializationError("Error parsing Pbftseal");
                 }
                 break;
             case "NewView":
                 try {
                     deserialized_message = PbftNewView.parseFrom(message.getContent());
                 } catch (InvalidProtocolBufferException e) {
-                    logger.error("Error parsing PbftNewView");
-                    return;
+                    throw new SerializationError("Error parsing Pbftview");
                 }
                 break;
             default: // Parse to PbftMessage default
                 try {
                     deserialized_message = PbftMessage.parseFrom(message.getContent());
                 } catch (InvalidProtocolBufferException e) {
-                    logger.error("Error parsing PbftMessage");
-                    return;
+                    throw new SerializationError("Error parsing Pbftmessage");
                 }
                 break;
         }
@@ -54,25 +53,19 @@ public class ParsedMessage {
 
         // Check that they have same msg type
         if(deserialized_message instanceof PbftMessage) {
-            if(((PbftMessage) deserialized_message).getInfo().getMsgType() != message.getHeader().getMessageType()){
-                logger.error("Message type mismatch: received a PeerMessage with type " + message.getHeader().getMessageType()
-                + " that contains a PBFT message with type " + ((PbftMessage) deserialized_message).getInfo().getMsgType());
-                return;
-            }
+            if(((PbftMessage) deserialized_message).getInfo().getMsgType() != message.getHeader().getMessageType())
+                throw new InvalidMessage("Message type mismatch: received a PeerMessage with type " + message.getHeader().getMessageType()
+                        + " that contains a PBFT message with type " + ((PbftMessage) deserialized_message).getInfo().getMsgType());
         }
         else if(deserialized_message instanceof PbftSeal) {
-            if(((PbftSeal) deserialized_message).getInfo().getMsgType() != message.getHeader().getMessageType()){
-                logger.error("Message type mismatch: received a PeerMessage with type " + message.getHeader().getMessageType()
+            if(((PbftSeal) deserialized_message).getInfo().getMsgType() != message.getHeader().getMessageType())
+                throw new InvalidMessage("Message type mismatch: received a PeerMessage with type " + message.getHeader().getMessageType()
                         + " that contains a PBFT message with type " + ((PbftSeal) deserialized_message).getInfo().getMsgType());
-                return;
-            }
         }
         else if(deserialized_message instanceof PbftNewView) {
-            if(((PbftNewView) deserialized_message).getInfo().getMsgType() != message.getHeader().getMessageType()){
-                logger.error("Message type mismatch: received a PeerMessage with type " + message.getHeader().getMessageType()
+            if(((PbftNewView) deserialized_message).getInfo().getMsgType() != message.getHeader().getMessageType())
+                throw new InvalidMessage("Message type mismatch: received a PeerMessage with type " + message.getHeader().getMessageType()
                         + " that contains a PBFT message with type " + ((PbftNewView) deserialized_message).getInfo().getMsgType());
-                return;
-            }
         }
 
         this.from_self = (this.info().getSignerId().toByteArray() == own_id);
@@ -98,12 +91,12 @@ public class ParsedMessage {
         this.message_bytes = messageBytes.toByteArray();
     }
 
-    public ParsedMessage(PbftSignedVote vote){
+    public ParsedMessage(PbftSignedVote vote) throws SerializationError {
         PbftMessage message = null;
         try {
             message = PbftMessage.parseFrom(vote.getMessageBytes());
         } catch (InvalidProtocolBufferException e) {
-            logger.error("Failed to parse vote to Pbft message");
+            throw new SerializationError("Failed to parse vote to Pbftmessage");
         }
 
         this.from_self = true;
