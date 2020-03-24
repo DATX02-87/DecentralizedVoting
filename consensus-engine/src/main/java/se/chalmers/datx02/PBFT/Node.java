@@ -1,12 +1,18 @@
 package se.chalmers.datx02.PBFT;
 
+import pbft.sdk.protobuf.PbftNewView;
+import pbft.sdk.protobuf.PbftSeal;
+import pbft.sdk.protobuf.PbftSignedVote;
 import sawtooth.sdk.protobuf.Block;
 import sawtooth.sdk.protobuf.ConsensusPeerInfo;
 import sawtooth.sdk.protobuf.Message;
 import se.chalmers.datx02.PBFT.message.MessageExtension;
+import se.chalmers.datx02.PBFT.message.MessageType;
+import se.chalmers.datx02.PBFT.message.ParsedMessage;
 import se.chalmers.datx02.lib.Service;
 
 import java.util.List;
+import java.util.function.Function;
 
 public class Node {
     private Service service;
@@ -92,33 +98,27 @@ public class Node {
 
     }
 
-    // TODO: Change to new Messagetypes
-    public List<Message> signedVotesFromMessages(List<Message> msgs){
+    public List<PbftSignedVote> signedVotesFromMessages(List<ParsedMessage> msgs){
         return null;
     }
 
-    // Todo: Change object to seal messagetype
-    public Object buildSeal(State state){
+    public PbftSeal buildSeal(State state){
         return null;
     }
 
-    // Todo: change object to vote messagetype
-    public byte[] verifyVote(Object vote){
+    public <T,R> byte[] verifyVote(PbftSignedVote vote, MessageType expected_type, Function<T,R> func){
         return null;
     }
 
-    // Todo: change object to view messagetype
-    public void verifyNewView(Object view, State state){
+    public void verifyNewView(PbftNewView view, State state){
 
     }
 
-    // Todo: change object to seal messagetype
-    public Object verifyConsensusSealFromBlock(Block block, State state){
+    public PbftSeal verifyConsensusSealFromBlock(Block block, State state){
         return null;
     }
 
-    // Todo: change object to seal messagetype
-    public void verifyConsensusSeal(Object seal, byte[] blockId, State state){
+    public void verifyConsensusSeal(PbftSeal seal, byte[] blockId, State state){
 
     }
 
@@ -145,17 +145,14 @@ public class Node {
         return true;
     }
 
-    // TODO: Change to correct MessageType
-    public void broadcastPBFTMessage(int view, int seq_num, MessageExtension msg_type, byte[] blockId, State state){
+    public void broadcastPBFTMessage(int view, int seq_num, MessageType msg_type, byte[] blockId, State state){
 
     }
 
-    // TODO: Chnage to correct message
-    public void broadcastMessage(Message msg, State state){
+    public void broadcastMessage(ParsedMessage msg, State state){
 
     }
 
-    // TODO: Chnage to correct message
     public void sendSealResponse(byte[] recipient, State state){
 
     }

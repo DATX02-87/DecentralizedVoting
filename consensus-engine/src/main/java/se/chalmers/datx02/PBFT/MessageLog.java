@@ -1,7 +1,8 @@
 package se.chalmers.datx02.PBFT;
 
 import sawtooth.sdk.protobuf.Block;
-import sawtooth.sdk.protobuf.Message;
+import se.chalmers.datx02.PBFT.message.MessageType;
+import se.chalmers.datx02.PBFT.message.ParsedMessage;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -12,7 +13,7 @@ public class MessageLog {
     private HashMap<byte[], Block> unvalidated_blocks;
 
     private HashSet<Block> blocks;
-    private HashSet<Message> messages;
+    private HashSet<ParsedMessage> messages;
 
     private int max_log_size;
 
@@ -54,26 +55,25 @@ public class MessageLog {
         return null;
     }
 
-    // TODO: Change to our message & messagetypes
-    public void addMessage(Message msg){}
+    public void addMessage(ParsedMessage msg){}
 
     public boolean hashPrepare(int seq_num, int view, byte[] blockId){
         return true;
     }
 
-    public List<Message> getMessageOfTypeSeq(Message.MessageType msg_type, int sequence_number){
+    public List<ParsedMessage> getMessageOfTypeSeq(MessageType msg_type, int sequence_number){
         return null;
     }
 
-    public List<Message> getMessageOfTypeView(Message.MessageType msg_type, int view){
+    public List<ParsedMessage> getMessageOfTypeView(MessageType msg_type, int view){
         return null;
     }
 
-    public List<Message> getMessageOfTypeSeqView(Message.MessageType msg_type, int sequence_number, int view){
+    public List<ParsedMessage> getMessageOfTypeSeqView(MessageType msg_type, int sequence_number, int view){
         return null;
     }
 
-    public List<Message> getMessageOfTypeSeqViewBlock(Message.MessageType msg_type, int sequence_number, int view, byte[] blockId){
+    public List<ParsedMessage> getMessageOfTypeSeqViewBlock(MessageType msg_type, int sequence_number, int view, byte[] blockId){
         return null;
     }
 
