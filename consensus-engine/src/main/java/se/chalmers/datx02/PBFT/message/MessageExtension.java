@@ -2,7 +2,6 @@ package se.chalmers.datx02.PBFT.message;
 
 
 import com.google.protobuf.ByteString;
-import com.google.protobuf.Message;
 import com.sun.org.apache.xerces.internal.impl.dv.util.HexBin;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,26 +35,13 @@ public class MessageExtension {
      * @param message to log
      */
     public static void logMessage(PbftSeal message){
-
         logger.info("PbftSeal(info: "+ message.getInfo() +
                 ", block_id " + HexBin.encode(message.getBlockId().toByteArray()));
 
-
-        // TODO: Print out votes too
-       /*
+        int i = 0;
         for(PbftSignedVote vote : message.getCommitVotesList()){
-            logger.info("PbftSeal(info: "+ message.getInfo() +
-                    ", block_id " + HexBin.encode(message.getBlockId().toByteArray()));
-
-            vote.get
+            logger.info(i++ + " header: " + vote.getHeaderBytes() + " msg:" + vote.getMessageBytes());
         }
-
-        FROM RUST:
-        let votes = self
-            .get_commit_votes()
-            .iter()
-            .fold(String::new(), |acc, vote| format!("{}{}, ", acc, vote));
-        */
     }
 
     /**
