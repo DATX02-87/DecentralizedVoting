@@ -7,6 +7,9 @@ import org.slf4j.LoggerFactory;
 import sawtooth.sdk.protobuf.ConsensusBlock;
 import sawtooth.sdk.protobuf.ConsensusNotifyBlockCommit;
 import sawtooth.sdk.protobuf.ConsensusNotifyPeerMessage;
+import se.chalmers.datx02.PBFT.lib.Ticker;
+import se.chalmers.datx02.lib.exceptions.ReceiveErrorException;
+import se.chalmers.datx02.lib.exceptions.UnknownBlockException;
 import se.chalmers.datx02.lib.models.DriverUpdate;
 import se.chalmers.datx02.lib.models.StartupState;
 
@@ -26,7 +29,7 @@ public class Engine implements se.chalmers.datx02.lib.Engine {
     private final AtomicBoolean exit = new AtomicBoolean(false);
     private BlockingQueue<DriverUpdate> updates;
     private StartupState startupState;
-    private Service service;
+    private se.chalmers.datx02.lib.Service service;
     private Config config;
 
     // TODO: Implementation
@@ -34,23 +37,53 @@ public class Engine implements se.chalmers.datx02.lib.Engine {
 
     @Override
     public void start(BlockingQueue<DriverUpdate> updates, se.chalmers.datx02.lib.Service service, StartupState startupState) {
-        this.service = new Service(service);
+        // Startup
+        logger.info(startupState.toString());
+
+        this.service = service;
         this.startupState = startupState;
         this.updates = updates;
 
-
+        // Load settings
         this.config = new Config();
-
         try {
-            engineLoop();
-        } catch (InvalidProtocolBufferException e) {
-            throw new RuntimeException("Could not parse protocol buffer", e);
-        } catch (InterruptedException e) {
-            throw new RuntimeException("Engine update interrupted", e);
+            this.config.loadSettings(this.startupState.getChainHead().getBlockId().toByteArray(), this.service);
+        } catch (UnknownBlockException | ReceiveErrorException | InterruptedException e) {
+            logger.warn("Failed to load settings from config");
+            return;
         }
+
+        logger.info("PBFT config loaded: " + this.config.toString());
+
+        State pbft_state = null;
+        // PBFT state
+        /*
+        // TODO: Fix RAII storage
+        State pbft_state = storage(this.config.getStorageLocation(),
+                new State(
+                        this.startupState.getLocalPeerInfo().getPeerId().toByteArray(),
+                        this.startupState.getChainHead().getBlockNum(),
+                        this.config
+                ));
+
+
+        logger.info("PBFT state created: " + pbft_state.read());
+        */
+
+
+        Ticker block_publishing_ticker = new Ticker(this.config.getBlockPublishingDelay());
+
+        Node node = new Node(
+                this.config,
+                this.startupState.getChainHead(),
+                this.startupState.getPeers(),
+                this.service,
+                pbft_state
+        );
+
     }
 
-    private void engineLoop() throws InvalidProtocolBufferException, InterruptedException {
+    private void engineLoop(){
 
         /*
          * 1. Wait for an incoming message
@@ -60,6 +93,10 @@ public class Engine implements se.chalmers.datx02.lib.Engine {
          */
         while (!exit.get()) {
         }
+    }
+
+    private void handleUpdate(){
+
     }
 
     public static boolean checkConsensus(ConsensusBlock block) {

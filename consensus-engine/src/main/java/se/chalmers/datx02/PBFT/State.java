@@ -34,7 +34,7 @@ public class State {
 
     private int forced_view_changed_interval;
 
-    public State(byte[] peerId, int head_block_num, Config config){
+    public State(byte[] peerId, long head_block_num, Config config){
 
     }
 

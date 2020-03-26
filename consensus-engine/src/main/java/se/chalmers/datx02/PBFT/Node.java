@@ -4,6 +4,7 @@ import pbft.sdk.protobuf.PbftNewView;
 import pbft.sdk.protobuf.PbftSeal;
 import pbft.sdk.protobuf.PbftSignedVote;
 import sawtooth.sdk.protobuf.Block;
+import sawtooth.sdk.protobuf.ConsensusBlock;
 import sawtooth.sdk.protobuf.ConsensusPeerInfo;
 import sawtooth.sdk.protobuf.Message;
 import se.chalmers.datx02.PBFT.message.MessageExtension;
@@ -18,7 +19,7 @@ public class Node {
     private Service service;
     private MessageLog msg_log;
 
-    public Node(Config config, Block chainHead, List<ConsensusPeerInfo> connected_peers, Service service, State state){
+    public Node(Config config, ConsensusBlock chainHead, List<ConsensusPeerInfo> connected_peers, Service service, State state){
 
     }
 

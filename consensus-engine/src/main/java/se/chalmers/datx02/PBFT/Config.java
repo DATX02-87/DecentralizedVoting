@@ -106,4 +106,12 @@ public class Config {
     public int getMaxLogSize() {
         return this.maxLogSize;
     }
+
+    public String getStorageLocation(){
+        return storageLocation;
+    }
+
+    public Duration getBlockPublishingDelay() {
+        return blockPublishingDelay;
+    }
 }
