@@ -33,7 +33,7 @@ public class Config {
                                     // view change (guarantees liveness by allowing the network to get "unstuck" if it is unable
             viewChangeDuration;   //
 
-    private int forcedViewChangeInterval,
+    private long forcedViewChangeInterval,
                 maxLogSize;
 
     private String storageLocation;
@@ -63,7 +63,7 @@ public class Config {
                 inSettings.add(idleTimeout.toString());
                 inSettings.add(commitTimeout.toString());
                 inSettings.add(viewChangeDuration.toString());
-                inSettings.add(Integer.toString(forcedViewChangeInterval));
+                inSettings.add(Long.toString(forcedViewChangeInterval));
                 this.settings = service.getSettings(blockId, inSettings);
 
                 break;

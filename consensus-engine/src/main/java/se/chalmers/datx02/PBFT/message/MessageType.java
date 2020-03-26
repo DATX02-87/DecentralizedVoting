@@ -19,8 +19,9 @@ public enum MessageType {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    public void display(){
-        String toDisplay;
+    @Override
+    public String toString(){
+        String toDisplay = "";
         switch (this) {
             case PrePrepare: toDisplay = "PP"; break;
             case Prepare: toDisplay = "Pr"; break;
@@ -33,7 +34,7 @@ public enum MessageType {
             default: throw new IllegalStateException();
         }
 
-        logger.info(toDisplay);
+        return toDisplay;
     }
     public MessageType from(String msg_type){
         switch (msg_type) {

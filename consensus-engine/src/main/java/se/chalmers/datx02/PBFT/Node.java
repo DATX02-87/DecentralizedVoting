@@ -146,7 +146,7 @@ public class Node {
         return true;
     }
 
-    public void broadcastPBFTMessage(int view, int seq_num, MessageType msg_type, byte[] blockId, State state){
+    public void broadcastPBFTMessage(long view, long seq_num, MessageType msg_type, byte[] blockId, State state){
 
     }
 
@@ -158,7 +158,11 @@ public class Node {
 
     }
 
-    public void sendSealResponse(int view, State state){
+    public void sendSealResponse(long view, State state){
+
+    }
+
+    public void startViewChange(long view ,State state){
 
     }
 }

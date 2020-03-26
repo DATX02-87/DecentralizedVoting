@@ -15,9 +15,10 @@ public class MessageLog {
     private HashSet<Block> blocks;
     private HashSet<ParsedMessage> messages;
 
-    private int max_log_size;
+    private long max_log_size;
 
     // For display
+    @Override
     public String toString(){
         return null;
     }
@@ -43,7 +44,7 @@ public class MessageLog {
         return null;
     }
 
-    public List<Block> getBlocksWithNum(int blockNum){
+    public List<Block> getBlocksWithNum(long blockNum){
         return null;
     }
 
@@ -57,29 +58,29 @@ public class MessageLog {
 
     public void addMessage(ParsedMessage msg){}
 
-    public boolean hashPrepare(int seq_num, int view, byte[] blockId){
+    public boolean hashPrepare(long seq_num, long view, byte[] blockId){
         return true;
     }
 
-    public List<ParsedMessage> getMessageOfTypeSeq(MessageType msg_type, int sequence_number){
+    public List<ParsedMessage> getMessageOfTypeSeq(MessageType msg_type, long sequence_number){
         return null;
     }
 
-    public List<ParsedMessage> getMessageOfTypeView(MessageType msg_type, int view){
+    public List<ParsedMessage> getMessageOfTypeView(MessageType msg_type, long view){
         return null;
     }
 
-    public List<ParsedMessage> getMessageOfTypeSeqView(MessageType msg_type, int sequence_number, int view){
+    public List<ParsedMessage> getMessageOfTypeSeqView(MessageType msg_type, long sequence_number, long view){
         return null;
     }
 
-    public List<ParsedMessage> getMessageOfTypeSeqViewBlock(MessageType msg_type, int sequence_number, int view, byte[] blockId){
+    public List<ParsedMessage> getMessageOfTypeSeqViewBlock(MessageType msg_type, long sequence_number, long view, byte[] blockId){
         return null;
     }
 
-    public void garbageCollect(int current_seq_num){}
+    public void garbageCollect(long current_seq_num){}
 
-    public void setMaxLogSize(int max_log_size){
+    public void setMaxLogSize(long max_log_size){
         this.max_log_size = max_log_size;
     }
 }

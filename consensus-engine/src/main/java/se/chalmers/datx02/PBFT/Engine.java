@@ -31,6 +31,8 @@ public class Engine implements se.chalmers.datx02.lib.Engine {
     private StartupState startupState;
     private se.chalmers.datx02.lib.Service service;
     private Config config;
+    private Node node;
+    private State pbft_state;
 
     // TODO: Implementation
 
@@ -55,7 +57,7 @@ public class Engine implements se.chalmers.datx02.lib.Engine {
 
         logger.info("PBFT config loaded: " + this.config.toString());
 
-        State pbft_state = null;
+        this.pbft_state = null;
         // PBFT state
         /*
         // TODO: Fix RAII storage
@@ -73,7 +75,7 @@ public class Engine implements se.chalmers.datx02.lib.Engine {
 
         Ticker block_publishing_ticker = new Ticker(this.config.getBlockPublishingDelay());
 
-        Node node = new Node(
+        this.node = new Node(
                 this.config,
                 this.startupState.getChainHead(),
                 this.startupState.getPeers(),
@@ -81,22 +83,51 @@ public class Engine implements se.chalmers.datx02.lib.Engine {
                 pbft_state
         );
 
-    }
+        node.startIdleTimeout(pbft_state);
 
-    private void engineLoop(){
 
-        /*
-         * 1. Wait for an incoming message
-         * 2. Check for exit
-         * 3. Handle the message
-         * 4. Check for publishing
-         */
+        // Main loop
+        DriverUpdate update;
+        ConsensusBlock block;
         while (!exit.get()) {
+            try {
+                update = updates.poll(10, TimeUnit.MILLISECONDS);
+
+
+                handleUpdate(update);
+
+                // Try to publish if delay has passed
+                if(block_publishing_ticker.Tick())
+                    node.tryPublish(pbft_state);
+
+                if(node.checkIdleTimeoutExpired(pbft_state)){
+                    logger.warn("Idle timeout expired; proposing view change");
+                    node.startViewChange(pbft_state.getView() + 1, pbft_state);
+                }
+
+                if(node.checkCommitTimeoutExpired(pbft_state)){
+                    logger.warn("Commit timeout expired; proposing view change");
+                    node.startViewChange(pbft_state.getView() + 1, pbft_state);
+                }
+
+                if(pbft_state.getMode() == State.Mode.ViewChanging){
+                    if(node.checkViewChangeTimeoutExpired(pbft_state)){
+                        long newView = pbft_state.getMode().viewChanging + 1;
+                        logger.warn("View change timeout expired; proposing view change for view" + newView);
+
+                        node.startViewChange(newView, pbft_state);
+                    }
+                }
+
+
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
         }
     }
 
-    private void handleUpdate(){
-
+    private void handleUpdate(DriverUpdate update){
+        // TODO: fix this
     }
 
     public static boolean checkConsensus(ConsensusBlock block) {
