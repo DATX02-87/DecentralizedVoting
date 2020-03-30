@@ -1,18 +1,15 @@
 package se.chalmers.datx02.PBFT;
 
-import com.google.protobuf.Any;
-import com.sun.tools.javac.main.Main;
-import com.sun.tools.javac.main.Option;
 import javafx.util.StringConverter;
-import sawtooth.sdk.protobuf.ConsensusSettingsEntry;
-import sawtooth.sdk.protobuf.Setting;
 import se.chalmers.datx02.PBFT.lib.RetryUntilOk;
 import se.chalmers.datx02.lib.exceptions.ReceiveErrorException;
 import se.chalmers.datx02.lib.exceptions.UnknownBlockException;
 
 import java.time.Duration;
-import java.util.*;
-import java.util.concurrent.Callable;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.function.Function;
 
 public class Config {
