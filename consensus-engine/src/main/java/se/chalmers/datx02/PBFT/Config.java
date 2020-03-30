@@ -19,21 +19,21 @@ public class Config {
 
     // TODO: Implementation
 
-    private List<String> members;
+    private List<byte[]> members;
     private Map<String, String> settings;
     private Service service;
 
-    private Duration
-            blockPublishingDelay, // How long to wait in between trying to publish blocks
-            updateRecvTimeout,    // How long to wait for an update to arrive from the validator
-            exponentialRetryBase, // The base time to use for retrying with exponential backoff
-            exponentialRetryMax,  // The maximum time for retrying with exponential backoff
-            idleTimeout,           // How long to wait for the next BlockNew + PrePrepare before determining primary is faulty
-            commitTimeout,         // How long to wait (after Pre-Preparing) for the node to commit the block before starting a
-                                    // view change (guarantees liveness by allowing the network to get "unstuck" if it is unable
-            viewChangeDuration;   //
+    // TODO: Create methods for changing these, dont leave as public
+    public Duration
+            blockPublishingDelay,   // How long to wait in between trying to publish blocks
+            updateRecvTimeout,      // How long to wait for an update to arrive from the validator
+            exponentialRetryBase,   // The base time to use for retrying with exponential backoff
+            exponentialRetryMax,    // The maximum time for retrying with exponential backoff
+            idleTimeout,            // How long to wait for the next BlockNew + PrePrepare before determining primary is faulty
+            commitTimeout,          // How long to wait (after Pre-Preparing) for the node to commit the block before starting a
+            viewChangeDuration;     // view change (guarantees liveness by allowing the network to get "unstuck" if it is unable
 
-    private long forcedViewChangeInterval,
+    public long forcedViewChangeInterval,
                 maxLogSize;
 
     private String storageLocation;
@@ -103,15 +103,31 @@ public class Config {
         return null;
     }
 
-    public int getMaxLogSize() {
+    public long getMaxLogSize() {
         return this.maxLogSize;
+    }
+
+    public void setMaxLogSize(long maxLogSize){
+        this.maxLogSize = maxLogSize;
     }
 
     public String getStorageLocation(){
         return storageLocation;
     }
 
+    public void setStorageLocation(String storageLocation){
+        this.storageLocation = storageLocation;
+    }
+
     public Duration getBlockPublishingDelay() {
         return blockPublishingDelay;
+    }
+
+    public int getMembersCount(){
+        return members.size();
+    }
+
+    public List<byte[]> getMembers(){
+        return members;
     }
 }

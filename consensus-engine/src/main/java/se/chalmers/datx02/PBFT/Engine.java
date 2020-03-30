@@ -1,24 +1,21 @@
 package se.chalmers.datx02.PBFT;
 
-import com.google.protobuf.ByteString;
 import com.google.protobuf.InvalidProtocolBufferException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import sawtooth.sdk.protobuf.Consensus;
+import pbft.sdk.protobuf.PbftMessageInfo;
 import sawtooth.sdk.protobuf.ConsensusBlock;
-import sawtooth.sdk.protobuf.ConsensusNotifyBlockCommit;
-import sawtooth.sdk.protobuf.ConsensusNotifyPeerMessage;
 import se.chalmers.datx02.PBFT.lib.Ticker;
+import se.chalmers.datx02.PBFT.lib.exceptions.InvalidMessage;
+import se.chalmers.datx02.PBFT.lib.exceptions.SerializationError;
+import se.chalmers.datx02.PBFT.message.ParsedMessage;
 import se.chalmers.datx02.lib.exceptions.ReceiveErrorException;
 import se.chalmers.datx02.lib.exceptions.UnknownBlockException;
 import se.chalmers.datx02.lib.models.DriverUpdate;
+import se.chalmers.datx02.lib.models.PeerMessage;
 import se.chalmers.datx02.lib.models.StartupState;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.time.Duration;
-import java.time.Instant;
-import java.util.Arrays;
+
 import java.util.Collections;
 import java.util.Map;
 import java.util.concurrent.BlockingQueue;
@@ -35,6 +32,10 @@ public class Engine implements se.chalmers.datx02.lib.Engine {
     private Node node;
     private State pbft_state;
 
+    public Engine(Config config){
+        this.config = config;
+    }
+
     @Override
     public void start(BlockingQueue<DriverUpdate> updates, se.chalmers.datx02.lib.Service service, StartupState startupState) {
         // Startup
@@ -45,7 +46,6 @@ public class Engine implements se.chalmers.datx02.lib.Engine {
         this.updates = updates;
 
         // Load settings
-        this.config = new Config();
         try {
             this.config.loadSettings(this.startupState.getChainHead().getBlockId().toByteArray(), this.service);
         } catch (UnknownBlockException | ReceiveErrorException | InterruptedException e) {
@@ -58,8 +58,8 @@ public class Engine implements se.chalmers.datx02.lib.Engine {
         this.pbft_state = null;
         // PBFT state
         /*
-        // TODO: Fix RAII storage
-        State pbft_state = storage(this.config.getStorageLocation(),
+        // TODO: Fix RAII storage (FIX CONFIG FILE FOR THIS)
+        State pbft_state = get_storage(this.config.getStorageLocation(),
                 new State(
                         this.startupState.getLocalPeerInfo().getPeerId().toByteArray(),
                         this.startupState.getChainHead().getBlockNum(),
@@ -117,14 +117,13 @@ public class Engine implements se.chalmers.datx02.lib.Engine {
                     }
                 }
 
-
-            } catch (InterruptedException | InvalidProtocolBufferException e) {
-                logger.error("Main loop received exception");
+            } catch (InterruptedException | InvalidProtocolBufferException | InvalidMessage | SerializationError e) {
+                logger.error("Main loop received exception: " + e);
             }
         }
     }
 
-    private void handleUpdate(DriverUpdate update) throws InvalidProtocolBufferException {
+    private void handleUpdate(DriverUpdate update) throws InvalidProtocolBufferException, InvalidMessage, SerializationError {
         switch(update.getMessageType()){
             case CONSENSUS_NOTIFY_BLOCK_NEW:
                 node.onBlockNew(ConsensusBlock.parseFrom((byte[]) update.getData()), pbft_state);
@@ -139,17 +138,27 @@ public class Engine implements se.chalmers.datx02.lib.Engine {
                 node.onBlockCommit((byte[]) update.getData(), pbft_state);
                 break;
             case CONSENSUS_NOTIFY_PEER_MESSAGE:
-                // TODO: fix this
+                PeerMessage peerMessage = (PeerMessage) update.getData();
+
+                byte[] verified_signer_id = peerMessage.getHeader().getSignerId().toByteArray();
+                ParsedMessage parsedMessage = new ParsedMessage(peerMessage, pbft_state.getPeerId());
+                byte[] pbft_signer_id = parsedMessage.info().getSignerId().toByteArray();
+
+                if(pbft_signer_id != verified_signer_id)
+                    throw new InvalidMessage("Mismatch between PbftMessage's signer ID " + pbft_signer_id + " and PeerMessage's signer ID " +
+                            "" + verified_signer_id + " of peer message: " + parsedMessage.toString());
+
+
+                node.onPeerMessage(parsedMessage, pbft_state);
+
                 break;
             case CONSENSUS_NOTIFY_ENGINE_DEACTIVATED:
-                logger.error("Received shutdown; stopping PBFT");
+                logger.info("Received shutdown; stopping PBFT");
                 this.stop();
                 break;
             case CONSENSUS_NOTIFY_PEER_CONNECTED:
-
-                // TODO: fix this
                 logger.info("Received PeerConnected with peer info: ");
-                // node.onPeerConnected();
+                node.onPeerConnected(((PbftMessageInfo) update.getData()).getSignerId().toByteArray(), pbft_state);
                 break;
             case CONSENSUS_NOTIFY_PEER_DISCONNECTED:
                 logger.info("Received PeerDisconnected for peer ID: ");

@@ -5,6 +5,12 @@ import java.time.Instant;
 
 public class Timeout {
 
+    public Timeout(Duration duration) {
+        this.duration = duration;
+        this.state = TimeoutState.Inactive;
+        this.start = Instant.now();
+    }
+
     public enum TimeoutState{
         Active,
         Inactive,
