@@ -4,6 +4,7 @@ import com.google.protobuf.ByteString;
 import com.google.protobuf.InvalidProtocolBufferException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import sawtooth.sdk.protobuf.Consensus;
 import sawtooth.sdk.protobuf.ConsensusBlock;
 import sawtooth.sdk.protobuf.ConsensusNotifyBlockCommit;
 import sawtooth.sdk.protobuf.ConsensusNotifyPeerMessage;
@@ -33,9 +34,6 @@ public class Engine implements se.chalmers.datx02.lib.Engine {
     private Config config;
     private Node node;
     private State pbft_state;
-
-    // TODO: Implementation
-
 
     @Override
     public void start(BlockingQueue<DriverUpdate> updates, se.chalmers.datx02.lib.Service service, StartupState startupState) {
@@ -120,28 +118,46 @@ public class Engine implements se.chalmers.datx02.lib.Engine {
                 }
 
 
-            } catch (InterruptedException e) {
-                e.printStackTrace();
+            } catch (InterruptedException | InvalidProtocolBufferException e) {
+                logger.error("Main loop received exception");
             }
         }
     }
 
-    private void handleUpdate(DriverUpdate update){
-        // TODO: fix this
-    }
+    private void handleUpdate(DriverUpdate update) throws InvalidProtocolBufferException {
+        switch(update.getMessageType()){
+            case CONSENSUS_NOTIFY_BLOCK_NEW:
+                node.onBlockNew(ConsensusBlock.parseFrom((byte[]) update.getData()), pbft_state);
+                break;
+            case CONSENSUS_NOTIFY_BLOCK_VALID:
+                node.onBlockValid((byte[]) update.getData(), pbft_state);
+                break;
+            case CONSENSUS_NOTIFY_BLOCK_INVALID:
+                node.onBlockInvalid((byte[]) update.getData());
+                break;
+            case CONSENSUS_NOTIFY_BLOCK_COMMIT:
+                node.onBlockCommit((byte[]) update.getData(), pbft_state);
+                break;
+            case CONSENSUS_NOTIFY_PEER_MESSAGE:
+                // TODO: fix this
+                break;
+            case CONSENSUS_NOTIFY_ENGINE_DEACTIVATED:
+                logger.error("Received shutdown; stopping PBFT");
+                this.stop();
+                break;
+            case CONSENSUS_NOTIFY_PEER_CONNECTED:
 
-    public static boolean checkConsensus(ConsensusBlock block) {
-        return Arrays.equals(block.getPayload().toByteArray(), createConsensus(block.getSummary().toByteArray()));
-    }
-
-    public static byte[] createConsensus(byte[] blockSummary) {
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        try {
-            baos.write("PBFT".getBytes());
-            baos.write(blockSummary);
-            return baos.toByteArray();
-        } catch (IOException e) {
-            throw new RuntimeException("Could not write bytearrayoutputstream");
+                // TODO: fix this
+                logger.info("Received PeerConnected with peer info: ");
+                // node.onPeerConnected();
+                break;
+            case CONSENSUS_NOTIFY_PEER_DISCONNECTED:
+                logger.info("Received PeerDisconnected for peer ID: ");
+                break;
+            case NETWORK_DISCONNECT:
+                logger.error("Disconnected from validator; stopping PBFT");
+                this.stop();
+                break;
         }
     }
 

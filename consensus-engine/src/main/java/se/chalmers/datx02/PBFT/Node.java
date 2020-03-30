@@ -58,7 +58,7 @@ public class Node {
 
     }
 
-    public void onBlockNew(Block block, State state){
+    public void onBlockNew(ConsensusBlock block, State state){
 
     }
 
@@ -70,7 +70,7 @@ public class Node {
 
     }
 
-    public void tryHandlingBlock(Block block, State state){
+    public void tryHandlingBlock(ConsensusBlock block, State state){
 
     }
 
@@ -115,7 +115,7 @@ public class Node {
 
     }
 
-    public PbftSeal verifyConsensusSealFromBlock(Block block, State state){
+    public PbftSeal verifyConsensusSealFromBlock(ConsensusBlock block, State state){
         return null;
     }
 
