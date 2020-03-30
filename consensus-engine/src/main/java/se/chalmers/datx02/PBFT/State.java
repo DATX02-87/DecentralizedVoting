@@ -18,16 +18,49 @@ public class State {
         Commiting,
         Finishing;
 
-        public boolean finishing;
+        private boolean finishing;
+
+        public boolean getFinishing(){
+            return finishing;
+        }
+
+        public void setFinishing(boolean newFinishing){
+            if(this == Finishing)
+                finishing = newFinishing;
+        }
+
+        public Phase setAndCreateFinishing(boolean newFinishing){
+            Phase returnValue = Phase.Finishing;
+            returnValue.setFinishing(newFinishing);
+
+            return returnValue;
+        }
     }
 
     public enum Mode{
         Normal,
         ViewChanging;
 
-        public long viewChanging;
+        private long viewChanging;
 
-        // TODO: Create method when changing view to also change long variable
+        public long getViewChanging(){
+            return viewChanging;
+        }
+
+        private void setViewChanging(long viewChanging){
+            this.viewChanging = viewChanging;
+        }
+
+        public Mode changeToView(long viewChanging){
+            Mode returnValue = Mode.ViewChanging;
+            returnValue.setViewChanging(viewChanging);
+
+            return returnValue;
+        }
+
+        public Mode changeToNormal(){
+            return Mode.Normal;
+        }
     }
 
     private byte[] peerId;
@@ -111,7 +144,7 @@ public class State {
         }
     }
 
-    public boolean at_forced_view_change(){
+    public boolean atForcedViewChange(){
         return ((this.seq_num % this.forced_view_changed_interval) == 0);
     }
 

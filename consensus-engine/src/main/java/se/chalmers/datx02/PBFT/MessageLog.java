@@ -2,7 +2,6 @@ package se.chalmers.datx02.PBFT;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import sawtooth.sdk.protobuf.Consensus;
 import sawtooth.sdk.protobuf.ConsensusBlock;
 import se.chalmers.datx02.PBFT.message.MessageType;
 import se.chalmers.datx02.PBFT.message.ParsedMessage;

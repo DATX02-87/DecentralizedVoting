@@ -14,7 +14,7 @@ import sawtooth.sdk.protobuf.ConsensusPeerMessage;
 public class MessageExtension {
     private static final Logger logger = LoggerFactory.getLogger(MessageExtension.class);
 
-    // TODO: Do we need new hash functions?
+    // TODO: Do we need new hash functions? (NOT REQUIRED?)
     public static int hash(){
         return 0;
     }

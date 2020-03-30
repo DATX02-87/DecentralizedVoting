@@ -110,7 +110,7 @@ public class Engine implements se.chalmers.datx02.lib.Engine {
 
                 if(pbft_state.getMode() == State.Mode.ViewChanging){
                     if(node.checkViewChangeTimeoutExpired(pbft_state)){
-                        long newView = pbft_state.getMode().viewChanging + 1;
+                        long newView = pbft_state.getMode().getViewChanging() + 1;
                         logger.warn("View change timeout expired; proposing view change for view" + newView);
 
                         node.startViewChange(newView, pbft_state);
