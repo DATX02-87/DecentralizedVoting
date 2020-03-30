@@ -48,7 +48,7 @@ public class Engine implements se.chalmers.datx02.lib.Engine {
         // Load settings
         try {
             this.config.loadSettings(this.startupState.getChainHead().getBlockId().toByteArray(), this.service);
-        } catch (UnknownBlockException | ReceiveErrorException | InterruptedException e) {
+        } catch (InterruptedException e) {
             logger.warn("Failed to load settings from config");
             return;
         }
