@@ -18,7 +18,7 @@ version: "2.1"
 services:
   test-systemd-services:
     build:
-      context: ../../java/se/chalmers/datx02/lib
+      context: ../../../java/se/chalmers/datx02/lib
       dockerfile: ./tests/integration-tests.dockerfile
       args:
         - http_proxy
