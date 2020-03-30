@@ -113,8 +113,8 @@ public class Service {
 
         not_ready_to_summarize = false;
 
-        byte[] consensus = Engine.createConsensus(summary);
-
+//        byte[] consensus = Engine.createConsensus(summary);
+        byte[] consensus = null;
         byte[] block_id = new byte[0];
         try {
             block_id = this.service.finalizeBlock(consensus);

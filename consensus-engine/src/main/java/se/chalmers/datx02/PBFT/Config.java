@@ -33,8 +33,8 @@ public class Config {
                                     // view change (guarantees liveness by allowing the network to get "unstuck" if it is unable
             viewChangeDuration;   //
 
-    private long forcedViewChangeInterval,
-                maxLogSize;
+    private long forcedViewChangeInterval;
+    private int maxLogSize;
 
     private String storageLocation;
 
