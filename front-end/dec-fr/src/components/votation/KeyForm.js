@@ -10,9 +10,9 @@ const KeyForm = () => {
   return (
     <Container>
       <Form>
-        <FormGroup controlId='formPrivateKey' style='width: '>
+        <FormGroup controlId='formPrivateKey'>
           <Form.Label>Enter private key to join voting</Form.Label>
-          <Form.Control type='text' placeholder='private key' ref='' />
+          <Form.Control type='text' placeholder='private key' />
         </FormGroup>
         <Button variant='primary' type='submit'>
           Verify
