@@ -43,7 +43,7 @@ class DevmodeLivenessIntegrationTest {
                     .map(i -> Arrays.asList("validator-" + i, "rest-api-" + i, "intkey-tp-" + i, "settings-tp-" + i))
                     .flatMap(Collection::stream)
                     .collect(Collectors.toList()),
-            "src/test/resources/integration/test_devmode_engine_liveness.yaml"
+            "src/test/resources/integration/devmode/test_devmode_engine_liveness.yaml"
     );
 
     @Test

@@ -1,4 +1,4 @@
-package se.chalmers.datx02.PBFT.lib;
+package se.chalmers.datx02.PBFT.lib.timing;
 
 import java.time.Duration;
 import java.time.temporal.ChronoUnit;

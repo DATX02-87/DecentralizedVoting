@@ -26,7 +26,7 @@ public class Node {
     // TODO: Impl
     // TODO: Throw exceptions
 
-    public void onPeerMessage(Message msg, State state){
+    public void onPeerMessage(ParsedMessage msg, State state){
 
     }
 

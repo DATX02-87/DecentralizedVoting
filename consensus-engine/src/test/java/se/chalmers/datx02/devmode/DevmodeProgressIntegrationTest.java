@@ -31,7 +31,7 @@ public class DevmodeProgressIntegrationTest {
     @RegisterExtension
     public static SawtoothComposeExtension sawtoothComposeExtension = new SawtoothComposeExtension(
             Arrays.asList("validator", "rest-api", "intkey-tp", "settings-tp","intkey-workload"),
-            "src/test/resources/integration/test_devmode_simple.yaml");
+            "src/test/resources/integration/devmode/test_devmode_simple.yaml");
 
     @Test
     public void testProgress() throws InterruptedException {
