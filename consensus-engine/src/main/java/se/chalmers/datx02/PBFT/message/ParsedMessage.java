@@ -13,7 +13,7 @@ public class ParsedMessage {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     private byte[] header_bytes, header_signature, message_bytes;
-    private boolean from_self;
+    protected boolean from_self;
 
     private Object message;
 
@@ -146,5 +146,9 @@ public class ParsedMessage {
         else if(message instanceof PbftNewView)
             logger.warn("ParsedPeerMessage.get_seal found a new view message!");
         return null;
+    }
+
+    public boolean fromSelf(){
+        return from_self;
     }
 }

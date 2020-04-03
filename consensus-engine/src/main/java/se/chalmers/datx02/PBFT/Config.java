@@ -22,8 +22,7 @@ public class Config {
     private List<byte[]> members;
     private Map<String, String> settings;
 
-    // TODO: Create methods for changing these, dont leave as public
-    public Duration
+    protected Duration
             blockPublishingDelay,   // How long to wait in between trying to publish blocks
             updateRecvTimeout,      // How long to wait for an update to arrive from the validator
             exponentialRetryBase,   // The base time to use for retrying with exponential backoff
@@ -32,7 +31,7 @@ public class Config {
             commitTimeout,          // How long to wait (after Pre-Preparing) for the node to commit the block before starting a
             viewChangeDuration;     // view change (guarantees liveness by allowing the network to get "unstuck" if it is unable
 
-    public long forcedViewChangeInterval,
+    protected long forcedViewChangeInterval,
                 maxLogSize;
 
     private String storageLocation;

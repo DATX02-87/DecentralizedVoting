@@ -106,7 +106,7 @@ public class MessageLog {
      * @param blockId
      * @return
      */
-    public boolean hashPrepare(long seq_num, long view, byte[] blockId){
+    public boolean hashPrePrepare(long seq_num, long view, byte[] blockId){
         List<ParsedMessage> list = getMessageOfTypeSeqView(MessageType.PrePrepare, seq_num, view);
 
         for(ParsedMessage msg : list){

@@ -29,7 +29,7 @@ public class State {
                 finishing = newFinishing;
         }
 
-        public Phase setAndCreateFinishing(boolean newFinishing){
+        public static Phase setAndCreateFinishing(boolean newFinishing){
             Phase returnValue = Phase.Finishing;
             returnValue.setFinishing(newFinishing);
 
@@ -51,14 +51,14 @@ public class State {
             this.viewChanging = viewChanging;
         }
 
-        public Mode changeToView(long viewChanging){
+        public static Mode changeToView(long viewChanging){
             Mode returnValue = Mode.ViewChanging;
             returnValue.setViewChanging(viewChanging);
 
             return returnValue;
         }
 
-        public Mode changeToNormal(){
+        public static Mode changeToNormal(){
             return Mode.Normal;
         }
     }
@@ -70,8 +70,8 @@ public class State {
     private Mode mode;
     private List<byte[]> member_ids;
     private long faulty_nodes;
-    private Timeout idle_teamout, commit_timeout, view_change_timeout;
-    private Duration view_change_duration, exponential_retry_base, exponential_retry_max;
+    protected Timeout idle_teamout, commit_timeout, view_change_timeout;
+    protected Duration view_change_duration, exponential_retry_base, exponential_retry_max;
 
     private long forced_view_changed_interval;
 
@@ -148,8 +148,20 @@ public class State {
         return ((this.seq_num % this.forced_view_changed_interval) == 0);
     }
 
+    public long getSeqNum(){
+        return seq_num;
+    }
+
     public long getView(){
         return view;
+    }
+
+    public void setView(long view){
+        this.view = view;
+    }
+
+    public List<byte[]> getMembers(){
+        return member_ids;
     }
 
     public Mode getMode(){
@@ -158,6 +170,34 @@ public class State {
 
     public byte[] getPeerId(){
         return peerId;
+    }
+
+    public void setChainHead(byte[] newChainhead){
+        this.chain_head = newChainhead;
+    }
+
+    public Phase getPhase(){
+        return phase;
+    }
+
+    public boolean getFinishing(){
+        return phase.getFinishing();
+    }
+
+    public void setFinishing(boolean newFinishing){
+        phase.setFinishing(newFinishing);
+    }
+
+    public void setAndCreateFinishing(boolean newFinishing){
+        this.phase = Phase.setAndCreateFinishing(newFinishing);
+    }
+
+    public long getFaultyNods(){
+        return faulty_nodes;
+    }
+
+    public void setModeNormal(){
+        mode = Mode.changeToNormal();
     }
 
     @Override

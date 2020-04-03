@@ -17,7 +17,7 @@ public enum MessageType {
 
     Unset;
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private static final Logger logger = LoggerFactory.getLogger(MessageType.class.getClass());
 
     @Override
     public String toString(){
@@ -36,7 +36,7 @@ public enum MessageType {
 
         return toDisplay;
     }
-    public MessageType from(String msg_type){
+    public static MessageType from(String msg_type){
         switch (msg_type) {
             case "PrePrepare": return PrePrepare;
             case "Prepare": return Prepare;
@@ -51,7 +51,7 @@ public enum MessageType {
         }
     }
 
-    public String from(MessageType msg_type){
+    public static String from(MessageType msg_type){
         return msg_type.toString();
     }
 }
