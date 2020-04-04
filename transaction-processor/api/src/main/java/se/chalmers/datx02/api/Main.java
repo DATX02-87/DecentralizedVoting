@@ -1,7 +1,6 @@
-import org.rapidoid.annotation.Valid;
+package se.chalmers.datx02.api;
+
 import org.rapidoid.setup.App;
-import org.rapidoid.setup.On;
-import sawtooth.sdk.protobuf.Transaction;
 
 public class Main {
 
@@ -12,6 +11,11 @@ public class Main {
         App.bootstrap(args);
         GetHandler getHandler = new GetHandler();
         TransactionBuilder transactionBuilder = new TransactionBuilder();
+
+        //ValidatorCommunicator.init("http://127.0.0.1:8080", "0x011312f1f2356bv6b2456456b2456bv5");
+        //ValidatorCommunicator v = ValidatorCommunicator.getInstance();
+
+        //System.out.println(v.toString());
 
         //On.post("/candidate/vote").json((Transaction t) -> transactionBuilder.buildTransaction(t));
         //On.post("/candidate").json((Transaction t) -> transactionBuilder.buildTransaction(t));
