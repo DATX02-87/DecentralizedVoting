@@ -75,14 +75,71 @@ public class Reducer {
                 .createGlobalState();
     }
 
-    private static GlobalState handleCastVoteAction(CastVoteAction action, String submitter, GlobalState currentState) {
-        // TODO
-        return null;
+    private static GlobalState handleCastVoteAction(CastVoteAction action, String submitter, GlobalState currentState) throws ReducerException {
+        String electionName = action.getElectionName();
+        Election election = currentState.getElections().get(electionName);
+        if (election == null) {
+            throw new ReducerException("The election supplied does not exist");
+        }
+        if (!election.isActive()) {
+            throw new ReducerException("The election supplied is not active");
+        }
+        String candidate = action.getCandidate();
+        if (!election.getCandidates().containsKey(candidate)) {
+            throw new ReducerException("The candidate does not exist");
+        }
+        if (!election.getVoters().containsKey(submitter)) {
+            throw new ReducerException("The submitter is not allowed to vote on this election");
+        }
+        if (election.getVoters().get(submitter)) {
+            throw new ReducerException("The submitter has already cast a vote");
+        }
+
+        // set the state
+        Map<String, Boolean> voters = new HashMap<>(election.getVoters());
+        voters.put(submitter, true);
+
+        HashMap<String, Long> candidates = new HashMap<>(election.getCandidates());
+        candidates.put(candidate, candidates.get(candidate) + 1);
+
+        Election newElection = ElectionBuilder.fromElection(election)
+                .setVoters(voters)
+                .setCandidates(candidates)
+                .createElection();
+
+        HashMap<String, Election> elections = new HashMap<>(currentState.getElections());
+        elections.put(electionName, newElection);
+        return GlobalStateBuilder.fromGlobalState(currentState)
+                .setElections(elections)
+                .createGlobalState();
     }
 
-    private static GlobalState handleAddCandidateAction(AddCandidateAction action, String submitter, GlobalState currentState) {
-        // TODO
-        return null;
+    private static GlobalState handleAddCandidateAction(AddCandidateAction action, String submitter, GlobalState currentState) throws ReducerException {
+        String electionName = action.getElectionName();
+        Election election = currentState.getElections().get(electionName);
+        if (election == null) {
+            throw new ReducerException("The election supplied does not exist");
+        }
+        if (!election.isActive()) {
+            throw new ReducerException("The election supplied is not active");
+        }
+        if (!election.getAdmins().contains(submitter)) {
+            throw new ReducerException("User is not authorised to add candidate");
+        }
+        if (election.getCandidates().containsKey(action.getCandidate())) {
+            throw new ReducerException("The candidate already exists");
+        }
+        HashMap<String, Long> candidates = new HashMap<>(election.getCandidates());
+        candidates.put(action.getCandidate(), 0L);
+        Election newElection = ElectionBuilder.fromElection(election)
+                .setCandidates(candidates)
+                .createElection();
+
+        HashMap<String, Election> elections = new HashMap<>(currentState.getElections());
+        elections.put(electionName, newElection);
+        return GlobalStateBuilder.fromGlobalState(currentState)
+                .setElections(elections)
+                .createGlobalState();
     }
 
     private static GlobalState handleAddElectionAction(AddElectionAction action, String submitter, GlobalState currentState) throws ReducerException {

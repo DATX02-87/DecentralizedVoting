@@ -1,7 +1,9 @@
 package se.chalmers.datx02.model;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import se.chalmers.datx02.model.action.AddCandidateAction;
 import se.chalmers.datx02.model.action.AddElectionAction;
+import se.chalmers.datx02.model.action.CastVoteAction;
 import se.chalmers.datx02.model.action.EndElectionAction;
 import se.chalmers.datx02.model.state.GlobalState;
 
@@ -21,8 +23,16 @@ public class Example {
         Transaction t = new Transaction(Action.ADD_ELECTION, om.writeValueAsString(action), "Melker");
         GlobalState newState = Reducer.applyTransaction(t, g);
         System.out.println(newState);
+        t = new Transaction(Action.ADD_CANDIDATE, om.writeValueAsString(new AddCandidateAction("Steffe", "TestVal")), "Melker");
+        newState = Reducer.applyTransaction(t, newState);
+        t = new Transaction(Action.ADD_CANDIDATE, om.writeValueAsString(new AddCandidateAction("Uffe", "TestVal")), "Anders");
+        newState = Reducer.applyTransaction(t, newState);
+        t = new Transaction(Action.CAST_VOTE, om.writeValueAsString(new CastVoteAction("TestVal", "Steffe")), "Kula");
+        newState = Reducer.applyTransaction(t, newState);
         t = new Transaction(Action.END_ELECTION, om.writeValueAsString(new EndElectionAction("TestVal")), "Anders");
-        GlobalState newState2 = Reducer.applyTransaction(t, newState);
-        System.out.println(newState2);
+        newState = Reducer.applyTransaction(t, newState);
+        System.out.println(newState);
+        t = new Transaction(Action.CAST_VOTE, om.writeValueAsString(new CastVoteAction("TestVal", "Uffe")), "Kalle");
+        newState = Reducer.applyTransaction(t, newState);
     }
 }
