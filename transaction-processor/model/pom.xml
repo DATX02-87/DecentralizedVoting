@@ -20,7 +20,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>se.chalmers.datx02.dcvs02</groupId>
-    <artifactId>transaction_processor</artifactId>
+    <artifactId>model</artifactId>
     <version>1.0-SNAPSHOT</version>
 
     <properties>
@@ -71,11 +71,6 @@
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-lang3</artifactId>
             <version>3.0</version>
-        </dependency>
-        <dependency>
-            <groupId>se.chalmers.datx02.dcvs02</groupId>
-            <artifactId>model</artifactId>
-            <version>1.0-SNAPSHOT</version>
         </dependency>
 
     </dependencies>
