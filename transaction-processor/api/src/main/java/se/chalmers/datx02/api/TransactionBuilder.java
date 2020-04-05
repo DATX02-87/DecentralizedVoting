@@ -1,3 +1,5 @@
+package se.chalmers.datx02.api;
+
 import sawtooth.sdk.protobuf.BatchList;
 import sawtooth.sdk.protobuf.BatchHeader;
 import sawtooth.sdk.protobuf.Transaction;

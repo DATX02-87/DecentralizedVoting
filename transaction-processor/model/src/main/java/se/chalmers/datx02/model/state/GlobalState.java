@@ -1,5 +1,8 @@
 package se.chalmers.datx02.model.state;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import java.io.Serializable;
 import java.util.*;
 
@@ -10,7 +13,8 @@ public class GlobalState implements Serializable {
 
     private final Map<String, Election> elections;
 
-    public GlobalState(Collection<String> admins, Map<String, Election> elections) {
+    @JsonCreator(mode = JsonCreator.Mode.PROPERTIES)
+    public GlobalState(@JsonProperty("admins") Collection<String> admins, @JsonProperty("elections") Map<String, Election> elections) {
         this.admins = Collections.unmodifiableSet(new HashSet<>(admins));
         this.elections = Collections.unmodifiableMap(elections);
     }
@@ -29,5 +33,19 @@ public class GlobalState implements Serializable {
                 "admins=" + admins +
                 ", elections=" + elections +
                 '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        GlobalState that = (GlobalState) o;
+        return admins.equals(that.admins) &&
+                elections.equals(that.elections);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(admins, elections);
     }
 }

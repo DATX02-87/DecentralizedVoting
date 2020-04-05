@@ -1,12 +1,8 @@
-import javax.inject.Inject;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.validation.constraints.NotNull;
-import java.awt.print.Book;
+package se.chalmers.datx02.api;
+
+import org.rapidoid.annotation.Valid;
 
 public class GetHandler {
-
 
     public <T> T getCandidates() {
         return null;

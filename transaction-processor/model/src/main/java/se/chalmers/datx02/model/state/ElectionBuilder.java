@@ -1,5 +1,7 @@
 package se.chalmers.datx02.model.state;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -7,7 +9,6 @@ public class ElectionBuilder {
     private List<String> admins;
     private Map<String, Long> candidates;
     private Map<String, Boolean> voters;
-    private String name;
     private boolean active;
 
     public ElectionBuilder setAdmins(List<String> admins) {
@@ -25,17 +26,20 @@ public class ElectionBuilder {
         return this;
     }
 
-    public ElectionBuilder setName(String name) {
-        this.name = name;
-        return this;
-    }
-
     public ElectionBuilder setActive(boolean active) {
         this.active = active;
         return this;
     }
 
+    public static ElectionBuilder fromElection(Election election) {
+        return new ElectionBuilder()
+                .setActive(election.isActive())
+                .setAdmins(new ArrayList<>(election.getAdmins()))
+                .setVoters(new HashMap<>(election.getVoters()))
+                .setCandidates(new HashMap<>(election.getCandidates()));
+    }
+
     public Election createElection() {
-        return new Election(admins, candidates, voters, name, active);
+        return new Election(admins, candidates, voters, active);
     }
 }
