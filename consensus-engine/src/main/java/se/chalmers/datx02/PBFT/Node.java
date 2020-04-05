@@ -5,13 +5,14 @@ import com.google.protobuf.InvalidProtocolBufferException;
 import com.sun.org.apache.xerces.internal.impl.dv.util.HexBin;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import pbft.sdk.protobuf.PbftMessageInfo;
-import pbft.sdk.protobuf.PbftNewView;
-import pbft.sdk.protobuf.PbftSeal;
-import pbft.sdk.protobuf.PbftSignedVote;
-import sawtooth.sdk.protobuf.Consensus;
+import pbft.sdk.protobuf.*;
 import sawtooth.sdk.protobuf.ConsensusBlock;
 import sawtooth.sdk.protobuf.ConsensusPeerInfo;
+import sawtooth.sdk.protobuf.ConsensusPeerMessageHeader;
+import sawtooth.sdk.protobuf.Message;
+import sawtooth.sdk.signing.Context;
+import sawtooth.sdk.signing.CryptoFactory;
+import sawtooth.sdk.signing.Secp256k1PublicKey;
 import se.chalmers.datx02.PBFT.lib.exceptions.*;
 import se.chalmers.datx02.PBFT.lib.exceptions.InternalError;
 import se.chalmers.datx02.PBFT.lib.timing.RetryUntilOk;
@@ -23,10 +24,7 @@ import se.chalmers.datx02.lib.exceptions.InvalidStateException;
 import se.chalmers.datx02.lib.exceptions.ReceiveErrorException;
 import se.chalmers.datx02.lib.exceptions.UnknownBlockException;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -59,8 +57,11 @@ public class Node {
 
             // If connected to any peers already, send bootstrap commit messages to them
             for(ConsensusPeerInfo peer : connected_peers){
-                broadcastBootstrapCommit(peer.getPeerId().toByteArray());
-                // TODO: Catch exception
+                try {
+                    broadcastBootstrapCommit(peer.getPeerId().toByteArray());
+                } catch (InternalError | SerializationError e) {
+                    // Todo: fix this
+                }
             }
         }
 
@@ -290,8 +291,12 @@ public class Node {
     public void handleNewView(ParsedMessage msg) throws InternalError, ServiceError {
         PbftNewView new_view = msg.getNewViewMessage();
 
-        // TODO: Will throw exception, fix
-        verifyNewView(new_view);
+
+        try {
+            verifyNewView(new_view);
+        } catch (InvalidMessage invalidMessage) {
+            // TODO: Will throw exception, fix
+        }
 
         if(state.isPrimary()){
             try {
@@ -686,77 +691,241 @@ public class Node {
                 || state.getSeqNum() == 1)
             return;
 
-        broadcastBootstrapCommit(peerId);
+        try {
+            broadcastBootstrapCommit(peerId);
+        } catch (InternalError | SerializationError e) {
+            logger.error(String.format("Failed to broadcast Bootstrap Commit due to error %s", e));
+        }
     }
 
-    public void broadcastBootstrapCommit(byte[] peerId){
+    public void broadcastBootstrapCommit(byte[] peerId) throws InternalError, SerializationError {
+        long view = 0;
 
+        if(state.getSeqNum() != 2){
+            ConsensusBlock block = msg_log.getBlockWithId(state.getChainHead());
+            if(block == null)
+                throw new InternalError(String.format("Node does not have chain head {%s} in its log", Arrays.toString(state.getChainHead())));
+            else{
+                try {
+                    view = PbftSeal.parseFrom(block.getPayload())
+                            .getInfo().getView();
+                } catch (InvalidProtocolBufferException e) {
+                    throw new SerializationError(String.format("Error parsing seal from chain head %s", e));
+                }
+            }
+        }
+
+        PbftMessageInfo commit = PbftMessageInfo.newBuilder()
+                .setMsgType("Commit")
+                .setSeqNum(state.getSeqNum() - 1)
+                .setView(view)
+                .setSignerId(ByteString.copyFrom(state.getPeerId()))
+                .build();
+
+        service.sendTo(peerId, "Commit", commit.toByteArray());
+        // Todo: double check commit.toByte and catch error when converting to byte
     }
 
     public List<PbftSignedVote> signedVotesFromMessages(List<ParsedMessage> msgs){
-        return null;
+        return msgs.stream()
+                .map(m -> PbftSignedVote.newBuilder()
+                        .setHeaderBytes(ByteString.copyFrom(m.getHeaderBytes()))
+                        .setHeaderSignature(ByteString.copyFrom(m.getHeaderSignature()))
+                        .setMessageBytes(ByteString.copyFrom(m.getMessageBytes()))
+                    .build())
+                .collect(Collectors.toList());
     }
 
     public PbftSeal buildSeal(){
+        logger.trace(String.format("%s: Building seal for block %d", state, state.getSeqNum() - 1));
+
+        List<ParsedMessage> msgs = msg_log.getMessageOfTypeSeq(Commit, state.getSeqNum() - 1);
+        msgs.stream()
+            .filter(msg -> !msg.fromSelf())
+            .map(x -> x);
+        // TODO: impl.
         return null;
     }
 
-    public <T,R> byte[] verifyVote(PbftSignedVote vote, MessageType expected_type, Function<T,R> func){
-        return null;
+    public <T,R> byte[] verifyVote(PbftSignedVote vote, MessageType expected_type, Function<T,R> validation_criteria) throws SerializationError, InvalidMessage, SigningError {
+        PbftMessage pbft_message = null;
+        ConsensusPeerMessageHeader header = null;
+
+        try {
+            pbft_message = PbftMessage.parseFrom(vote.getMessageBytes());
+        } catch (InvalidProtocolBufferException e) {
+            throw new SerializationError(String.format("Error parsing PbftMessage from vote, %s", e));
+        }
+
+        try {
+            header = ConsensusPeerMessageHeader.parseFrom(vote.getHeaderBytes());
+        } catch (InvalidProtocolBufferException e) {
+            throw new SerializationError(String.format("Error parsing header from vote, %s", e));
+        }
+
+        logger.trace(String.format("Verifying vote with PbftMessage: {%s} and header: {%s}", pbft_message, header));
+
+        if(header.getSignerId() != pbft_message.getInfo().getSignerId()){
+            throw new InvalidMessage(String.format("Received a vote where PbftMessage's signer ID {%s} " +
+                            "and PeerMessage's signer ID {%s} dont match",
+                    pbft_message.getInfo().getSignerId(),
+                    header.getSignerId()));
+        }
+
+        MessageType msg_type = MessageType.from(pbft_message.getInfo().getMsgType());
+
+        if(msg_type != expected_type)
+            throw new InvalidMessage(String.format("Received a {%s} vote, but expected a {%s}", msg_type, expected_type));
+
+        Secp256k1PublicKey key = Secp256k1PublicKey.fromHex(HexBin.encode(header.getSignerId().toByteArray()));
+        // TODO: Exception thrown maybe?
+
+        Context context = CryptoFactory.createContext("secp256k1");
+        // todo: exception thrown maybe?
+
+        if(!context.verify(HexBin.encode(vote.getHeaderSignature().toByteArray()),
+                vote.getHeaderBytes().toByteArray(),
+                key)){
+            throw new SigningError(String.format("Vote (%s) failed signature verification", vote));
+        }
+
+        // todo: verify sha512
+        // verify_sha512(vote.get_message_bytes(), header.get_content_sha512())?;
+
+        validation_criteria.apply((T) pbft_message); // Validate, catch error
+        // Return null if failed or throw exception
+
+        return pbft_message.getInfo().getSignerId().toByteArray();
     }
 
-    public void verifyNewView(PbftNewView view){
+    public void verifyNewView(PbftNewView new_view) throws InvalidMessage {
+        if(new_view.getInfo().getView() <= state.getView()){
+            throw new InvalidMessage(String.format("Node is on view {%d}, but received NewView message for view {%d}",
+                    state.getView(),
+                    new_view.getInfo().getView()));
+        }
 
+        if(new_view.getInfo().getSignerId().toByteArray() != state.getPrimaryIdAtView(new_view.getInfo().getView())){
+            throw new InvalidMessage(String.format("Received NewView message for view {%d} that is not from the primary for that view",
+                    new_view.getInfo().getView()));
+        }
+
+        List<byte[]> voter_ids = null; // Todo: impl try_fold for voter_ids
+
+        List<byte[]> peer_ids = state.getMembers()
+                .stream()
+                .filter(pid -> pid != new_view.getInfo().getSignerId().toByteArray())
+                .collect(Collectors.toList());
+
+        logger.trace(String.format("Comparing voter IDs (%s) with member IDs - primary (%s)", voter_ids, peer_ids));
+
+        if(Collections.indexOfSubList(peer_ids, voter_ids) == -1){ // Todo: double check which is sublist & list
+            List<byte[]> newsub = new ArrayList<>(peer_ids);
+            throw new InvalidMessage(String.format("NewView contains vote(s) from invalid IDs: %s",
+                    peer_ids.removeAll(voter_ids)
+                    ));
+        }
+
+        if(voter_ids.size() < 2 * state.getFaultyNods()){
+            throw new InvalidMessage(String.format("NewView needs {%d} votes, but only {%d} found",
+                    2 * state.getFaultyNods(),
+                    voter_ids.size()));
+        }
     }
 
     public PbftSeal verifyConsensusSealFromBlock(ConsensusBlock block){
+        // TODO: Impl
         return null;
     }
 
     public void verifyConsensusSeal(PbftSeal seal, byte[] blockId){
-
+        // TODO: Impl
     }
 
     public void tryPublish(){
-
+        // TODO: Impl
     }
 
     public boolean checkIdleTimeoutExpired(){
-        return true;
+        return state.idle_teamout.checkExpired();
     }
 
     public void startIdleTimeout(){
-
+        state.idle_teamout.start();
     }
 
     public boolean checkCommitTimeoutExpired(){
-        return true;
+        return state.commit_timeout.checkExpired();
     }
 
     public void startCommitTimeout(){
+        state.commit_timeout.start();
     }
 
     public boolean checkViewChangeTimeoutExpired(){
-        return true;
+        return state.view_change_timeout.checkExpired();
     }
 
     public void broadcastPBFTMessage(long view, long seq_num, MessageType msg_type, byte[] blockId){
+        PbftMessage msg = PbftMessage.newBuilder()
+                .setBlockId(ByteString.copyFrom(blockId))
+                .setInfo(
+                        PbftMessageInfo.newBuilder()
+                        .setMsgType(msg_type.toString())
+                        .setView(view)
+                        .setSeqNum(seq_num)
+                        .setSignerId(ByteString.copyFrom(state.getPeerId()))
+                )
+                .build();
 
+        logger.trace(String.format("%s: : Created PBFT message: %s", state, msg));
+
+        broadcastMessage(new ParsedMessage(msg));
     }
 
-    public void broadcastMessage(ParsedMessage msg){
+    public void broadcastMessage(ParsedMessage msg) {
+        service.broadcast(msg.info().getMsgType(),
+                msg.getMessageBytes());
+        // Todo: Exception handle
 
+        try {
+            onPeerMessage(msg);
+        } catch (InvalidMessage invalidMessage) {
+            // TODO: Will throw exception, fix
+        }
     }
 
     public void sendSealResponse(byte[] recipient){
+        PbftSeal seal = buildSeal();
 
-    }
+        byte[] msg_bytes = seal.toByteArray(); // Todo: Double check if this worsk
 
-    public void sendSealResponse(long view){
-
+        service.sendTo(
+                recipient,
+                "Seal",
+                msg_bytes
+        ); // todo: handle exception
     }
 
     public void startViewChange(long view){
+        if(state.getMode() == State.Mode.ViewChanging
+                && view <= state.getMode().getViewChanging()){
+            return;
+        }
 
+        // Todo: change mode to viewchanging
+
+        state.idle_teamout.stop();
+        state.commit_timeout.stop();
+
+
+        state.view_change_timeout.stop();
+
+        broadcastPBFTMessage(
+                view,
+                state.getSeqNum() - 1,
+                ViewChange,
+                null // Todo: check if null can be a blockid
+        );
     }
 }

@@ -151,4 +151,16 @@ public class ParsedMessage {
     public boolean fromSelf(){
         return from_self;
     }
+
+    public byte[] getHeaderBytes(){
+        return header_bytes;
+    }
+
+    public byte[] getHeaderSignature(){
+        return header_signature;
+    }
+
+    public byte[] getMessageBytes(){
+        return message_bytes;
+    }
 }

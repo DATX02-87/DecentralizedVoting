@@ -184,6 +184,10 @@ public class State {
         this.chain_head = newChainhead;
     }
 
+    public byte[] getChainHead(){
+        return this.chain_head;
+    }
+
     public Phase getPhase(){
         return phase;
     }
