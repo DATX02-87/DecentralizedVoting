@@ -6,7 +6,7 @@ import se.chalmers.datx02.model.state.GlobalState;
 
 import java.util.Base64;
 
-public class StateUtil {
+public class DataUtil {
     private static ObjectMapper objectMapper = new ObjectMapper();
     public static String GlobalStateToString(GlobalState state) {
         try {
@@ -21,6 +21,24 @@ public class StateUtil {
         try {
             String json = new String(Base64.getDecoder().decode(s));
             return objectMapper.readValue(json, GlobalState.class);
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static TransactionPayload StringToTransactionPayload(String s) {
+        try {
+            String json = new String(Base64.getDecoder().decode(s));
+            return objectMapper.readValue(json, TransactionPayload.class);
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static String TransactionPayloadToString(TransactionPayload transactionPayload) {
+        try {
+            String json = objectMapper.writeValueAsString(transactionPayload);
+            return Base64.getEncoder().encodeToString(json.getBytes());
         } catch (JsonProcessingException e) {
             throw new RuntimeException(e);
         }

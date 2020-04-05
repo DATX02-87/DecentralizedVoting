@@ -1,12 +1,15 @@
 package se.chalmers.datx02.model;
 
 public class Transaction {
-    private final Action action;
-    private final String payload;
+    private final TransactionPayload payload;
     private final String submitter;
 
-    public Transaction(Action action, String payload, String submitter) {
-        this.action = action;
+    public Transaction(Action action, String data, String submitter) {
+        this.payload = new TransactionPayload(action, data);
+        this.submitter = submitter;
+    }
+
+    public Transaction(TransactionPayload payload, String submitter) {
         this.payload = payload;
         this.submitter = submitter;
     }
@@ -16,10 +19,10 @@ public class Transaction {
     }
 
     public Action getAction() {
-        return action;
+        return payload.getAction();
     }
 
     public String getPayload() {
-        return payload;
+        return payload.getData();
     }
 }
