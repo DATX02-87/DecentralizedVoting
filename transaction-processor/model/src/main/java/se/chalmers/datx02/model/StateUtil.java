@@ -4,11 +4,14 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import se.chalmers.datx02.model.state.GlobalState;
 
-public class JSONUtil {
+import java.util.Base64;
+
+public class StateUtil {
     private static ObjectMapper objectMapper = new ObjectMapper();
     public static String GlobalStateToString(GlobalState state) {
         try {
-            return objectMapper.writeValueAsString(state);
+            String json = objectMapper.writeValueAsString(state);
+            return Base64.getEncoder().encodeToString(json.getBytes());
         } catch (JsonProcessingException e) {
             throw new RuntimeException(e);
         }
@@ -16,7 +19,8 @@ public class JSONUtil {
 
     public static GlobalState StringToGlobalState(String s) {
         try {
-            return objectMapper.readValue(s, GlobalState.class);
+            String json = new String(Base64.getDecoder().decode(s));
+            return objectMapper.readValue(json, GlobalState.class);
         } catch (JsonProcessingException e) {
             throw new RuntimeException(e);
         }

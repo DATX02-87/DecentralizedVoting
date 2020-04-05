@@ -19,6 +19,10 @@ public class GlobalState implements Serializable {
         this.elections = Collections.unmodifiableMap(elections);
     }
 
+    public GlobalState() {
+        this(Collections.emptyList(), Collections.emptyMap());
+    }
+
     public Set<String> getAdmins() {
         return admins;
     }
