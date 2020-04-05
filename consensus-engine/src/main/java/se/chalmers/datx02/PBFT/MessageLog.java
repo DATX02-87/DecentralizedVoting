@@ -49,6 +49,9 @@ public class MessageLog {
         logger.trace("Marking block " + blockId + " as validated");
 
         ConsensusBlock block = unvalidated_blocks.get(blockId);
+        if(block == null)
+            return null;
+
         this.blocks.add(block);
         unvalidated_blocks.remove(blockId);
 

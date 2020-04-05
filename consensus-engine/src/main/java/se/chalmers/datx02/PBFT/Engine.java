@@ -5,6 +5,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import pbft.sdk.protobuf.PbftMessageInfo;
 import sawtooth.sdk.protobuf.ConsensusBlock;
+import se.chalmers.datx02.PBFT.lib.exceptions.InternalError;
+import se.chalmers.datx02.PBFT.lib.exceptions.ServiceError;
 import se.chalmers.datx02.PBFT.lib.timing.Ticker;
 import se.chalmers.datx02.PBFT.lib.exceptions.InvalidMessage;
 import se.chalmers.datx02.PBFT.lib.exceptions.SerializationError;
@@ -79,10 +81,11 @@ public class Engine implements se.chalmers.datx02.lib.Engine {
                 pbft_state
         );
 
-        node.startIdleTimeout(pbft_state);
+        node.startIdleTimeout();
 
 
         // Main loop
+        // TODO: Fix state here
         DriverUpdate update;
         ConsensusBlock block;
         while (!exit.get()) {
@@ -94,46 +97,46 @@ public class Engine implements se.chalmers.datx02.lib.Engine {
 
                 // Try to publish if delay has passed
                 if(block_publishing_ticker.Tick())
-                    node.tryPublish(pbft_state);
+                    node.tryPublish();
 
-                if(node.checkIdleTimeoutExpired(pbft_state)){
+                if(node.checkIdleTimeoutExpired()){
                     logger.warn("Idle timeout expired; proposing view change");
-                    node.startViewChange(pbft_state.getView() + 1, pbft_state);
+                    node.startViewChange(pbft_state.getView() + 1);
                 }
 
-                if(node.checkCommitTimeoutExpired(pbft_state)){
+                if(node.checkCommitTimeoutExpired()){
                     logger.warn("Commit timeout expired; proposing view change");
-                    node.startViewChange(pbft_state.getView() + 1, pbft_state);
+                    node.startViewChange(pbft_state.getView() + 1);
                 }
 
                 if(pbft_state.getMode() == State.Mode.ViewChanging){
-                    if(node.checkViewChangeTimeoutExpired(pbft_state)){
+                    if(node.checkViewChangeTimeoutExpired()){
                         long newView = pbft_state.getMode().getViewChanging() + 1;
                         logger.warn("View change timeout expired; proposing view change for view" + newView);
 
-                        node.startViewChange(newView, pbft_state);
+                        node.startViewChange(newView);
                     }
                 }
 
-            } catch (InterruptedException | InvalidProtocolBufferException | InvalidMessage | SerializationError e) {
+            } catch (InterruptedException | InvalidProtocolBufferException | InvalidMessage | SerializationError | ServiceError | InternalError e) {
                 logger.error("Main loop received exception: " + e);
             }
         }
     }
 
-    private void handleUpdate(DriverUpdate update) throws InvalidProtocolBufferException, InvalidMessage, SerializationError {
+    private void handleUpdate(DriverUpdate update) throws InvalidProtocolBufferException, InvalidMessage, SerializationError, ServiceError, InternalError {
         switch(update.getMessageType()){
             case CONSENSUS_NOTIFY_BLOCK_NEW:
-                node.onBlockNew(ConsensusBlock.parseFrom((byte[]) update.getData()), pbft_state);
+                node.onBlockNew(ConsensusBlock.parseFrom((byte[]) update.getData()));
                 break;
             case CONSENSUS_NOTIFY_BLOCK_VALID:
-                node.onBlockValid((byte[]) update.getData(), pbft_state);
+                node.onBlockValid((byte[]) update.getData());
                 break;
             case CONSENSUS_NOTIFY_BLOCK_INVALID:
                 node.onBlockInvalid((byte[]) update.getData());
                 break;
             case CONSENSUS_NOTIFY_BLOCK_COMMIT:
-                node.onBlockCommit((byte[]) update.getData(), pbft_state);
+                node.onBlockCommit((byte[]) update.getData());
                 break;
             case CONSENSUS_NOTIFY_PEER_MESSAGE:
                 PeerMessage peerMessage = (PeerMessage) update.getData();
@@ -147,7 +150,7 @@ public class Engine implements se.chalmers.datx02.lib.Engine {
                             "" + verified_signer_id + " of peer message: " + parsedMessage.toString());
 
 
-                node.onPeerMessage(parsedMessage, pbft_state);
+                node.onPeerMessage(parsedMessage);
 
                 break;
             case CONSENSUS_NOTIFY_ENGINE_DEACTIVATED:
@@ -156,7 +159,7 @@ public class Engine implements se.chalmers.datx02.lib.Engine {
                 break;
             case CONSENSUS_NOTIFY_PEER_CONNECTED:
                 logger.info("Received PeerConnected with peer info: ");
-                node.onPeerConnected(((PbftMessageInfo) update.getData()).getSignerId().toByteArray(), pbft_state);
+                node.onPeerConnected(((PbftMessageInfo) update.getData()).getSignerId().toByteArray());
                 break;
             case CONSENSUS_NOTIFY_PEER_DISCONNECTED:
                 logger.info("Received PeerDisconnected for peer ID: ");

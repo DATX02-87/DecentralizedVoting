@@ -160,8 +160,16 @@ public class State {
         this.view = view;
     }
 
+    public void setSeqNum(long seq_num){
+        this.seq_num = seq_num;
+    }
+
     public List<byte[]> getMembers(){
         return member_ids;
+    }
+
+    public void setMembers(List<byte[]> member_ids){
+        this.member_ids = member_ids;
     }
 
     public Mode getMode(){
@@ -188,12 +196,17 @@ public class State {
         phase.setFinishing(newFinishing);
     }
 
+    // TODO: Make it use switchPhase logic to check that the transition is fine
     public void setAndCreateFinishing(boolean newFinishing){
         this.phase = Phase.setAndCreateFinishing(newFinishing);
     }
 
     public long getFaultyNods(){
         return faulty_nodes;
+    }
+
+    public void setFaultyNodes(long faulty_nodes){
+        this.faulty_nodes = faulty_nodes;
     }
 
     public void setModeNormal(){

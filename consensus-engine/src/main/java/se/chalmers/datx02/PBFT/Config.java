@@ -18,6 +18,7 @@ import java.util.stream.Collectors;
 
 public class Config {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private static final Logger logger_static = LoggerFactory.getLogger(Config.class.getClass());
 
     private List<byte[]> members;
     private Map<String, String> settings;
@@ -80,7 +81,7 @@ public class Config {
             }
         }
 
-        this.members = getMembersFromSettings();
+        this.members = getMembersFromSettings(settings);
 
         mergeMillisSettingIfSet(blockPublishingDelay, "sawtooth.consensus.pbft.block_publishing_delay");
         mergeMillisSettingIfSet(idleTimeout, "sawtooth.consensus.pbft.idle_timeout");
@@ -118,11 +119,11 @@ public class Config {
         mergeSettingIfSetAndMap(settingField, settingKey, x -> Duration.ofMillis((long) x));
     }
 
-    public List<byte[]> getMembersFromSettings() {
+    public static List<byte[]> getMembersFromSettings(Map<String, String> settings) {
         String members_setting_value = settings.get("sawtooth.consensus.pbft.members");
 
         if(members_setting_value == null){
-            logger.warn("'sawtooth.consensus.pbft.members' is empty; this setting must exist to use PBFT");
+            logger_static.warn("'sawtooth.consensus.pbft.members' is empty; this setting must exist to use PBFT");
             return null;
         }
 
@@ -135,7 +136,7 @@ public class Config {
 
             return membersMapped;
         } catch (JsonProcessingException e) {
-            logger.error("Unable to parse value at 'sawtooth.consensus.pbft.members' due to error: " + e);
+            logger_static.error("Unable to parse value at 'sawtooth.consensus.pbft.members' due to error: " + e);
             return null;
         }
     }
@@ -167,4 +168,5 @@ public class Config {
     public List<byte[]> getMembers(){
         return members;
     }
+
 }
