@@ -1,4 +1,4 @@
-package se.chalmers.datx02.api.rest_model;
+package se.chalmers.datx02.api.model.validator;
 
 import com.google.api.client.util.Key;
 

@@ -1,5 +1,8 @@
 package se.chalmers.datx02.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 public class Transaction {
     private final TransactionPayload payload;
     private final String submitter;
@@ -18,11 +21,17 @@ public class Transaction {
         return submitter;
     }
 
+    @JsonProperty
     public Action getAction() {
         return payload.getAction();
     }
 
-    public String getPayload() {
+    @JsonIgnore
+    public String getTransactionData() {
         return payload.getData();
+    }
+
+    public TransactionPayload getPayload() {
+        return payload;
     }
 }

@@ -25,16 +25,16 @@ public class Reducer {
         try {
             switch (transaction.getAction()) {
                 case ADD_ELECTION:
-                    AddElectionAction addElectionAction = mapper.readValue(transaction.getPayload(), AddElectionAction.class);
+                    AddElectionAction addElectionAction = mapper.readValue(transaction.getTransactionData(), AddElectionAction.class);
                     return handleAddElectionAction(addElectionAction, transaction.getSubmitter(), currentState);
                 case ADD_CANDIDATE:
-                    AddCandidateAction addCandidateAction = mapper.readValue(transaction.getPayload(), AddCandidateAction.class);
+                    AddCandidateAction addCandidateAction = mapper.readValue(transaction.getTransactionData(), AddCandidateAction.class);
                     return handleAddCandidateAction(addCandidateAction, transaction.getSubmitter(), currentState);
                 case CAST_VOTE:
-                    CastVoteAction castVoteAction = mapper.readValue(transaction.getPayload(), CastVoteAction.class);
+                    CastVoteAction castVoteAction = mapper.readValue(transaction.getTransactionData(), CastVoteAction.class);
                     return handleCastVoteAction(castVoteAction, transaction.getSubmitter(), currentState);
                 case END_ELECTION:
-                    EndElectionAction endElectionAction = mapper.readValue(transaction.getPayload(), EndElectionAction.class);
+                    EndElectionAction endElectionAction = mapper.readValue(transaction.getTransactionData(), EndElectionAction.class);
                     return handleEndElectionAction(endElectionAction, transaction.getSubmitter(), currentState);
             }
         } catch (JsonMappingException e) {
