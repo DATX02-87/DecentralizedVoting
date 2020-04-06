@@ -115,7 +115,7 @@ public class ValidatorService {
                 .setFamilyName(Adressing.FAMILY_NAME)
                 .setFamilyVersion(Adressing.FAMILY_VERSION)
                 .addInputs(stateAddress)
-                .addInputs(stateAddress)
+                .addOutputs(stateAddress)
                 .setPayloadSha512(hashedPayload)
                 .setBatcherPublicKey(signer.getPublicKey().hex())
                 .setNonce(UUID.randomUUID().toString())
