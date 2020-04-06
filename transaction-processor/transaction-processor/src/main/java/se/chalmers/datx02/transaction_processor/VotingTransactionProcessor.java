@@ -9,7 +9,7 @@ public class VotingTransactionProcessor {
   	// Connect to validator
     TransactionProcessor transactionProcessor = new TransactionProcessor(args[0]);
     // Register handler with the validator
-    transactionProcessor.addHandler(new VotingHandler());
+    transactionProcessor.addHandler(new VotingHandler(args[1]));
     Thread thread = new Thread(transactionProcessor);
     thread.start();
   }
