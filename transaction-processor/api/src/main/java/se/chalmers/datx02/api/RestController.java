@@ -5,7 +5,11 @@ import org.rapidoid.annotation.Controller;
 import org.rapidoid.annotation.GET;
 import org.rapidoid.annotation.POST;
 import org.rapidoid.annotation.Param;
+import org.rapidoid.http.Req;
+import org.rapidoid.http.Resp;
 import sawtooth.sdk.protobuf.Transaction;
+import sawtooth.sdk.protobuf.TransactionHeader;
+import sawtooth.sdk.signing.*;
 import se.chalmers.datx02.api.model.api.PostTransactionRequest;
 import se.chalmers.datx02.api.model.api.PostTransactionResponse;
 import se.chalmers.datx02.model.DataUtil;
@@ -20,12 +24,12 @@ import java.util.Map;
 public class RestController {
     ValidatorService validatorService = ValidatorService.getInstance();
 
-    @POST("/transaction")
-    public PostTransactionResponse postTransaction(PostTransactionRequest request) throws IOException {
-        String payload = DataUtil.TransactionPayloadToString(request.getPayload());
+    @POST(value = "/transaction")
+    public PostTransactionResponse postTransaction(Req req, Resp resp, PostTransactionRequest request) throws IOException {
+        byte[] payload = DataUtil.TransactionPayloadToByteArr(request.getPayload());
         Transaction transaction = Transaction.newBuilder()
-                .setHeaderSignature(request.getHeader())
-                .setPayload(ByteString.copyFromUtf8(payload))
+                .setHeader(ByteString.copyFrom(request.getHeader()))
+                .setPayload(ByteString.copyFrom(payload))
                 .setHeaderSignature(request.getSignature())
                 .build();
         String batchId = validatorService.postTransaction(transaction);

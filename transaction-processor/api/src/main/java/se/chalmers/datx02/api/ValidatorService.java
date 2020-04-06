@@ -108,7 +108,7 @@ public class ValidatorService {
     }
 
     public byte[] buildTransactionHeader(String publicKey, TransactionPayload payload) {
-        String serializedPayload = DataUtil.TransactionPayloadToString(payload);
+        byte[] serializedPayload = DataUtil.TransactionPayloadToByteArr(payload);
         String hashedPayload = DataUtil.hash(serializedPayload);
         TransactionHeader transactionHeader = TransactionHeader.newBuilder()
                 .setSignerPublicKey(publicKey)

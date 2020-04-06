@@ -4,7 +4,7 @@ import se.chalmers.datx02.model.TransactionPayload;
 
 public class PostTransactionRequest {
     private String signature;
-    private String header;
+    private byte[] header;
     private TransactionPayload payload;
 
     public String getSignature() {
@@ -15,11 +15,11 @@ public class PostTransactionRequest {
         this.signature = signature;
     }
 
-    public String getHeader() {
+    public byte[] getHeader() {
         return header;
     }
 
-    public void setHeader(String header) {
+    public void setHeader(byte[] header) {
         this.header = header;
     }
 

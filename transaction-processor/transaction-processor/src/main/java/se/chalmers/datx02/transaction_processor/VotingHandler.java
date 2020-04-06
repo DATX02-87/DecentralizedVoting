@@ -111,11 +111,11 @@ public class VotingHandler implements TransactionHandler {
   private Transaction getTransaction(TpProcessRequest processRequest)
       throws InvalidTransactionException {
 	  
-	  String payload = processRequest.getPayload().toStringUtf8();
+	  byte[] payload = processRequest.getPayload().toByteArray();
 	  TransactionHeader header = processRequest.getHeader();
 	  String submitter = header.getSignerPublicKey();
 	  
-	  TransactionPayload transactionPayload = DataUtil.StringToTransactionPayload(payload);
+	  TransactionPayload transactionPayload = DataUtil.ByteArrToTransactionPayload(payload);
       Transaction transaction = new Transaction(transactionPayload, submitter);
 	  
 	  return transaction;
