@@ -5,6 +5,7 @@ package se.chalmers.datx02.transaction_processor;
 import com.google.protobuf.ByteString;
 
 import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
 import java.util.Map;
 import java.util.AbstractMap;
 import java.util.ArrayList;
@@ -39,15 +40,13 @@ public class VotingHandler implements TransactionHandler {
   private String votingNameSpace;
   private final static String version = Adressing.FAMILY_VERSION;
   private final static String familyName = Adressing.FAMILY_NAME;
+  private final String masterStateName;
 
-  public VotingHandler() {
-    try {
+  public VotingHandler(String masterStateName) {
+      this.masterStateName = masterStateName;
       this.votingNameSpace = Utils.hash512(
-        this.transactionFamilyName().getBytes("UTF-8")).substring(0, 6);
-    } catch (UnsupportedEncodingException e) {
-      e.printStackTrace();
-      this.votingNameSpace = "";
-    }
+        this.transactionFamilyName().getBytes(StandardCharsets.UTF_8)).substring(0, 6);
+
   }
 
   @Override
@@ -74,9 +73,7 @@ public class VotingHandler implements TransactionHandler {
 	  
 	  
 	  Transaction transaction = getTransaction(tpRequest);
-	  
-	  String submitter = transaction.getSubmitter();
-	  String address = Adressing.makeMasterAddress(submitter);
+	  String address = Adressing.makeMasterAddress(masterStateName);
 	  
 	  
 	  String entry = context.getState(Collections.singletonList(address)

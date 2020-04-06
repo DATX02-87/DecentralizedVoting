@@ -70,7 +70,7 @@ public class State {
     private Mode mode;
     private List<byte[]> member_ids;
     private long faulty_nodes;
-    protected Timeout idle_teamout, commit_timeout, view_change_timeout;
+    protected Timeout idle_timeout, commit_timeout, view_change_timeout;
     protected Duration view_change_duration, exponential_retry_base, exponential_retry_max;
 
     private long forced_view_changed_interval;
@@ -89,7 +89,7 @@ public class State {
         this.mode = Mode.Normal;
         this.faulty_nodes = faultyNodes;
         this.member_ids = config.getMembers();
-        this.idle_teamout = new Timeout(config.idleTimeout);
+        this.idle_timeout = new Timeout(config.idleTimeout);
         this.commit_timeout = new Timeout(config.commitTimeout);
         this.view_change_timeout = new Timeout(config.viewChangeDuration);
         this.view_change_duration = config.viewChangeDuration;
@@ -218,6 +218,7 @@ public class State {
     }
 
     @Override
+    // TODO: Create a toString method
     public String toString(){
         return "";
     }

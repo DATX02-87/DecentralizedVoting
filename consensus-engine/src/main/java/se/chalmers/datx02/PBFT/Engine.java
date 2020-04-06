@@ -85,13 +85,11 @@ public class Engine implements se.chalmers.datx02.lib.Engine {
 
 
         // Main loop
-        // TODO: Fix state here
         DriverUpdate update;
         ConsensusBlock block;
         while (!exit.get()) {
             try {
                 update = updates.poll(10, TimeUnit.MILLISECONDS);
-
 
                 handleUpdate(update);
 

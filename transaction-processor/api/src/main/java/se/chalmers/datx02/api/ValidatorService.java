@@ -5,11 +5,7 @@ import com.google.api.client.http.javanet.NetHttpTransport;
 import com.google.api.client.json.JsonFactory;
 import com.google.api.client.json.JsonObjectParser;
 import com.google.api.client.json.jackson2.JacksonFactory;
-import com.google.protobuf.ByteString;
-import sawtooth.sdk.protobuf.Batch;
-import sawtooth.sdk.protobuf.BatchHeader;
-import sawtooth.sdk.protobuf.BatchList;
-import sawtooth.sdk.protobuf.TransactionHeader;
+import sawtooth.sdk.protobuf.*;
 import sawtooth.sdk.signing.Signer;
 import se.chalmers.datx02.api.model.validator.BatchListResponse;
 import se.chalmers.datx02.api.model.validator.BatchStatus;
@@ -17,12 +13,10 @@ import se.chalmers.datx02.api.model.validator.BatchStatusResponse;
 import se.chalmers.datx02.api.model.validator.StateReponse;
 import se.chalmers.datx02.model.Adressing;
 import se.chalmers.datx02.model.DataUtil;
-import se.chalmers.datx02.model.Transaction;
 import se.chalmers.datx02.model.TransactionPayload;
 import se.chalmers.datx02.model.state.GlobalState;
 
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
@@ -76,8 +70,7 @@ public class ValidatorService {
      * @return the batch id for ability to get the status using {@link #getStatus(String)}
      */
     public String postTransactions(List<Transaction> transactions) throws IOException {
-        List<sawtooth.sdk.protobuf.Transaction> sawtoothTransactions = transactions.stream().map(this::buildTransaction).collect(Collectors.toList());
-        Batch batch = buildBatch(sawtoothTransactions);
+        Batch batch = buildBatch(transactions);
         byte[] batchList = BatchList.newBuilder()
                 .addBatches(batch)
                 .build()
@@ -129,32 +122,6 @@ public class ValidatorService {
                 .build();
         return transactionHeader.toByteArray();
 
-    }
-
-    private sawtooth.sdk.protobuf.Transaction buildTransaction(Transaction transaction) {
-        // TODO
-        String payload = "";
-        String hashedPayload = "";
-        TransactionHeader transactionHeader = TransactionHeader.newBuilder()
-                .setSignerPublicKey(signer.getPublicKey().hex())
-                .setFamilyName(Adressing.FAMILY_NAME)
-                .setFamilyVersion(Adressing.FAMILY_VERSION)
-                .addInputs(stateAddress)
-                .addInputs(stateAddress)
-                .setPayloadSha512(hashedPayload)
-                .setBatcherPublicKey(signer.getPublicKey().hex())
-                .setNonce(UUID.randomUUID().toString())
-                .build();
-        String signature = signer.sign(transactionHeader.toByteArray());
-        try {
-            return sawtooth.sdk.protobuf.Transaction.newBuilder()
-                    .setHeader(transactionHeader.toByteString())
-                    .setPayload(ByteString.copyFrom(payload, "UTF-8"))
-                    .setHeaderSignature(signature)
-                    .build();
-        } catch (UnsupportedEncodingException e) {
-            throw new RuntimeException(e);
-        }
     }
     private Batch buildBatch(List<sawtooth.sdk.protobuf.Transaction> transactions) {
         BatchHeader batchHeader = BatchHeader.newBuilder()
