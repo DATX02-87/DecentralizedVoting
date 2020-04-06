@@ -36,12 +36,12 @@ public class RestController {
         return new PostTransactionResponse(request.getSignature(), batchId);
     }
 
-    @GET("/state")
+    @GET(value = "/state")
     public GlobalState getGlobalState() throws IOException {
         return validatorService.getState();
     }
 
-    @GET("/elections")
+    @GET(value = "/elections")
     public Map<String, Election> getEligibleElections(@Param("key") String key) throws IOException, NullPointerException{
         Map <String, Election> map = null;
         GlobalState state = validatorService.getState();
