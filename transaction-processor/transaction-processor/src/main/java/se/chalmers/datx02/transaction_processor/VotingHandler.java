@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 
+import org.apache.commons.lang3.StringUtils;
 import sawtooth.sdk.protobuf.TpProcessRequest;
 import sawtooth.sdk.protobuf.TransactionHeader;
 import sawtooth.sdk.processor.TransactionHandler;
@@ -73,8 +74,10 @@ public class VotingHandler implements TransactionHandler {
 	  
 	  String entry = context.getState(Collections.singletonList(address)
 		      ).get(address).toStringUtf8();
-	  
-	  GlobalState currentState = DataUtil.StringToGlobalState(entry);
+	  GlobalState currentState = StringUtils.isEmpty(entry) ?
+              new GlobalState(Collections.emptyList(), Collections.emptyMap()) :
+              DataUtil.StringToGlobalState(entry);
+
 	  
 	  GlobalState newState = null;
 	  
