@@ -17,6 +17,7 @@ import se.chalmers.datx02.model.TransactionPayload;
 import se.chalmers.datx02.model.state.GlobalState;
 
 import java.io.IOException;
+import java.util.Base64;
 import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
@@ -103,7 +104,8 @@ public class ValidatorService {
             // No data, return identity
             return new GlobalState();
         }
-        String base64 = state.getData().get(0).getData();
+        String stateEntry = state.getData().get(0).getData();
+        String base64 = new String(Base64.getDecoder().decode(stateEntry));
         return DataUtil.StringToGlobalState(base64);
     }
 
