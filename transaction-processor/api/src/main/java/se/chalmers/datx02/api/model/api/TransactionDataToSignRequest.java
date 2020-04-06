@@ -1,4 +1,4 @@
-package se.chalmers.datx02.api.model;
+package se.chalmers.datx02.api.model.api;
 
 import se.chalmers.datx02.model.TransactionPayload;
 

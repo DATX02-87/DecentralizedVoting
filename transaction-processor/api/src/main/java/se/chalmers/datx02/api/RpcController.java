@@ -2,8 +2,8 @@ package se.chalmers.datx02.api;
 
 import org.rapidoid.annotation.Controller;
 import org.rapidoid.annotation.POST;
-import se.chalmers.datx02.api.model.TransactionDataToSignRequest;
-import se.chalmers.datx02.api.model.TransactionDataToSignResponse;
+import se.chalmers.datx02.api.model.api.TransactionDataToSignRequest;
+import se.chalmers.datx02.api.model.api.TransactionDataToSignResponse;
 
 @Controller("/rpc")
 public class RpcController {

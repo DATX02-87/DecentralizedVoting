@@ -1,4 +1,4 @@
-package se.chalmers.datx02.api.model;
+package se.chalmers.datx02.api.model.api;
 
 public class TransactionDataToSignResponse {
     private byte[] dataToSign;
