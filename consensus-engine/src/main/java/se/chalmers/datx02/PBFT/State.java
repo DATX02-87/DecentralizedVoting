@@ -122,7 +122,7 @@ public class State {
      * @param desired_phase The desired next phase
      * @throws InternalError if not next phase of algorithm
      */
-    public void switchPhase(Phase desired_phase) throws InternalError {
+    public void switchPhase(Phase desired_phase, boolean newFinishing) throws InternalError {
         boolean is_next_phase = false;
 
         if(desired_phase == Phase.Finishing) {
@@ -137,7 +137,10 @@ public class State {
 
         if(is_next_phase){
             logger.debug(this.toString() + " Changing to phase: " + desired_phase);
-            this.phase = desired_phase;
+            if(desired_phase == Phase.Finishing)
+                this.phase = Phase.setAndCreateFinishing(newFinishing); // Set finishing
+            else
+                this.phase = desired_phase;
         }
         else{
             throw new InternalError("Node is in " + this.phase + " phase; attempted to switch to " + desired_phase);
@@ -192,20 +195,7 @@ public class State {
         return phase;
     }
 
-    public boolean getFinishing(){
-        return phase.getFinishing();
-    }
-
-    public void setFinishing(boolean newFinishing){
-        phase.setFinishing(newFinishing);
-    }
-
-    // TODO: Make it use switchPhase logic to check that the transition is fine
-    public void setAndCreateFinishing(boolean newFinishing){
-        this.phase = Phase.setAndCreateFinishing(newFinishing);
-    }
-
-    public long getFaultyNods(){
+    public long getFaultyNodes(){
         return faulty_nodes;
     }
 
@@ -215,6 +205,10 @@ public class State {
 
     public void setModeNormal(){
         mode = Mode.changeToNormal();
+    }
+
+    public void setModeViewChanging(long view){
+        mode = Mode.changeToView(view);
     }
 
     @Override

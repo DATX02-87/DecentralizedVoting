@@ -25,9 +25,9 @@ import se.chalmers.datx02.lib.exceptions.ReceiveErrorException;
 import se.chalmers.datx02.lib.exceptions.UnknownBlockException;
 
 import java.util.*;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import static se.chalmers.datx02.PBFT.lib.Hash.verifySha512;
 import static se.chalmers.datx02.PBFT.message.MessageType.*;
 
 public class Node {
@@ -127,7 +127,7 @@ public class Node {
     public void handlePrePrepare(ParsedMessage msg) throws InvalidMessage, FaultyPrimary {
         if(msg.info().getSignerId().toByteArray() != state.getPrimaryId()){
             logger.warn(String.format("Got PrePrepare from a secondary node {%s}; ignoring message",
-                    msg.info().getSignerId().toByteArray()));
+                    Arrays.toString(msg.info().getSignerId().toByteArray())));
             return;
         }
 
@@ -145,7 +145,6 @@ public class Node {
         if(!messagesFiltered.isEmpty()){
             startViewChange(state.getView() + 1);
 
-            // TODO: throw exception if above function fails(?)
             throw new FaultyPrimary(String.format("When checking PrePrepare with block {%s}, found PrePrepare(s) with same view and seq num but mismatched block(s): {%s}",
                     HexBin.encode(msg.getBlockId().toByteArray()),
                     messagesFiltered));
@@ -169,7 +168,6 @@ public class Node {
         if(info.getSignerId().toByteArray() == state.getPrimaryId()){
             startViewChange(state.getView() + 1);
 
-            // TODO: throw exception if above function fails(?) (In rust: ?;)
             throw new FaultyPrimary(String.format("Received Prepare from primary at view {%d}, seq_num {%d}",
                     state.getView(),
                     state.getSeqNum()));
@@ -182,11 +180,11 @@ public class Node {
             boolean has_matching_pre_prepare = msg_log.hashPrePrepare(info.getSeqNum(), info.getView(), block_id);
             boolean has_required_prepares = (
                     msg_log.getMessageOfTypeSeqViewBlock(MessageType.Prepare, info.getSeqNum(), info.getView(), block_id)
-                    .size() > 2 * state.getFaultyNods()
+                    .size() > 2 * state.getFaultyNodes()
             );
 
             if(has_matching_pre_prepare && has_required_prepares){
-                state.switchPhase(State.Phase.Commiting);
+                state.switchPhase(State.Phase.Commiting, false);
                 broadcastPBFTMessage(state.getView(), state.getSeqNum(), MessageType.Commit, block_id);
             }
         }
@@ -210,7 +208,7 @@ public class Node {
             boolean has_matching_pre_prepare = msg_log.hashPrePrepare(info.getSeqNum(), info.getView(), block_id);
             boolean has_required_commits = (
                     msg_log.getMessageOfTypeSeqViewBlock(MessageType.Commit, info.getSeqNum(), info.getView(), block_id)
-                            .size() > 2 * state.getFaultyNods()
+                            .size() > 2 * state.getFaultyNodes()
             );
 
             if(has_matching_pre_prepare && has_required_commits){
@@ -220,7 +218,11 @@ public class Node {
                     throw new ServiceError(String.format("Failed to commit block {%s}", HexBin.encode(block_id)));
                 }
 
-                state.setAndCreateFinishing(false);
+                try {
+                    state.switchPhase(State.Phase.Finishing, false);
+                } catch (InternalError e) {
+                    logger.error("Failed to switch phase due: " + e);
+                }
                 state.commit_timeout.stop();
             }
         }
@@ -242,7 +244,7 @@ public class Node {
                 || state.getMode() == State.Mode.ViewChanging
                 && msg_view > state.getMode().getViewChanging());
 
-        boolean start_view_change = (msg_log.getMessageOfTypeView(MessageType.ViewChange, msg_view).size() > state.getFaultyNods());
+        boolean start_view_change = (msg_log.getMessageOfTypeView(MessageType.ViewChange, msg_view).size() > state.getFaultyNodes());
 
         if(is_later_view && start_view_change){
             logger.info(String.format("%s Received f + 1 ViewChange messages; starting early view change", state));
@@ -254,7 +256,7 @@ public class Node {
 
         // If there are 2f + 1 ViewChange messages and the view change timeout is not already
         // started, update the timeout and start it
-        if(!state.view_change_timeout.isActive() && messages.size() > state.getFaultyNods()*2){
+        if(!state.view_change_timeout.isActive() && messages.size() > state.getFaultyNodes()*2){
             state.view_change_timeout = new Timeout(state.view_change_duration.multipliedBy(msg_view - state.getView()));
             state.view_change_timeout.start();
         }
@@ -262,7 +264,7 @@ public class Node {
         List<ParsedMessage> messages_from_other_nodes = messages.stream().filter(x -> !x.fromSelf()).collect(Collectors.toList());
 
         if(state.isPrimaryAtView(msg_view)
-                && messages_from_other_nodes.size() >= 2 * state.getFaultyNods()){
+                && messages_from_other_nodes.size() >= 2 * state.getFaultyNodes()){
             PbftNewView.Builder new_viewBuilder = PbftNewView.newBuilder()
                     .setInfo(
                             PbftMessageInfo.newBuilder()
@@ -274,7 +276,6 @@ public class Node {
                     );
 
             // Add votes
-            // TODO: Double check if this is correct
             int i = 0;
             for(PbftSignedVote vote : signedVotesFromMessages(messages_from_other_nodes)){
                 new_viewBuilder.setViewChanges(i++, vote);
@@ -313,7 +314,7 @@ public class Node {
 
         state.setModeNormal();
         if(state.getPhase() != State.Phase.Finishing){
-            state.switchPhase(State.Phase.PrePreparing);
+            state.switchPhase(State.Phase.PrePreparing, false);
         }
         state.idle_timeout.start();
 
@@ -328,7 +329,11 @@ public class Node {
 
     public void handleSealRequest(ParsedMessage msg){
         if(state.getSeqNum() == msg.info().getSeqNum() + 1){
-            sendSealResponse(msg.info().getSignerId().toByteArray());
+            try {
+                sendSealResponse(msg.info().getSignerId().toByteArray());
+            } catch (InternalError e) {
+                logger.error(String.format("Failed to sendSealResponse from handleSealRequest, due to: %s", e));
+            }
         }
         else if(state.getSeqNum() == msg.info().getSeqNum()){
             msg_log.addMessage(msg);
@@ -339,15 +344,30 @@ public class Node {
         PbftSeal seal = msg.getSeal();
 
         try {
-            state.switchPhase(State.Phase.Finishing);
-            // Todo: check other switchphases above to seei f they follow the rules
+            state.switchPhase(State.Phase.Finishing, false);
+
             return;
         } catch (InternalError internalError) {
-            logger.error(String.format("Failed to switch phase on handleSealResponse"));
+            logger.error("Failed to switch phase on handleSealResponse");
         }
 
-        byte[] previous_id = msg_log.getBlockWithId(seal.getBlockId().toByteArray()).toByteArray();
-        // TODO: fix previous_id
+        ConsensusBlock previous_idBlock = msg_log.getBlockWithId(seal.getBlockId().toByteArray());
+        byte[] previous_id = null;
+        if(previous_idBlock == null)
+            throw new InvalidMessage(String.format("Received a seal for a block (%s) that the node does not have",
+                    HexBin.encode(seal.getBlockId().toByteArray())));
+        else{
+            if(previous_idBlock.getBlockNum() != state.getSeqNum()){
+                throw new InvalidMessage(String.format("Received a seal for block {%s}, but block_num does not match node's " +
+                        "seq_num: {%d} != {%d}",
+                        HexBin.encode(seal.getBlockId().toByteArray()),
+                        previous_idBlock.getBlockNum(),
+                        state.getSeqNum()
+                        ));
+            }
+            else
+                previous_id = previous_idBlock.getBlockId().toByteArray();
+        }
 
         try {
             verifyConsensusSeal(seal, previous_id);
@@ -511,7 +531,7 @@ public class Node {
             try {
                 messages.add(new ParsedMessage(vote));
             } catch (SerializationError serializationError) {
-                // Todo: double check try_fold method in rust
+                messages = null; // Failed
                 break;
             }
         }
@@ -538,7 +558,11 @@ public class Node {
         }
 
         state.idle_timeout.stop();
-        state.setAndCreateFinishing(catchup_again);
+        try {
+            state.switchPhase(State.Phase.Finishing, catchup_again);
+        } catch (InternalError e) {
+            logger.error("Failed to switch phase due: " + e);
+        }
     }
 
     public void onBlockCommit(byte[] blockId) throws ServiceError {
@@ -566,7 +590,7 @@ public class Node {
         state.setSeqNum(state.getSeqNum() + 1);
         state.setModeNormal();
         try {
-            state.switchPhase(State.Phase.PrePreparing);
+            state.switchPhase(State.Phase.PrePreparing, false);
         } catch (InternalError internalError) {
             logger.error(String.format("Failed to switch phase on onBlockCommit"));
         }
@@ -576,8 +600,11 @@ public class Node {
                 .stream().map(req -> req.info().getSignerId().toByteArray()).collect(Collectors.toList());
 
         for(byte[] req : requesters){
-            sendSealResponse(req);
-            // TODO: Exception will be thrown, fix
+            try {
+                sendSealResponse(req);
+            } catch (InternalError e) {
+                logger.error(String.format("Failed to send seal response due to: {%s}", e));
+            }
         }
 
         updateMembership(blockId);
@@ -638,13 +665,10 @@ public class Node {
     public void updateMembership(byte[] blockId){
         RetryUntilOk retryUntilOk = new RetryUntilOk(state.exponential_retry_base, state.exponential_retry_max);
 
-        List<String> setttingsSearch = new ArrayList<>();
-        setttingsSearch.add("sawtooth.consensus.pbft.members");
         Map<String, String> settings = null;
-
         while(true){
             try{
-                settings = service.getSettings(blockId, setttingsSearch);
+                settings = service.getSettings(blockId, Arrays.asList("sawtooth.consensus.pbft.members"));
                 break;
             }
             catch(Exception e){
@@ -679,7 +703,7 @@ public class Node {
                     && msg_log.hashPrePrepare(state.getSeqNum(), state.getView(), blockId)
                     && block.getBlockNum() == state.getSeqNum()){
                 try {
-                    state.switchPhase(State.Phase.Preparing);
+                    state.switchPhase(State.Phase.Preparing, false);
 
                     state.idle_timeout.stop();
 
@@ -735,7 +759,6 @@ public class Node {
                 .build();
 
         service.sendTo(peerId, "Commit", commit.toByteArray());
-        // Todo: double check commit.toByte and catch error when converting to byte
     }
 
     public List<PbftSignedVote> signedVotesFromMessages(List<ParsedMessage> msgs){
@@ -748,20 +771,96 @@ public class Node {
                 .collect(Collectors.toList());
     }
 
-    public PbftSeal buildSeal(){
+    protected class DoubleKey<T,F>{
+
+        private T key1;
+        private F key2;
+
+        public DoubleKey(T key1, F key2){
+            this.key1 = key1;
+            this.key2 = key2;
+        }
+
+        public T getFirsKey(){
+            return key1;
+        }
+
+        public F getSecondKey(){
+            return key2;
+        }
+    }
+
+    protected class DoubleKeyComparator implements Comparator<DoubleKey>{
+
+        @Override
+        public int compare(DoubleKey o1, DoubleKey o2) {
+            if(o1.key1 == o2.key1 && o1.key2 == o2.key2)
+                return 0;
+            else
+                return -1;
+        }
+    }
+
+    public PbftSeal buildSeal() throws InternalError {
         logger.trace(String.format("%s: Building seal for block %d", state, state.getSeqNum() - 1));
 
         List<ParsedMessage> msgs = msg_log.getMessageOfTypeSeq(Commit, state.getSeqNum() - 1);
-        msgs.stream()
-            .filter(msg -> !msg.fromSelf())
-            .map(x -> x);
-        // TODO: impl.
-        return null;
+        Map<DoubleKey<byte[], Long>, List<ParsedMessage>> msgsMap = new TreeMap<>(new DoubleKeyComparator());
+        List<ParsedMessage> messages = null;
+        long view = 0;
+        byte[] block_id = null;
+
+        // filter out
+        msgs = msgs.stream()
+                .filter(msg -> !msg.fromSelf())
+                .collect(Collectors.toList());
+        // add to map
+        for(ParsedMessage msg : msgs){
+            DoubleKey key = new DoubleKey<>(msg.getBlockId().toByteArray(), msg.info().getView());
+
+            msgsMap.computeIfAbsent(key, k -> new ArrayList<>());
+            msgsMap.get(key).add(msg);
+        }
+
+        for(Map.Entry<DoubleKey<byte[], Long>, List<ParsedMessage>> entry : msgsMap.entrySet()){
+            if(entry.getValue().size() >= 2 * state.getFaultyNodes()) {
+                messages = entry.getValue();
+                break;
+            }
+        }
+
+        if(messages == null)
+            throw new InternalError("Couldn't find 2f commit messages in the message log for building a seal");
+
+        PbftSeal.Builder sealBuilder = PbftSeal.newBuilder()
+                .setInfo(
+                        PbftMessageInfo.newBuilder()
+                            .setMsgType("Seal")
+                            .setView(view)
+                            .setSeqNum(state.getSeqNum() - 1)
+                            .setSignerId(ByteString.copyFrom(state.getPeerId()))
+                        .build()
+                )
+                .setBlockId(ByteString.copyFrom(block_id));
+
+        int i = 0;
+        for(PbftSignedVote voteSeal : signedVotesFromMessages(messages)){
+            sealBuilder.setCommitVotes(i++, voteSeal);
+        }
+
+        PbftSeal seal = sealBuilder.build();
+
+        logger.trace("Seal created: " + seal);
+
+        return seal;
     }
 
-    // TODO: Custom Collection::Function that throws exceptions.
+    @FunctionalInterface
+    public interface InvalidMessageFunction<T, R> {
+        R apply(T t) throws InvalidMessage;
+    }
 
-    public <T,R> byte[] verifyVote(PbftSignedVote vote, MessageType expected_type, Function<T,R> validation_criteria) throws SerializationError, InvalidMessage, SigningError {
+    public <T,R> byte[] verifyVote(PbftSignedVote vote, MessageType expected_type, InvalidMessageFunction<T,R> validation_criteria) throws SerializationError, InvalidMessage, SigningError {
         PbftMessage pbft_message = null;
         ConsensusPeerMessageHeader header = null;
 
@@ -792,10 +891,8 @@ public class Node {
             throw new InvalidMessage(String.format("Received a {%s} vote, but expected a {%s}", msg_type, expected_type));
 
         Secp256k1PublicKey key = Secp256k1PublicKey.fromHex(HexBin.encode(header.getSignerId().toByteArray()));
-        // TODO: Exception thrown maybe?
 
         Context context = CryptoFactory.createContext("secp256k1");
-        // todo: exception thrown maybe?
 
         if(!context.verify(HexBin.encode(vote.getHeaderSignature().toByteArray()),
                 vote.getHeaderBytes().toByteArray(),
@@ -803,11 +900,19 @@ public class Node {
             throw new SigningError(String.format("Vote (%s) failed signature verification", vote));
         }
 
-        // todo: verify sha512
-        // verify_sha512(vote.get_message_bytes(), header.get_content_sha512())?;
+        try {
+            verifySha512(vote.getMessageBytes().toByteArray(), header.getContentSha512().toByteArray());
+        }
+        catch(SigningError e){
+            return null;
+        }
 
-        validation_criteria.apply((T) pbft_message); // Validate, catch error
-        // Return null if failed or throw exception
+        try {
+            validation_criteria.apply((T) pbft_message);
+        }
+        catch(InvalidMessage e){
+            return null;
+        }
 
         return pbft_message.getInfo().getSignerId().toByteArray();
     }
@@ -824,7 +929,26 @@ public class Node {
                     new_view.getInfo().getView()));
         }
 
-        List<byte[]> voter_ids = null; // Todo: impl try_fold for voter_ids
+        List<byte[]> voter_ids = null;
+        for(PbftSignedVote vote : new_view.getViewChangesList()){
+            byte[] id;
+            try {
+                id = verifyVote(vote, ViewChange, msg -> {
+                    PbftMessage msgG = (PbftMessage) msg;
+                    if (msgG.getInfo().getView() != new_view.getInfo().getView()) {
+                        throw new InvalidMessage(String.format("ViewChange's view number (%d) doesn't match NewView's view number (%d)",
+                                msgG.getInfo().getView(),
+                                new_view.getInfo().getView()));
+                    }
+                    return msg;
+                });
+            } catch (SerializationError | SigningError | InvalidMessage e) {
+                voter_ids = null;
+                break;
+            }
+
+            voter_ids.add(id);
+        }
 
         List<byte[]> peer_ids = state.getMembers()
                 .stream()
@@ -840,9 +964,9 @@ public class Node {
                     ));
         }
 
-        if(voter_ids.size() < 2 * state.getFaultyNods()){
+        if(voter_ids.size() < 2 * state.getFaultyNodes()){
             throw new InvalidMessage(String.format("NewView needs {%d} votes, but only {%d} found",
-                    2 * state.getFaultyNods(),
+                    2 * state.getFaultyNodes(),
                     voter_ids.size()));
         }
     }
@@ -864,7 +988,7 @@ public class Node {
 
         logger.trace(String.format("Parsed seal: %s", seal));
 
-        if(seal.getBlockId() != block.getPreviousId()) // Todo: check what [..] means
+        if(seal.getBlockId() != block.getPreviousId())
             throw new InvalidMessage(String.format("Seal's ID (%s) doesn't match block's previous ID (%s)",
                     HexBin.encode(seal.getBlockId().toByteArray()),
                     HexBin.encode(block.getPreviousId().toByteArray())));
@@ -876,8 +1000,11 @@ public class Node {
             throw new InternalError(String.format("Got seal for block {%s}, but block was not found in the log",
                     seal.getBlockId()));
 
-        verifyConsensusSeal(seal, proven_block_previous_id.getBlockId().toByteArray());
-        // TODO: return null if failed to verify
+        try {
+            verifyConsensusSeal(seal, proven_block_previous_id.getBlockId().toByteArray());
+        } catch (InvalidMessage invalidMessage) {
+            return null;
+        }
 
         return seal;
     }
@@ -885,21 +1012,29 @@ public class Node {
     public void verifyConsensusSeal(PbftSeal seal, byte[] previousId) throws InvalidMessage {
         List<byte[]> voter_ids = new ArrayList<>();
 
+        // todo: double check this
         for(PbftSignedVote vote : seal.getCommitVotesList()){
-            byte[] id = verifyVote(vote, Commit, x -> {
-                PbftMessage msg = (PbftMessage) x; // Convert
+            byte[] id;
+            try {
+                id = verifyVote(vote, Commit, x -> {
+                    PbftMessage msg = (PbftMessage) x; // Convert
 
-                if (msg.getBlockId() != seal.getBlockId())
-                    throw new InvalidMessage("Commit vote's block ID (" + msg.getBlockId() + ") doesn't match seal's ID (" + seal.getBlockId() + ")");
+                    if (msg.getBlockId() != seal.getBlockId())
+                        throw new InvalidMessage("Commit vote's block ID (" + msg.getBlockId() + ") doesn't match seal's ID (" + seal.getBlockId() + ")");
 
-                if (msg.getInfo().getView() != seal.getInfo().getView())
-                    throw new InvalidMessage("Commit vote's view (" + msg.getInfo().getView() + ") doesn't match seal's view (" + seal.getInfo().getView() + ")");
+                    if (msg.getInfo().getView() != seal.getInfo().getView())
+                        throw new InvalidMessage("Commit vote's view (" + msg.getInfo().getView() + ") doesn't match seal's view (" + seal.getInfo().getView() + ")");
 
-                if (msg.getInfo().getSeqNum() != seal.getInfo().getSeqNum())
-                    throw new InvalidMessage("Commit vote's seqnum (" + msg.getInfo().getSeqNum() + ") doesn't match seal's seqnum (" + seal.getInfo().getSeqNum() + ")");
-            });
+                    if (msg.getInfo().getSeqNum() != seal.getInfo().getSeqNum())
+                        throw new InvalidMessage("Commit vote's seqnum (" + msg.getInfo().getSeqNum() + ") doesn't match seal's seqnum (" + seal.getInfo().getSeqNum() + ")");
 
-            // Todo: set voter_ids to null if failed & return(?)
+                    return x;
+                });
+            } catch (SerializationError | SigningError | InvalidMessage e) {
+                voter_ids = null;
+
+                break;
+            }
 
             voter_ids.add(id);
         }
@@ -916,10 +1051,8 @@ public class Node {
         Map<String, String> settings = null;
         while(true){
             try{
-                List<String> inSettings = new ArrayList<>();
-                inSettings.add("sawtooth.consensus.pbft.members");
                 settings = service.getSettings(previousId,
-                        inSettings
+                        Arrays.asList("sawtooth.consensus.pbft.members")
                         );
                 break;
             }
@@ -952,8 +1085,8 @@ public class Node {
             ));
         }
 
-        if(voter_ids.size() < 2 * state.getFaultyNods())
-            throw new InvalidMessage(String.format("Consensus seal needs {%d} votes, but only {%d} found", 2 * state.getFaultyNods(), voter_ids.size()));
+        if(voter_ids.size() < 2 * state.getFaultyNodes())
+            throw new InvalidMessage(String.format("Consensus seal needs {%d} votes, but only {%d} found", 2 * state.getFaultyNodes(), voter_ids.size()));
     }
 
     public void tryPublish() throws ServiceError {
@@ -965,7 +1098,7 @@ public class Node {
         try {
             service.summarizeBlock();
         } catch (InvalidStateException | BlockNotReadyException | ReceiveErrorException e) {
-            logger.trace(String.format("Couldn't summarize, so not finalizing: e", e));
+            logger.trace(String.format("Couldn't summarize, so not finalizing: %s", e));
             return;
         }
 
@@ -973,8 +1106,13 @@ public class Node {
         // votes on the genesis block. Leave payload blank for the first block.
         byte[] data = new byte[]{};
 
-        if(state.getSeqNum() > 1)
-            data = buildSeal().toByteArray();
+        if(state.getSeqNum() > 1) {
+            try {
+                data = buildSeal().toByteArray();
+            } catch (InternalError internalError) {
+                internalError.printStackTrace();
+            }
+        }
 
         try {
             byte[] block_id = service.finalizeBlock(data);
@@ -1025,7 +1163,6 @@ public class Node {
     public void broadcastMessage(ParsedMessage msg) {
         service.broadcast(msg.info().getMsgType(),
                 msg.getMessageBytes());
-        // Todo: Exception handle
 
         try {
             onPeerMessage(msg);
@@ -1034,8 +1171,13 @@ public class Node {
         }
     }
 
-    public void sendSealResponse(byte[] recipient){
-        PbftSeal seal = buildSeal();
+    public void sendSealResponse(byte[] recipient) throws InternalError {
+        PbftSeal seal;
+        try {
+            seal = buildSeal();
+        } catch (InternalError e) {
+            throw new InternalError(String.format("Failed to build requested seal due to: %s", e));
+        }
 
         byte[] msg_bytes = seal.toByteArray();
 
@@ -1043,7 +1185,7 @@ public class Node {
                 recipient,
                 "Seal",
                 msg_bytes
-        ); // todo: handle exception
+        );
     }
 
     public void startViewChange(long view){
@@ -1052,7 +1194,7 @@ public class Node {
             return;
         }
 
-        // Todo: change mode to viewchanging
+        state.setModeViewChanging(view);
 
         state.idle_timeout.stop();
         state.commit_timeout.stop();
