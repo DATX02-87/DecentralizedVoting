@@ -1,5 +1,5 @@
 import React, { Fragment } from 'react';
-import KeyForm from '../votation/KeyForm';
+import KeyForm from '../votations/KeyForm';
 
 const Home = () => (
   <Fragment>

@@ -1,12 +1,10 @@
-import React, { Fragment } from 'react';
+import React from 'react';
 import Form from 'react-bootstrap/Form';
 import FormGroup from 'react-bootstrap/FormGroup';
 import Button from 'react-bootstrap/Button';
 import Container from 'react-bootstrap/Container';
 
 const KeyForm = () => {
-  const onVerify = e => {};
-
   return (
     <Container>
       <Form>
