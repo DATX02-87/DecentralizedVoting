@@ -4,10 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.lang3.StringUtils;
-import se.chalmers.datx02.model.action.AddCandidateAction;
-import se.chalmers.datx02.model.action.AddElectionAction;
-import se.chalmers.datx02.model.action.CastVoteAction;
-import se.chalmers.datx02.model.action.EndElectionAction;
+import se.chalmers.datx02.model.action.*;
 import se.chalmers.datx02.model.exception.InvalidStateException;
 import se.chalmers.datx02.model.exception.ReducerException;
 import se.chalmers.datx02.model.state.Election;
@@ -36,13 +33,28 @@ public class Reducer {
                 case END_ELECTION:
                     EndElectionAction endElectionAction = mapper.readValue(transaction.getTransactionData(), EndElectionAction.class);
                     return handleEndElectionAction(endElectionAction, transaction.getSubmitter(), currentState);
+                case INIT:
+                    InitAction initAction = mapper.readValue(transaction.getTransactionData(), InitAction.class);
+                    return handleInitAction(initAction, transaction.getSubmitter(), currentState);
+                default:
+                    throw new ReducerException("Invalid  action supplied");
             }
         } catch (JsonMappingException e) {
             throw new InvalidStateException(e);
         } catch (JsonProcessingException e) {
             throw new RuntimeException(e);
         }
-        throw new InvalidStateException();
+    }
+
+    private static GlobalState handleInitAction(InitAction action, String submitter, GlobalState currentState) throws ReducerException {
+        if (!currentState.getAdmins().isEmpty()) {
+            throw new ReducerException("The state has already been initialized");
+        }
+        List<String> masterAdmins = action.getMasterAdmins();
+        if (masterAdmins.isEmpty()) {
+            throw new ReducerException("You need to supply at least one master admin");
+        }
+        return new GlobalState(masterAdmins, Collections.emptyMap());
     }
 
     private static GlobalState handleEndElectionAction(EndElectionAction action, String submitter, GlobalState currentState) throws ReducerException {
