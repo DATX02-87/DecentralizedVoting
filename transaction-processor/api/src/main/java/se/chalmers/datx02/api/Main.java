@@ -11,5 +11,4 @@ public class Main {
         ValidatorService.init("", "", s);
         App.bootstrap(args);
     }
-
 }

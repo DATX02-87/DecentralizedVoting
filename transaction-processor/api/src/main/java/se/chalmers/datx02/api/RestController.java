@@ -2,12 +2,14 @@ package se.chalmers.datx02.api;
 
 import com.google.protobuf.ByteString;
 import org.rapidoid.annotation.Controller;
+import org.rapidoid.annotation.GET;
 import org.rapidoid.annotation.POST;
 import sawtooth.sdk.protobuf.Transaction;
 import se.chalmers.datx02.api.model.api.PostTransactionRequest;
 import se.chalmers.datx02.api.model.api.PostTransactionResponse;
 import se.chalmers.datx02.model.DataUtil;
 import se.chalmers.datx02.model.TransactionPayload;
+import se.chalmers.datx02.model.state.GlobalState;
 
 import java.io.IOException;
 
@@ -15,7 +17,7 @@ import java.io.IOException;
 public class RestController {
     ValidatorService validatorService = ValidatorService.getInstance();
 
-    @POST("(/transaction")
+    @POST("/transaction")
     public PostTransactionResponse postTransaction(PostTransactionRequest request) throws IOException {
         String payload = DataUtil.TransactionPayloadToString(request.getPayload());
         Transaction transaction = Transaction.newBuilder()
@@ -26,4 +28,12 @@ public class RestController {
         String batchId = validatorService.postTransaction(transaction);
         return new PostTransactionResponse(request.getSignature(), batchId);
     }
+
+    @GET("/state")
+    public GlobalState getGlobalState() throws IOException {
+        return validatorService.getState();
+    }
+
+
+
 }
