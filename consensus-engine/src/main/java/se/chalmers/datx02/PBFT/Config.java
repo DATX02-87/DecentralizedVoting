@@ -9,6 +9,7 @@ import se.chalmers.datx02.PBFT.lib.timing.RetryUntilOk;
 import se.chalmers.datx02.lib.exceptions.ReceiveErrorException;
 import se.chalmers.datx02.lib.exceptions.UnknownBlockException;
 
+import java.io.Serializable;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
@@ -16,7 +17,9 @@ import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-public class Config {
+public class Config implements Serializable {
+    private static final long serialVersionUID = 1L;
+
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
     private static final Logger logger_static = LoggerFactory.getLogger(Config.class.getClass());
 
@@ -36,6 +39,16 @@ public class Config {
                 maxLogSize;
 
     private String storageLocation;
+
+    /**
+     * Creates a config with the default settings
+     */
+    public Config(){
+        // Load settings
+        defaultSettings();
+
+        // Init JPA
+    }
 
     /**
      * Load default settings
@@ -62,24 +75,18 @@ public class Config {
      * @throws ReceiveErrorException
      * @throws InterruptedException
      */
-    public void loadSettings(byte[] blockId, se.chalmers.datx02.lib.Service service) throws InterruptedException {
+    public void loadSettings(byte[] blockId, se.chalmers.datx02.lib.Service service) {
         RetryUntilOk retryUntilOk = new RetryUntilOk(exponentialRetryBase, exponentialRetryMax);
-        while (true) {
-            try {
-                List<String> inSettings = new ArrayList<>();
-                inSettings.add("sawtooth.consensus.pbft.members");
-                inSettings.add("sawtooth.consensus.pbft.block_publishing_delay");
-                inSettings.add("sawtooth.consensus.pbft.idle_timeout");
-                inSettings.add("sawtooth.consensus.pbft.commit_timeout");
-                inSettings.add("sawtooth.consensus.pbft.view_change_duration");
-                inSettings.add("sawtooth.consensus.pbft.forced_view_change_interval");
-                this.settings = service.getSettings(blockId, inSettings);
-                break;
-            } catch (Exception e) {
-                Thread.sleep(retryUntilOk.getDelay());
-                retryUntilOk.check();
-            }
-        }
+
+        List<String> inSettings = new ArrayList<>();
+        inSettings.add("sawtooth.consensus.pbft.members");
+        inSettings.add("sawtooth.consensus.pbft.block_publishing_delay");
+        inSettings.add("sawtooth.consensus.pbft.idle_timeout");
+        inSettings.add("sawtooth.consensus.pbft.commit_timeout");
+        inSettings.add("sawtooth.consensus.pbft.view_change_duration");
+        inSettings.add("sawtooth.consensus.pbft.forced_view_change_interval");
+
+        this.settings = retryUntilOk.run(() -> service.getSettings(blockId, inSettings));
 
         this.members = getMembersFromSettings(settings);
 

@@ -16,6 +16,7 @@ import se.chalmers.datx02.PBFT.lib.exceptions.*;
 import se.chalmers.datx02.PBFT.lib.exceptions.InternalError;
 import se.chalmers.datx02.PBFT.lib.timing.RetryUntilOk;
 import se.chalmers.datx02.PBFT.lib.timing.Timeout;
+import se.chalmers.datx02.PBFT.message.MessageExtension;
 import se.chalmers.datx02.PBFT.message.MessageType;
 import se.chalmers.datx02.PBFT.message.ParsedMessage;
 import se.chalmers.datx02.lib.Service;
@@ -28,6 +29,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static se.chalmers.datx02.PBFT.lib.Hash.verifySha512;
+import static se.chalmers.datx02.PBFT.message.MessageExtension.logMessage;
 import static se.chalmers.datx02.PBFT.message.MessageType.*;
 
 public class Node {
@@ -75,7 +77,7 @@ public class Node {
     }
 
     public void onPeerMessage(ParsedMessage msg) throws InvalidMessage {
-        logger.trace(state + ": Got peer message: " + msg.info());
+        logger.trace(state + ": Got peer message: " + logMessage(msg.info()));
 
         if(state.getMembers().contains(msg.info().getSignerId().toByteArray())){
             throw new InvalidMessage("Received message from node (" + HexBin.encode(msg.info().getSignerId().toByteArray())
@@ -267,12 +269,7 @@ public class Node {
                 && messages_from_other_nodes.size() >= 2 * state.getFaultyNodes()){
             PbftNewView.Builder new_viewBuilder = PbftNewView.newBuilder()
                     .setInfo(
-                            PbftMessageInfo.newBuilder()
-                                    .setSignerId(ByteString.copyFrom(state.getPeerId()))
-                                    .setSeqNum(state.getSeqNum() - 1)
-                                    .setView(msg_view)
-                                    .setMsgType("NewView")
-                                    .build()
+                            MessageExtension.newMessageInfo(NewView, msg_view, state.getSeqNum()-1, state.getPeerId())
                     );
 
             // Add votes
@@ -352,7 +349,7 @@ public class Node {
         }
 
         ConsensusBlock previous_idBlock = msg_log.getBlockWithId(seal.getBlockId().toByteArray());
-        byte[] previous_id = null;
+        byte[] previous_id;
         if(previous_idBlock == null)
             throw new InvalidMessage(String.format("Received a seal for a block (%s) that the node does not have",
                     HexBin.encode(seal.getBlockId().toByteArray())));
@@ -487,7 +484,7 @@ public class Node {
         if(block.getBlockNum() > state.getSeqNum() + 1)
             return true;
 
-        PbftSeal seal = null;
+        PbftSeal seal;
         try {
             seal = verifyConsensusSealFromBlock(block);
         } catch (InvalidMessage | SerializationError | InternalError e) {
@@ -618,7 +615,8 @@ public class Node {
 
         try{
             for(ConsensusBlock block : grandchildren){
-                tryHandlingBlock(block);
+                if(tryHandlingBlock(block))
+                    return;
             }
 
             return; // return if succeded
@@ -665,21 +663,8 @@ public class Node {
     public void updateMembership(byte[] blockId){
         RetryUntilOk retryUntilOk = new RetryUntilOk(state.exponential_retry_base, state.exponential_retry_max);
 
-        Map<String, String> settings = null;
-        while(true){
-            try{
-                settings = service.getSettings(blockId, Arrays.asList("sawtooth.consensus.pbft.members"));
-                break;
-            }
-            catch(Exception e){
-                try {
-                    Thread.sleep(retryUntilOk.getDelay());
-                } catch (InterruptedException ex) {
-                    ex.printStackTrace();
-                }
-                retryUntilOk.check();
-            }
-        }
+        Map<String, String> settings = retryUntilOk.run(() -> service.getSettings(blockId, Collections.singletonList("sawtooth.consensus.pbft.members")));
+
 
         List<byte[]> on_chain_members = Config.getMembersFromSettings(settings);
 
@@ -751,12 +736,7 @@ public class Node {
             }
         }
 
-        PbftMessageInfo commit = PbftMessageInfo.newBuilder()
-                .setMsgType("Commit")
-                .setSeqNum(state.getSeqNum() - 1)
-                .setView(view)
-                .setSignerId(ByteString.copyFrom(state.getPeerId()))
-                .build();
+        PbftMessageInfo commit = MessageExtension.newMessageInfo(Commit, view, state.getSeqNum()-1, state.getPeerId());
 
         service.sendTo(peerId, "Commit", commit.toByteArray());
     }
@@ -834,12 +814,7 @@ public class Node {
 
         PbftSeal.Builder sealBuilder = PbftSeal.newBuilder()
                 .setInfo(
-                        PbftMessageInfo.newBuilder()
-                            .setMsgType("Seal")
-                            .setView(view)
-                            .setSeqNum(state.getSeqNum() - 1)
-                            .setSignerId(ByteString.copyFrom(state.getPeerId()))
-                        .build()
+                        MessageExtension.newMessageInfo(Seal, view, state.getSeqNum()-1, state.getPeerId())
                 )
                 .setBlockId(ByteString.copyFrom(block_id));
 
@@ -850,7 +825,7 @@ public class Node {
 
         PbftSeal seal = sealBuilder.build();
 
-        logger.trace("Seal created: " + seal);
+        logger.trace("Seal created: " + logMessage(seal));
 
         return seal;
     }
@@ -986,7 +961,7 @@ public class Node {
             throw new SerializationError("Error parsing seal for verification");
         }
 
-        logger.trace(String.format("Parsed seal: %s", seal));
+        logger.trace(String.format("Parsed seal: %s", logMessage(seal)));
 
         if(seal.getBlockId() != block.getPreviousId())
             throw new InvalidMessage(String.format("Seal's ID (%s) doesn't match block's previous ID (%s)",
@@ -1048,23 +1023,9 @@ public class Node {
         // received are from a subset of "members - seal creator". Use the list of members from the
         // block previous to the one this seal verifies, since that represents the state of the
         // network at the time this block was voted on.
-        Map<String, String> settings = null;
-        while(true){
-            try{
-                settings = service.getSettings(previousId,
-                        Arrays.asList("sawtooth.consensus.pbft.members")
-                        );
-                break;
-            }
-            catch(Exception e){
-                try {
-                    Thread.sleep(retryUntilOk.getDelay());
-                } catch (InterruptedException ex) {
-                    ex.printStackTrace();
-                }
-                retryUntilOk.check();
-            }
-        }
+        Map<String, String> settings = retryUntilOk.run(() -> service.getSettings(previousId,
+                Arrays.asList("sawtooth.consensus.pbft.members")
+        ));
 
         List<byte[]> members = Config.getMembersFromSettings(settings);
 
@@ -1147,11 +1108,7 @@ public class Node {
         PbftMessage msg = PbftMessage.newBuilder()
                 .setBlockId(ByteString.copyFrom(blockId))
                 .setInfo(
-                        PbftMessageInfo.newBuilder()
-                        .setMsgType(msg_type.toString())
-                        .setView(view)
-                        .setSeqNum(seq_num)
-                        .setSignerId(ByteString.copyFrom(state.getPeerId()))
+                        MessageExtension.newMessageInfo(msg_type, view, seq_num, state.getPeerId())
                 )
                 .build();
 
@@ -1208,5 +1165,9 @@ public class Node {
                 ViewChange,
                 new byte[]{}
         );
+    }
+
+    public State getState(){
+        return state;
     }
 }

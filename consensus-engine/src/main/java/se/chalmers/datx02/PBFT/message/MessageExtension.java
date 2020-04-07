@@ -2,68 +2,66 @@ package se.chalmers.datx02.PBFT.message;
 
 
 import com.google.protobuf.ByteString;
-import com.sun.org.apache.xerces.internal.impl.dv.util.HexBin;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import pbft.sdk.protobuf.PbftMessage;
 import pbft.sdk.protobuf.PbftMessageInfo;
 import pbft.sdk.protobuf.PbftSeal;
 import pbft.sdk.protobuf.PbftSignedVote;
 import sawtooth.sdk.protobuf.ConsensusPeerMessage;
 
+import static com.sun.org.apache.xerces.internal.impl.dv.util.HexBin.encode;
+
 public class MessageExtension {
-    private static final Logger logger = LoggerFactory.getLogger(MessageExtension.class);
-
-    // TODO: Do we need new hash functions? (NOT REQUIRED?)
-    public static int hash(){
-        return 0;
-    }
-
     /**
      * Logs a PBFT messageInfo
      * @param message to log
      */
-    public static void logMessage(PbftMessageInfo message){
-        logger.info("MsgInfo: ("+ message.getMsgType() +
-                " S " + message.getSeqNum() +
-                " V " + message.getView() +
-                " <- " + HexBin.encode(message.getSignerId().toByteArray()) + ")");
+    public static String logMessage(PbftMessageInfo message){
+        return String.format("MsgInfo: (%s S %d V %d <- %s)",
+                message.getMsgType(),
+                message.getSeqNum(),
+                message.getView(),
+                encode(message.getSignerId().toByteArray()));
     }
 
     /**
      * Logs a PBFT messageSeal
      * @param message to log
      */
-    public static void logMessage(PbftSeal message){
-        logger.info("PbftSeal(info: "+ message.getInfo() +
-                ", block_id " + HexBin.encode(message.getBlockId().toByteArray()));
+    public static String logMessage(PbftSeal message){
+        StringBuilder returnString = new StringBuilder(String.format("PbftSeal(info: %s, block_id %s\n",
+                logMessage(message.getInfo()),
+                encode(message.getBlockId().toByteArray())));
 
         int i = 0;
         for(PbftSignedVote vote : message.getCommitVotesList()){
-            logger.info(i++ + " header: " + vote.getHeaderBytes() + " msg:" + vote.getMessageBytes());
+            returnString.append(String.format("%d header: %s msg:%s\n",
+                    i++,
+                    vote.getHeaderBytes(),
+                    vote.getMessageBytes()));
         }
+
+        return returnString.toString();
     }
 
     /**
      * Logs a PBFT signedVote
      * @param message to log
      */
-    public static void logMessage(PbftSignedVote message){
-
+    public static String logMessage(PbftSignedVote message){
         try {
             ConsensusPeerMessage headerByte = ConsensusPeerMessage.parseFrom(message.getHeaderBytes());
             PbftMessage messageByte = PbftMessage.parseFrom(message.getMessageBytes());
 
-            logger.info("PbftSignedVote(header: "+ headerByte +
-                    ", message: " +  messageByte +
-                    ", header_bytes: " +  HexBin.encode(message.getHeaderBytes().toByteArray()) +
-                    ", header_signature: " +  HexBin.encode(message.getHeaderSignature().toByteArray()) +
-                    ", message_bytes: " + HexBin.encode(message.getMessageBytes().toByteArray()) + ")");
+            return String.format("PbftSignedVote(header: %s, message: %s, header_bytes: %s, header_signature: %s, message_bytes: %s)",
+                    headerByte,
+                    messageByte,
+                    encode(message.getHeaderBytes().toByteArray()),
+                    encode(message.getHeaderSignature().toByteArray()),
+                    encode(message.getMessageBytes().toByteArray()));
         }
         catch(Exception e){
-            logger.error("Failed to log Signedvote");
+            return "Failed to log Signedvote";
         }
-
     }
 
     /**

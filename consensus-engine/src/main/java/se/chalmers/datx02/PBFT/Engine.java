@@ -5,6 +5,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import pbft.sdk.protobuf.PbftMessageInfo;
 import sawtooth.sdk.protobuf.ConsensusBlock;
+import se.chalmers.datx02.PBFT.lib.Storage;
 import se.chalmers.datx02.PBFT.lib.exceptions.InternalError;
 import se.chalmers.datx02.PBFT.lib.exceptions.ServiceError;
 import se.chalmers.datx02.PBFT.lib.timing.Ticker;
@@ -16,11 +17,15 @@ import se.chalmers.datx02.lib.models.PeerMessage;
 import se.chalmers.datx02.lib.models.StartupState;
 
 
+import java.io.IOException;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Map;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
+
+import static se.chalmers.datx02.PBFT.lib.Storage.get_storage;
 
 public class Engine implements se.chalmers.datx02.lib.Engine {
     final Logger logger = LoggerFactory.getLogger(getClass());
@@ -46,31 +51,25 @@ public class Engine implements se.chalmers.datx02.lib.Engine {
         this.updates = updates;
 
         // Load settings
-        try {
-            this.config.loadSettings(this.startupState.getChainHead().getBlockId().toByteArray(), this.service);
-        } catch (InterruptedException e) {
-            logger.warn("Failed to load settings from config");
-            return;
-        }
+        this.config.loadSettings(this.startupState.getChainHead().getBlockId().toByteArray(), this.service);
 
         logger.info("PBFT config loaded: " + this.config.toString());
 
-        this.pbft_state = null;
-        // PBFT state
-        /*
-        // TODO: Fix RAII storage (FIX CONFIG FILE FOR THIS)
-        State pbft_state = get_storage(this.config.getStorageLocation(),
-                new State(
-                        this.startupState.getLocalPeerInfo().getPeerId().toByteArray(),
-                        this.startupState.getChainHead().getBlockNum(),
-                        this.config
-                ));
+        // Get stored state
+        try {
+            pbft_state = (State) get_storage(this.config.getStorageLocation());
+        }
+        catch(Exception e){
+            pbft_state = new State(
+                    this.startupState.getLocalPeerInfo().getPeerId().toByteArray(),
+                    this.startupState.getChainHead().getBlockNum(),
+                    this.config
+            );
+        }
 
+        logger.info("PBFT state created: " + pbft_state);
 
-        logger.info("PBFT state created: " + pbft_state.read());
-        */
-
-
+        // Init node
         Ticker block_publishing_ticker = new Ticker(this.config.getBlockPublishingDelay());
 
         this.node = new Node(
@@ -98,17 +97,17 @@ public class Engine implements se.chalmers.datx02.lib.Engine {
 
                 if(node.checkIdleTimeoutExpired()){
                     logger.warn("Idle timeout expired; proposing view change");
-                    node.startViewChange(pbft_state.getView() + 1);
+                    node.startViewChange(node.getState().getView() + 1);
                 }
 
                 if(node.checkCommitTimeoutExpired()){
                     logger.warn("Commit timeout expired; proposing view change");
-                    node.startViewChange(pbft_state.getView() + 1);
+                    node.startViewChange(node.getState().getView() + 1);
                 }
 
-                if(pbft_state.getMode() == State.Mode.ViewChanging){
+                if(node.getState().getMode() == State.Mode.ViewChanging){
                     if(node.checkViewChangeTimeoutExpired()){
-                        long newView = pbft_state.getMode().getViewChanging() + 1;
+                        long newView = node.getState().getMode().getViewChanging() + 1;
                         logger.warn("View change timeout expired; proposing view change for view" + newView);
 
                         node.startViewChange(newView);
@@ -118,6 +117,13 @@ public class Engine implements se.chalmers.datx02.lib.Engine {
             } catch (InterruptedException | InvalidProtocolBufferException | InvalidMessage | SerializationError | ServiceError | InternalError e) {
                 logger.error("Main loop received exception: " + e);
             }
+        }
+
+        // Save config when engine stops
+        try {
+            Storage.save_storage(this.config.getStorageLocation(), node.getState());
+        } catch (IOException e) {
+            logger.error(String.format("Failed to save state to storage on exit, due to: %s", e));
         }
     }
 
@@ -139,13 +145,15 @@ public class Engine implements se.chalmers.datx02.lib.Engine {
                 PeerMessage peerMessage = (PeerMessage) update.getData();
 
                 byte[] verified_signer_id = peerMessage.getHeader().getSignerId().toByteArray();
-                ParsedMessage parsedMessage = new ParsedMessage(peerMessage, pbft_state.getPeerId());
+                ParsedMessage parsedMessage = new ParsedMessage(peerMessage, node.getState().getPeerId());
                 byte[] pbft_signer_id = parsedMessage.info().getSignerId().toByteArray();
 
                 if(pbft_signer_id != verified_signer_id)
-                    throw new InvalidMessage("Mismatch between PbftMessage's signer ID " + pbft_signer_id + " and PeerMessage's signer ID " +
-                            "" + verified_signer_id + " of peer message: " + parsedMessage.toString());
-
+                    throw new InvalidMessage(String.format("Mismatch between PbftMessage's signer ID %s and PeerMessage's " +
+                                    "signer ID %s of peer message: %s",
+                            Arrays.toString(pbft_signer_id),
+                            Arrays.toString(verified_signer_id),
+                            parsedMessage.toString()));
 
                 node.onPeerMessage(parsedMessage);
 
@@ -159,11 +167,14 @@ public class Engine implements se.chalmers.datx02.lib.Engine {
                 node.onPeerConnected(((PbftMessageInfo) update.getData()).getSignerId().toByteArray());
                 break;
             case CONSENSUS_NOTIFY_PEER_DISCONNECTED:
-                logger.info("Received PeerDisconnected for peer ID: ");
+                logger.info("Received PeerDisconnected for peer ID: " + update.getData());
                 break;
             case NETWORK_DISCONNECT:
                 logger.error("Disconnected from validator; stopping PBFT");
                 this.stop();
+                break;
+            default:
+                logger.error("Received undefined messagetype: " + update.getMessageType());
                 break;
         }
     }

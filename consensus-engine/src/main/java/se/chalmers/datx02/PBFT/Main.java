@@ -1,24 +1,18 @@
 package se.chalmers.datx02.PBFT;
 
 
-import org.slf4j.Logger;
+
 import org.slf4j.LoggerFactory;
+import ch.qos.logback.classic.Level;
+import ch.qos.logback.classic.Logger;
 import se.chalmers.datx02.lib.impl.ZmqDriver;
 
 import java.time.Duration;
 
 public class Main {
-    private enum LogLevel{
-        Warn,
-        Info,
-        Debug,
-        Trace
-    }
+    private static final org.slf4j.Logger logger = LoggerFactory.getLogger(Main.class);
 
-    private static final Logger logger = LoggerFactory.getLogger(Main.class);
-
-    private static String log_config; // UNUSED
-    private static LogLevel log_level; // UNUSED
+    private static Level log_level = Level.WARN; // DEFAULT: WARN
     private static String endpoint = "tcp://localhost:5050"; // DEFAULT: tcp://localhost:5050
     private static long exponential_retry_base = -1, // DEFAULT: -1 => Unset
                         exponential_retry_max = -1,
@@ -35,7 +29,9 @@ public class Main {
             return;
         }
 
-        // TODO: Init log config (NOT REQUIRED)
+        // Set log level
+        Logger root = (Logger) LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME);
+        root.setLevel(log_level);
 
         // Set config
         Config pbft_config = new Config();
@@ -60,6 +56,8 @@ public class Main {
         ZmqDriver driver = new ZmqDriver(pbft_engine);
 
         driver.start(endpoint);
+
+
     }
 
     /**
@@ -67,24 +65,36 @@ public class Main {
      * @return Returns true if successfully parsed
      */
     private static boolean parseArgs(String[] args){
-        // TODO: Parse log level & config (NOT REQUIRED)
-
         try {
-            if (args.length >= 1)
-                endpoint = args[0];
+            if(args.length >= 1)
+                switch(args[0]){
+                    case "0":
+                        log_level = Level.WARN;
+                        break;
+                    case "1":
+                        log_level = Level.INFO;
+                        break;
+                    case "2":
+                        log_level = Level.DEBUG;
+                        break;
+                    default:
+                        log_level = Level.TRACE;
+                        break;
+                }
             if (args.length >= 2)
-                exponential_retry_base = Long.parseLong(args[1]);
+                endpoint = args[1];
             if (args.length >= 3)
-                exponential_retry_max = Long.parseLong(args[2]);
+                exponential_retry_base = Long.parseLong(args[2]);
             if (args.length >= 4)
-                update_recv_timeout = Long.parseLong(args[3]);
+                exponential_retry_max = Long.parseLong(args[3]);
             if (args.length >= 5)
-                max_log_size = Long.parseLong(args[4]);
+                update_recv_timeout = Long.parseLong(args[4]);
             if (args.length >= 6)
-                storage_location = args[5];
+                max_log_size = Long.parseLong(args[5]);
+            if (args.length >= 7)
+                storage_location = args[6];
         }
         catch(Exception e){
-            // FAILED TO PARSE, EXIT
             return false;
         }
 

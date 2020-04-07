@@ -212,8 +212,32 @@ public class State {
     }
 
     @Override
-    // TODO: Create a toString method
     public String toString(){
-        return "";
+        String is_primary = (isPrimary()) ? " *" : "";
+        String phase = "";
+
+        if(this.getMode() == Mode.ViewChanging)
+            phase = String.format("V(%d)", this.getMode().getViewChanging());
+        else{
+            if(this.getPhase() == Phase.Finishing)
+                phase = String.format("Fi(%b)", this.getPhase().getFinishing());
+            else
+                switch(this.getPhase()){
+                    case PrePreparing:
+                        phase = "PP";
+                        break;
+                    case Preparing:
+                        phase = "Pr";
+                        break;
+                    case Commiting:
+                        phase = "Co";
+                        break;
+                }
+        }
+        return String.format("(%s, view %d, seq %d%s)",
+                phase,
+                this.getView(),
+                this.getSeqNum(),
+                is_primary);
     }
 }

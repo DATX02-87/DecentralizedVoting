@@ -1,7 +1,9 @@
 package se.chalmers.datx02.PBFT;
 
+import com.sun.org.apache.xerces.internal.impl.dv.util.HexBin;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import pbft.sdk.protobuf.PbftMessageInfo;
 import sawtooth.sdk.protobuf.ConsensusBlock;
 import se.chalmers.datx02.PBFT.message.MessageType;
 import se.chalmers.datx02.PBFT.message.ParsedMessage;
@@ -10,6 +12,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class MessageLog {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
@@ -21,11 +24,21 @@ public class MessageLog {
 
     private long max_log_size;
 
-    // For display
     @Override
     public String toString(){
-        // TODO: Create a toString method
-        return null;
+        List<PbftMessageInfo> msg_infos = messages.stream()
+                .map(ParsedMessage::info)
+                .collect(Collectors.toList());
+
+        List<String> string_infos = msg_infos.stream()
+                .map(info -> String.format("    {{ %s, view: {%d}, seq: {%d}, signer: {%s} }}",
+                        info.getMsgType(),
+                        info.getView(),
+                        info.getSeqNum(),
+                        HexBin.encode(info.getSignerId().toByteArray())))
+                .collect(Collectors.toList());
+
+        return "\nMessageLog:\n" + String.join("\n", string_infos);
     }
 
     public MessageLog(Config config){
