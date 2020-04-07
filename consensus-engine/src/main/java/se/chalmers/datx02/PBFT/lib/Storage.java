@@ -10,7 +10,8 @@ public class Storage {
      * @param storage_location
      */
     public static void save_storage(String storage_location, State obj) throws IOException{
-        FileOutputStream fileOut = new FileOutputStream(storage_location);
+        FileOutputStream fileOut = new FileOutputStream(storage_location + "/savedConfig.bin");
+            // todo: Create new savedConfig.bin if not already exists
         ObjectOutputStream objectOut = new ObjectOutputStream(fileOut);
         objectOut.writeObject(obj);
         objectOut.close();
