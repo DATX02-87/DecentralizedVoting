@@ -43,9 +43,9 @@ public class Example {
         // for example only
         GlobalState g = null;
 
-        String payload = processRequest.getPayload().toStringUtf8();
+        byte[] payload = processRequest.getPayload().toByteArray();
         String submitter = processRequest.getHeader().getSignerPublicKey();
-        TransactionPayload transactionPayload = DataUtil.StringToTransactionPayload(payload);
+        TransactionPayload transactionPayload = DataUtil.ByteArrToTransactionPayload(payload);
         Transaction transaction = new Transaction(transactionPayload, submitter);
         GlobalState newState = Reducer.applyTransaction(transaction, g);
     }
