@@ -266,3 +266,9 @@ dmypy.json
 hs_err_pid*
 
 .DS_Store
+
+**/target/classes
+**/target/maven-*
+**/target/protoc-*
+**/target/surefire-reports
+**/target/test-classes
