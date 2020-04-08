@@ -13,7 +13,10 @@ import se.chalmers.datx02.api.model.validator.BatchStatusResponse;
 import se.chalmers.datx02.api.model.validator.StateReponse;
 import se.chalmers.datx02.model.Adressing;
 import se.chalmers.datx02.model.DataUtil;
+import se.chalmers.datx02.model.Reducer;
 import se.chalmers.datx02.model.TransactionPayload;
+import se.chalmers.datx02.model.exception.InvalidStateException;
+import se.chalmers.datx02.model.exception.ReducerException;
 import se.chalmers.datx02.model.state.GlobalState;
 
 import java.io.IOException;
@@ -107,6 +110,20 @@ public class ValidatorService {
         String stateEntry = state.getData().get(0).getData();
         String base64 = new String(Base64.getDecoder().decode(stateEntry));
         return DataUtil.StringToGlobalState(base64);
+    }
+
+    public void testTransaction(se.chalmers.datx02.model.Transaction payload) throws ReducerException {
+        GlobalState state;
+        try {
+            state = getState();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        try {
+            Reducer.applyTransaction(payload, state);
+        } catch (InvalidStateException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public byte[] buildTransactionHeader(String publicKey, TransactionPayload payload) {

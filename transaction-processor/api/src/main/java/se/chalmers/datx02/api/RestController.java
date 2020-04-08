@@ -7,15 +7,18 @@ import org.rapidoid.annotation.POST;
 import org.rapidoid.annotation.Param;
 import org.rapidoid.http.Req;
 import org.rapidoid.http.Resp;
+
 import sawtooth.sdk.protobuf.Transaction;
 import sawtooth.sdk.protobuf.TransactionHeader;
 import sawtooth.sdk.signing.*;
+import se.chalmers.datx02.api.exception.HttpException;
 import se.chalmers.datx02.api.model.api.PostTransactionRequest;
 import se.chalmers.datx02.api.model.api.PostTransactionResponse;
 import se.chalmers.datx02.model.DataUtil;
-import se.chalmers.datx02.model.TransactionPayload;
+import se.chalmers.datx02.model.exception.ReducerException;
 import se.chalmers.datx02.model.state.Election;
 import se.chalmers.datx02.model.state.GlobalState;
+
 
 import java.io.IOException;
 import java.util.Map;
@@ -26,6 +29,13 @@ public class RestController {
 
     @POST(value = "/transaction")
     public PostTransactionResponse postTransaction(Req req, Resp resp, PostTransactionRequest request) throws IOException {
+
+        TransactionHeader header = TransactionHeader.parseFrom(request.getHeader());
+        try {
+            validatorService.testTransaction(new se.chalmers.datx02.model.Transaction(request.getPayload(), header.getSignerPublicKey()));
+        } catch (ReducerException e) {
+            throw new HttpException(400, "Transaction invalid: \n" + e.getMessage());
+        }
         byte[] payload = DataUtil.TransactionPayloadToByteArr(request.getPayload());
         Transaction transaction = Transaction.newBuilder()
                 .setHeader(ByteString.copyFrom(request.getHeader()))

@@ -1,8 +1,10 @@
 package se.chalmers.datx02.api;
 
 import org.rapidoid.setup.App;
+import org.rapidoid.setup.On;
 import sawtooth.sdk.signing.Secp256k1Context;
 import sawtooth.sdk.signing.Signer;
+import se.chalmers.datx02.api.exception.HttpException;
 import se.chalmers.datx02.model.Adressing;
 
 public class Application {
@@ -12,5 +14,9 @@ public class Application {
         String stateAddress = Adressing.makeMasterAddress(args[1]);
         ValidatorService.init(args[0], stateAddress, s);
         App.bootstrap(new String[]{});
+        On.error(HttpException.class).handler((req, resp, error) -> {
+            HttpException exc = (HttpException) error;
+            return resp.code(exc.getStatusCode()).result(exc.getMessage()).done();
+        });
     }
 }
