@@ -25,7 +25,7 @@ public class DataUtil {
         try {
             String json = new String(Base64.getDecoder().decode(s.getBytes(StandardCharsets.UTF_8)));
             return objectMapper.readValue(json, GlobalState.class);
-        } catch (JsonProcessingException e) {
+        } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }

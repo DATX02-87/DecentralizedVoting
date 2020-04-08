@@ -12,6 +12,7 @@ import se.chalmers.datx02.model.state.ElectionBuilder;
 import se.chalmers.datx02.model.state.GlobalState;
 import se.chalmers.datx02.model.state.GlobalStateBuilder;
 
+import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -41,7 +42,7 @@ public class Reducer {
             }
         } catch (JsonMappingException e) {
             throw new InvalidStateException(e);
-        } catch (JsonProcessingException e) {
+        } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }
