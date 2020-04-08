@@ -1,35 +1,22 @@
 package se.chalmers.datx02.transaction_processor;
 
 
-
 import com.google.protobuf.ByteString;
-
-import java.nio.charset.StandardCharsets;
-import java.util.Map;
-import java.util.AbstractMap;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-
 import org.apache.commons.lang3.StringUtils;
-import sawtooth.sdk.protobuf.TpProcessRequest;
-import sawtooth.sdk.protobuf.TransactionHeader;
-import sawtooth.sdk.processor.TransactionHandler;
 import sawtooth.sdk.processor.State;
+import sawtooth.sdk.processor.TransactionHandler;
 import sawtooth.sdk.processor.Utils;
 import sawtooth.sdk.processor.exceptions.InternalError;
 import sawtooth.sdk.processor.exceptions.InvalidTransactionException;
-
-import se.chalmers.datx02.model.Transaction;
-import se.chalmers.datx02.model.TransactionPayload;
+import sawtooth.sdk.protobuf.TpProcessRequest;
+import sawtooth.sdk.protobuf.TransactionHeader;
+import se.chalmers.datx02.model.*;
 import se.chalmers.datx02.model.exception.InvalidStateException;
 import se.chalmers.datx02.model.exception.ReducerException;
-
 import se.chalmers.datx02.model.state.GlobalState;
 
-import se.chalmers.datx02.model.Adressing;
-import se.chalmers.datx02.model.DataUtil;
-import se.chalmers.datx02.model.Reducer;
+import java.nio.charset.StandardCharsets;
+import java.util.*;
 
 public class VotingHandler implements TransactionHandler {
 
@@ -83,11 +70,13 @@ public class VotingHandler implements TransactionHandler {
 	  
 		try {
 			newState = Reducer.applyTransaction(transaction, currentState);
-		} catch (InvalidStateException | ReducerException e) {
-			throw new InvalidTransactionException("Failed to apply transaction");
+		} catch (InvalidStateException e) {
+			throw new InternalError("Invalid state exception: " + e.getLocalizedMessage());
+		} catch (ReducerException e) {
+			throw new InvalidTransactionException("Failed to apply transaction: " + e.getLocalizedMessage());
 		}
-	  
-	  updateStateData(newState, context, address);
+
+      updateStateData(newState, context, address);
   }
   
   /*
