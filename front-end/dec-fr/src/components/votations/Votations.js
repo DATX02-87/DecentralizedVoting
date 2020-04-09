@@ -1,6 +1,7 @@
 import React, { useContext, useEffect, useState } from 'react';
 import ListGroup from 'react-bootstrap/ListGroup';
 import { KeyContext } from '../context/KeyContext';
+import VotationItem from './VotationItem';
 
 import { getEligibleElections } from '../../services/api';
 
@@ -23,8 +24,8 @@ const Votations = () => {
     <div>
       <h1>Render all available votations here</h1>
       <ListGroup>
-        {votations.map((listItem) => (
-          <ListGroup.Item>{listItem.name}</ListGroup.Item>
+        {votations.map((votation) => (
+          <VotationItem votation={votation} />
         ))}
       </ListGroup>
     </div>

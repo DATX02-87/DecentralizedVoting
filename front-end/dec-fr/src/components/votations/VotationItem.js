@@ -1,16 +1,17 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import Card from 'react-bootstrap/Card';
 
-const VotationItem = ({ votation: { title, date, description } }) => {
+const VotationItem = ({ votation: { name, active, hasVoted } }) => {
   return (
     <div>
       <Card style={{ width: '18rem' }}>
         <Card.Body>
-          <Card.Title>{title}</Card.Title>
-          <Card.Subtitle className='mb-2 text-muted'>{date}</Card.Subtitle>
-          <Card.Text>{description}</Card.Text>
-          <Card.Link href='#'>Card Link</Card.Link>
-          <Card.Link href='#'>Another Link</Card.Link>
+          <Card.Title>{name}</Card.Title>
+          <Card.Subtitle className='mb-2 text-muted'>
+            Active: {active}
+          </Card.Subtitle>
+          <Card.Text>Voted: {hasVoted}</Card.Text>
         </Card.Body>
       </Card>
     </div>
@@ -18,7 +19,7 @@ const VotationItem = ({ votation: { title, date, description } }) => {
 };
 
 VotationItem.propTypes = {
-  votation: PropTypes.object.isRequired
+  votation: PropTypes.object.isRequired,
 };
 
 export default VotationItem;
