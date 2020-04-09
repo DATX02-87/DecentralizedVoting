@@ -24,6 +24,10 @@ public class MessageLog {
 
     private long max_log_size;
 
+    /**
+     * Displays message log
+     * @return returns display for message log
+     */
     @Override
     public String toString(){
         List<PbftMessageInfo> msg_infos = messages.stream()
@@ -41,6 +45,10 @@ public class MessageLog {
         return "\nMessageLog:\n" + String.join("\n", string_infos);
     }
 
+    /**
+     * Creates a new message log
+     * @param config specifies config to be used
+     */
     public MessageLog(Config config){
         this.unvalidated_blocks = new HashMap<>();
         this.blocks = new HashSet<>();
@@ -48,16 +56,28 @@ public class MessageLog {
         this.max_log_size = config.getMaxLogSize();
     }
 
+    /**
+     * Adds a validated block
+     * @param block specifies block to be added
+     */
     public void addValidatedBlock(ConsensusBlock block){
         logger.trace("Adding validated block to log: " + block.toString());
         this.blocks.add(block);
     }
 
+    /**
+     * Adds an unvalidated block
+     * @param block specifies block to be added
+     */
     public void addUnvalidatedBlock(ConsensusBlock block){
         logger.trace("Adding unvalidated block to log: " + block.toString());
         this.unvalidated_blocks.put(block.getBlockId().toByteArray(), block);
     }
 
+    /**
+     * Checks if a block is validated
+     * @param blockId specifies block id to be checked
+     */
     public ConsensusBlock blockValidated(byte[] blockId){
         logger.trace("Marking block " + blockId + " as validated");
 
@@ -71,6 +91,10 @@ public class MessageLog {
         return block;
     }
 
+    /**
+     * Checks if a block is invalidated
+     * @param blockId specifies block id to be checked
+     */
     public boolean blockInvalidated(byte[] blockId){
         logger.trace("Dropping invalited block: " + blockId);
 
@@ -82,6 +106,11 @@ public class MessageLog {
         return true;
     }
 
+    /**
+     * Gets all blocks with num
+     * @param blockNum specifies the num to be searched
+     * @return returns list with blocks with num
+     */
     public List<ConsensusBlock> getBlocksWithNum(long blockNum){
         List<ConsensusBlock> listReturn = new ArrayList<>();
 
@@ -93,6 +122,11 @@ public class MessageLog {
         return listReturn;
     }
 
+    /**
+     * Get all blocks with id
+     * @param blockId specifies id to be searched
+     * @return returns all blocks with id
+     */
     public ConsensusBlock getBlockWithId(byte[] blockId){
         ConsensusBlock blockReturn = null;
 
@@ -106,10 +140,19 @@ public class MessageLog {
         return blockReturn;
     }
 
+    /**
+     * Gets all unvalidated blocks with id
+     * @param blockId specifies id to be searched
+     * @return returns all unvalidated blocks with id
+     */
     public ConsensusBlock getUnvalidatedBlockWithId(byte[] blockId){
         return this.unvalidated_blocks.get(blockId);
     }
 
+    /**
+     * Adds a message to the log
+     * @param msg specifies message to be added
+     */
     public void addMessage(ParsedMessage msg){
         logger.trace("Adding message to log: " + msg.toString());
         this.messages.add(msg);
@@ -117,10 +160,10 @@ public class MessageLog {
 
     /**
      * Check if the log has a PrePrepare at the given view and sequence number that matches the given block ID
-     * @param seq_num
-     * @param view
-     * @param blockId
-     * @return
+     * @param seq_num specifies seqNum
+     * @param view specifies view
+     * @param blockId specifies block id
+     * @return returns true if successfully finds a block
      */
     public boolean hashPrePrepare(long seq_num, long view, byte[] blockId){
         List<ParsedMessage> list = getMessageOfTypeSeqView(MessageType.PrePrepare, seq_num, view);
@@ -133,6 +176,12 @@ public class MessageLog {
         return false;
     }
 
+    /**
+     * Gets all messages with specific msg type and sequence number
+     * @param msg_type specifies message type
+     * @param sequence_number specifies sequence number
+     * @return returns messages with msgtype and seqnum
+     */
     public List<ParsedMessage> getMessageOfTypeSeq(MessageType msg_type, long sequence_number){
         List<ParsedMessage> list = new ArrayList<>();
 
@@ -145,6 +194,12 @@ public class MessageLog {
         return list;
     }
 
+    /**
+     * Gets all messages with specific msg typ and view
+     * @param msg_type specifies message type
+     * @param view specifies view
+     * @return returns all messages with msgtype and view
+     */
     public List<ParsedMessage> getMessageOfTypeView(MessageType msg_type, long view){
         List<ParsedMessage> list = new ArrayList<>();
 
@@ -157,6 +212,13 @@ public class MessageLog {
         return list;
     }
 
+    /**
+     * Gets all message with specific msg type, view and sequence number
+     * @param msg_type specifies message type
+     * @param sequence_number specifies sequence number
+     * @param view specifies view
+     * @return returns all messages found
+     */
     public List<ParsedMessage> getMessageOfTypeSeqView(MessageType msg_type, long sequence_number, long view){
         List<ParsedMessage> list = new ArrayList<>();
 
@@ -170,6 +232,14 @@ public class MessageLog {
         return list;
     }
 
+    /**
+     * Get all message with msgtype, seq num, view and block id
+     * @param msg_type specifies message type
+     * @param sequence_number specifies sequence number
+     * @param view specifies view
+     * @param blockId specifies block id
+     * @return returns all found messages
+     */
     public List<ParsedMessage> getMessageOfTypeSeqViewBlock(MessageType msg_type, long sequence_number, long view, byte[] blockId){
         List<ParsedMessage> list = new ArrayList<>();
 
@@ -186,7 +256,7 @@ public class MessageLog {
 
     /**
      * Garbage collect the log if it has reached the `max_log_size`
-     * @param current_seq_num
+     * @param current_seq_num specifies current sequence number
      */
     public void garbageCollect(long current_seq_num){
         if(messages.size() >= max_log_size){
@@ -204,6 +274,10 @@ public class MessageLog {
         }
     }
 
+    /**
+     * Sets the max log size
+     * @param max_log_size specifies new max log size
+     */
     public void setMaxLogSize(long max_log_size){
         this.max_log_size = max_log_size;
     }

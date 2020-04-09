@@ -17,6 +17,13 @@ public class ParsedMessage {
 
     private Object message;
 
+    /**
+     * Parses a ParsedMessage from PeerMessage
+     * @param message specifies the PeerMessages
+     * @param own_id specifies the peerId
+     * @throws SerializationError
+     * @throws InvalidMessage
+     */
     public ParsedMessage(PeerMessage message, byte[] own_id) throws SerializationError, InvalidMessage {
         String messageType = message.getHeader().getMessageType();
         Object deserialized_message = null;
@@ -71,6 +78,10 @@ public class ParsedMessage {
         this.from_self = (this.info().getSignerId().toByteArray() == own_id);
     }
 
+    /**
+     * Parses a ParsedMessage from PbftMessage
+     * @param message PbftMessage to be parsed
+     */
     public ParsedMessage(PbftMessage message){
         ByteString messageBytes = message.toByteString();
 
@@ -81,6 +92,10 @@ public class ParsedMessage {
         this.message_bytes = messageBytes.toByteArray();
     }
 
+    /**
+     * Parses a ParsedMessage from PbftNewView
+     * @param message PbftNewView to be parsed
+     */
     public ParsedMessage(PbftNewView message){
         ByteString messageBytes = message.toByteString();
 
@@ -91,6 +106,11 @@ public class ParsedMessage {
         this.message_bytes = messageBytes.toByteArray();
     }
 
+    /**
+     * Parses a ParsedMessage from PbftSignedVote
+     * @param vote PbftSignedVote to be parsed
+     * @throws SerializationError
+     */
     public ParsedMessage(PbftSignedVote vote) throws SerializationError {
         PbftMessage message = null;
         try {
@@ -106,6 +126,10 @@ public class ParsedMessage {
         this.message_bytes = vote.getMessageBytes().toByteArray();
     }
 
+    /**
+     * Gets the PbftMessageInfo from message
+     * @return returns message info
+     */
     public PbftMessageInfo info(){
         if(message instanceof PbftMessage)
             return ((PbftMessage) message).getInfo();
@@ -118,6 +142,10 @@ public class ParsedMessage {
         return null;
     }
 
+    /**
+     * Gets the blockId from message
+     * @return returns the block id
+     */
     public ByteString getBlockId(){
         if(message instanceof PbftMessage)
             return ((PbftMessage) message).getBlockId();
@@ -128,6 +156,10 @@ public class ParsedMessage {
         return null;
     }
 
+    /**
+     * Gets the PbftNewView from message
+     * @return returns a PbftNewView object
+     */
     public PbftNewView getNewViewMessage(){
         if(message instanceof PbftMessage)
             logger.warn("ParsedPeerMessage.get_view_change_message found a pbft message!");
@@ -138,6 +170,10 @@ public class ParsedMessage {
         return null;
     }
 
+    /**
+     * Gets the PbftSeal from message
+     * @return returns a PbftSeal object
+     */
     public PbftSeal getSeal(){
         if(message instanceof PbftMessage)
             logger.warn("ParsedPeerMessage.get_seal found a pbft message!");
@@ -148,18 +184,34 @@ public class ParsedMessage {
         return null;
     }
 
+    /**
+     * Checks if message is from self
+     * @return returns true if from self
+     */
     public boolean fromSelf(){
         return from_self;
     }
 
+    /**
+     * Gets header bytes
+     * @return returns the header bytes
+     */
     public byte[] getHeaderBytes(){
         return header_bytes;
     }
 
+    /**
+     * Gets header signature
+     * @return returns the header signature
+     */
     public byte[] getHeaderSignature(){
         return header_signature;
     }
 
+    /**
+     * Gets message bytes
+     * @return returns the message bytes
+     */
     public byte[] getMessageBytes(){
         return message_bytes;
     }

@@ -32,6 +32,19 @@ import static se.chalmers.datx02.PBFT.lib.Hash.verifySha512;
 import static se.chalmers.datx02.PBFT.message.MessageExtension.logMessage;
 import static se.chalmers.datx02.PBFT.message.MessageType.*;
 
+/*
+todo:
+IMPORTANT:
+If anything fails, double check for rust syntax:
+try_fold
+?;
+[..]
+
+&mut
+
+Also check for: References to lists (Create new when necessary to not manipulate data)
+ */
+
 public class Node {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -751,7 +764,7 @@ public class Node {
                 .collect(Collectors.toList());
     }
 
-    protected class DoubleKey<T,F>{
+    protected static class DoubleKey<T,F>{
 
         private T key1;
         private F key2;
@@ -760,17 +773,9 @@ public class Node {
             this.key1 = key1;
             this.key2 = key2;
         }
-
-        public T getFirsKey(){
-            return key1;
-        }
-
-        public F getSecondKey(){
-            return key2;
-        }
     }
 
-    protected class DoubleKeyComparator implements Comparator<DoubleKey>{
+    protected static class DoubleKeyComparator implements Comparator<DoubleKey>{
 
         @Override
         public int compare(DoubleKey o1, DoubleKey o2) {
@@ -835,9 +840,9 @@ public class Node {
         R apply(T t) throws InvalidMessage;
     }
 
-    public <T,R> byte[] verifyVote(PbftSignedVote vote, MessageType expected_type, InvalidMessageFunction<T,R> validation_criteria) throws SerializationError, InvalidMessage, SigningError {
-        PbftMessage pbft_message = null;
-        ConsensusPeerMessageHeader header = null;
+    public <R> byte[] verifyVote(PbftSignedVote vote, MessageType expected_type, InvalidMessageFunction<PbftMessage,R> validation_criteria) throws SerializationError, InvalidMessage, SigningError {
+        PbftMessage pbft_message;
+        ConsensusPeerMessageHeader header;
 
         try {
             pbft_message = PbftMessage.parseFrom(vote.getMessageBytes());
@@ -883,7 +888,7 @@ public class Node {
         }
 
         try {
-            validation_criteria.apply((T) pbft_message);
+            validation_criteria.apply(pbft_message);
         }
         catch(InvalidMessage e){
             return null;
@@ -909,10 +914,9 @@ public class Node {
             byte[] id;
             try {
                 id = verifyVote(vote, ViewChange, msg -> {
-                    PbftMessage msgG = (PbftMessage) msg;
-                    if (msgG.getInfo().getView() != new_view.getInfo().getView()) {
+                    if (msg.getInfo().getView() != new_view.getInfo().getView()) {
                         throw new InvalidMessage(String.format("ViewChange's view number (%d) doesn't match NewView's view number (%d)",
-                                msgG.getInfo().getView(),
+                                msg.getInfo().getView(),
                                 new_view.getInfo().getView()));
                     }
                     return msg;
@@ -954,7 +958,7 @@ public class Node {
         if(block.getPayload().isEmpty())
             throw new InvalidMessage("Block published without a seal");
 
-        PbftSeal seal = null;
+        PbftSeal seal;
         try {
             seal = PbftSeal.parseFrom(block.getPayload().toByteArray());
         } catch (InvalidProtocolBufferException e) {
@@ -987,13 +991,10 @@ public class Node {
     public void verifyConsensusSeal(PbftSeal seal, byte[] previousId) throws InvalidMessage {
         List<byte[]> voter_ids = new ArrayList<>();
 
-        // todo: double check this
         for(PbftSignedVote vote : seal.getCommitVotesList()){
             byte[] id;
             try {
-                id = verifyVote(vote, Commit, x -> {
-                    PbftMessage msg = (PbftMessage) x; // Convert
-
+                id = verifyVote(vote, Commit, msg -> {
                     if (msg.getBlockId() != seal.getBlockId())
                         throw new InvalidMessage("Commit vote's block ID (" + msg.getBlockId() + ") doesn't match seal's ID (" + seal.getBlockId() + ")");
 
@@ -1003,7 +1004,7 @@ public class Node {
                     if (msg.getInfo().getSeqNum() != seal.getInfo().getSeqNum())
                         throw new InvalidMessage("Commit vote's seqnum (" + msg.getInfo().getSeqNum() + ") doesn't match seal's seqnum (" + seal.getInfo().getSeqNum() + ")");
 
-                    return x;
+                    return msg;
                 });
             } catch (SerializationError | SigningError | InvalidMessage e) {
                 voter_ids = null;

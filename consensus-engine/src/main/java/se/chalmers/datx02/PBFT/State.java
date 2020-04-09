@@ -5,10 +5,12 @@ import org.slf4j.LoggerFactory;
 import se.chalmers.datx02.PBFT.lib.timing.Timeout;
 import se.chalmers.datx02.PBFT.lib.exceptions.InternalError;
 
+import java.io.Serializable;
 import java.time.Duration;
 import java.util.List;
 
-public class State {
+public class State implements Serializable {
+    private static final long serialVersionUID = 1L;
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 

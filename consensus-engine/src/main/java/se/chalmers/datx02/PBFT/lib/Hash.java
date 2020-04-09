@@ -7,6 +7,11 @@ import java.security.NoSuchAlgorithmException;
 
 public class Hash {
 
+    /**
+     * Tries to has a byte with the SHA-512 algorithm
+     * @param bytes specifies the bytes to be hashed
+     * @return returns the hashed SHA-512 byte
+     */
     public static byte[] hashSha512(byte[] bytes){
         byte[] hashedBytes = null;
         try {
@@ -22,6 +27,12 @@ public class Hash {
         return hashedBytes;
     }
 
+    /**
+     * Tries to verify a content with a SHA-512 hashed content
+     * @param content specifies the non-hashed content
+     * @param content_hash specifies the hashed content
+     * @throws SigningError if the hash verification fails
+     */
     public static void verifySha512(byte[] content, byte[] content_hash) throws SigningError {
         byte[] computed_sha = hashSha512(content);
 

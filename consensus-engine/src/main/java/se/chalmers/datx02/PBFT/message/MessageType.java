@@ -3,6 +3,9 @@ package se.chalmers.datx02.PBFT.message;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * The different message types a message can have
+ */
 public enum MessageType {
     /// Basic message types for the multicast protocol
     PrePrepare,
@@ -19,6 +22,10 @@ public enum MessageType {
 
     private static final Logger logger = LoggerFactory.getLogger(MessageType.class.getClass());
 
+    /**
+     * Gets the string value of a message type
+     * @return returns the display value of a message type
+     */
     @Override
     public String toString(){
         String toDisplay = "";
@@ -36,6 +43,29 @@ public enum MessageType {
 
         return toDisplay;
     }
+
+    public String toCorrectString(){
+        String toDisplay = "";
+        switch (this) {
+            case PrePrepare: toDisplay = "PrePrepare"; break;
+            case Prepare: toDisplay = "Prepare"; break;
+            case Commit: toDisplay = "Commit"; break;
+            case NewView: toDisplay = "NewView"; break;
+            case ViewChange: toDisplay = "ViewChange"; break;
+            case SealRequest: toDisplay = "SealRequest"; break;
+            case Seal: toDisplay = "Seal"; break;
+            case Unset: toDisplay = "Unset"; break;
+            default: throw new IllegalStateException();
+        }
+
+        return toDisplay;
+    }
+
+    /**
+     * Parses a message type from string
+     * @param msg_type specifies the string to be parsed
+     * @return returns the parsed message type
+     */
     public static MessageType from(String msg_type){
         switch (msg_type) {
             case "PrePrepare": return PrePrepare;
@@ -51,6 +81,11 @@ public enum MessageType {
         }
     }
 
+    /**
+     * Gets the string value of a message type
+     * @param msg_type specifies the message type to be displayed
+     * @return returns the display value of a message type
+     */
     public static String from(MessageType msg_type){
         return msg_type.toString();
     }

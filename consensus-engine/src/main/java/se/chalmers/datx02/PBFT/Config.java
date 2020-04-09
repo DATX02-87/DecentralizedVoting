@@ -5,6 +5,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sun.org.apache.xerces.internal.impl.dv.util.HexBin;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import se.chalmers.datx02.PBFT.lib.exceptions.InternalError;
+import se.chalmers.datx02.PBFT.lib.exceptions.InvalidMessage;
 import se.chalmers.datx02.PBFT.lib.timing.RetryUntilOk;
 import se.chalmers.datx02.lib.exceptions.ReceiveErrorException;
 import se.chalmers.datx02.lib.exceptions.UnknownBlockException;
@@ -12,6 +14,7 @@ import se.chalmers.datx02.lib.exceptions.UnknownBlockException;
 import java.io.Serializable;
 import java.time.Duration;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
@@ -46,8 +49,6 @@ public class Config implements Serializable {
     public Config(){
         // Load settings
         defaultSettings();
-
-        // Init JPA
     }
 
     /**
@@ -78,52 +79,77 @@ public class Config implements Serializable {
     public void loadSettings(byte[] blockId, se.chalmers.datx02.lib.Service service) {
         RetryUntilOk retryUntilOk = new RetryUntilOk(exponentialRetryBase, exponentialRetryMax);
 
-        List<String> inSettings = new ArrayList<>();
-        inSettings.add("sawtooth.consensus.pbft.members");
-        inSettings.add("sawtooth.consensus.pbft.block_publishing_delay");
-        inSettings.add("sawtooth.consensus.pbft.idle_timeout");
-        inSettings.add("sawtooth.consensus.pbft.commit_timeout");
-        inSettings.add("sawtooth.consensus.pbft.view_change_duration");
-        inSettings.add("sawtooth.consensus.pbft.forced_view_change_interval");
+        List<String> inSettings = Arrays.asList(
+                "sawtooth.consensus.pbft.members",
+                "sawtooth.consensus.pbft.block_publishing_delay",
+                "sawtooth.consensus.pbft.idle_timeout",
+                "sawtooth.consensus.pbft.commit_timeout",
+                "sawtooth.consensus.pbft.view_change_duration",
+                "sawtooth.consensus.pbft.forced_view_change_interval");
 
         this.settings = retryUntilOk.run(() -> service.getSettings(blockId, inSettings));
 
         this.members = getMembersFromSettings(settings);
 
-        mergeMillisSettingIfSet(blockPublishingDelay, "sawtooth.consensus.pbft.block_publishing_delay");
-        mergeMillisSettingIfSet(idleTimeout, "sawtooth.consensus.pbft.idle_timeout");
-        mergeMillisSettingIfSet(commitTimeout, "sawtooth.consensus.pbft.commit_timeout");
-        mergeMillisSettingIfSet(viewChangeDuration, "sawtooth.consensus.pbft.view_change_duration");
+        try {
+            blockPublishingDelay = mergeMillisSettingIfSet("sawtooth.consensus.pbft.block_publishing_delay");
+        } catch (InternalError e) {
+            logger.error(String.valueOf(e));
+        }
+        try{
+            idleTimeout = mergeMillisSettingIfSet("sawtooth.consensus.pbft.idle_timeout");
+        } catch (InternalError e) {
+            logger.error(String.valueOf(e));
+        }
+        try{
+            commitTimeout = mergeMillisSettingIfSet("sawtooth.consensus.pbft.commit_timeout");
+        } catch (InternalError e) {
+            logger.error(String.valueOf(e));
+        }
+        try{
+            viewChangeDuration = mergeMillisSettingIfSet("sawtooth.consensus.pbft.view_change_duration");
+        } catch (InternalError e) {
+            logger.error(String.valueOf(e));
+        }
 
         if(blockPublishingDelay.compareTo(idleTimeout) >= 0)
             logger.warn("Block publishing delay " + blockPublishingDelay.toString() + " must be less than " +
                     "than the idle timeout " + idleTimeout.toString());
 
-
-        mergeSettingIfSet(forcedViewChangeInterval, "sawtooth.consensus.pbft.forced_view_change_interval");
-    }
-
-
-    public <T> void mergeSettingIfSet(T settingField, String settingKey){
-        mergeSettingIfSetAndMap(settingField, settingKey, x -> x);
-    }
-
-    public <U, T> void mergeSettingIfSetAndMap(
-            U settingsField,
-            String settingsKey,
-            Function<T, U> mapper
-    ) {
-        if(settings.containsKey(settingsKey)){
-            T setting = (T) settings.get(settingsKey);
-            U settingMapped = mapper.apply(setting);
-
-            // TODO: Double check this shiet, might be wrong
-            settings.replace(settingsKey, String.valueOf(settingsField), String.valueOf(settingMapped));
+        try{
+            forcedViewChangeInterval = mergeSettingIfSet("sawtooth.consensus.pbft.forced_view_change_interval");
+        } catch (InternalError e) {
+            logger.error(String.valueOf(e));
         }
     }
 
-    public void mergeMillisSettingIfSet(Duration settingField, String settingKey){
-        mergeSettingIfSetAndMap(settingField, settingKey, x -> Duration.ofMillis((long) x));
+
+    public <R> R mergeSettingIfSet(String settingKey) throws InternalError {
+        return (R) mergeSettingIfSetAndMap(settingKey, x -> Long.parseLong(x));
+    }
+
+    /**
+     * Gets settings from map via String and then applies parsing function to it
+     * @param settingsKey specifies the key to search
+     * @param mapper specifies the mapper function
+     * @param <R> specifies the generic return
+     * @return returns a mapped setting element
+     * @throws InternalError is thrown if no setting is found
+     */
+    public <R> R mergeSettingIfSetAndMap(
+            String settingsKey,
+            Function<String, R> mapper
+    ) throws InternalError {
+        if(settings.containsKey(settingsKey)){
+            String setting = settings.get(settingsKey);
+
+            return mapper.apply(setting);
+        }
+        throw new InternalError("Failed to get setting for key: " + settingsKey);
+    }
+
+    public Duration mergeMillisSettingIfSet(String settingKey) throws InternalError {
+        return mergeSettingIfSetAndMap(settingKey, x -> Duration.ofMillis(Long.parseLong(x)));
     }
 
     public static List<byte[]> getMembersFromSettings(Map<String, String> settings) {
@@ -175,6 +201,5 @@ public class Config implements Serializable {
     public List<byte[]> getMembers(){
         return members;
     }
-
 }
 

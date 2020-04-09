@@ -20,6 +20,10 @@ public class Main {
                         max_log_size = -1;
     private static String storage_location = "";
 
+    /**
+     * Main method that consensus engine uses to start
+     * @param args specifies the arguments to be used in the engine start up
+     */
     public static void main(String[] args) {
         logger.info("Sawtooth PBFT Engine");
 

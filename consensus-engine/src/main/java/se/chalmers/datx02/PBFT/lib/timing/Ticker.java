@@ -7,13 +7,20 @@ public class Ticker {
     private Instant last;
     private Duration timeout;
 
+    /**
+     * Initializes a ticker
+     * @param period specifies the period to tick
+     */
     public Ticker(Duration period){
         last = Instant.now();
 
         timeout = period;
     }
 
-    // Return true if ticked
+    /**
+     * Checks if the elapsed time has bypassed the timeout duration
+     * @return returns true if ticked
+     */
     public boolean Tick(){
         Duration elapsed = Duration.between(Instant.now(), last);
 

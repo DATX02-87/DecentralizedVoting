@@ -6,11 +6,9 @@ import org.slf4j.LoggerFactory;
 import pbft.sdk.protobuf.PbftMessageInfo;
 import sawtooth.sdk.protobuf.ConsensusBlock;
 import se.chalmers.datx02.PBFT.lib.Storage;
+import se.chalmers.datx02.PBFT.lib.exceptions.*;
 import se.chalmers.datx02.PBFT.lib.exceptions.InternalError;
-import se.chalmers.datx02.PBFT.lib.exceptions.ServiceError;
 import se.chalmers.datx02.PBFT.lib.timing.Ticker;
-import se.chalmers.datx02.PBFT.lib.exceptions.InvalidMessage;
-import se.chalmers.datx02.PBFT.lib.exceptions.SerializationError;
 import se.chalmers.datx02.PBFT.message.ParsedMessage;
 import se.chalmers.datx02.lib.models.DriverUpdate;
 import se.chalmers.datx02.lib.models.PeerMessage;
@@ -37,10 +35,20 @@ public class Engine implements se.chalmers.datx02.lib.Engine {
     private Node node;
     private State pbft_state;
 
+    /**
+     * Initializes a new engine
+     * @param config specifies the config to be used
+     */
     public Engine(Config config){
         this.config = config;
     }
 
+    /**
+     * Starts the engine
+     * @param updates specifies the driver updates to be received
+     * @param service specifies the service to be used
+     * @param startupState specifies the start up state
+     */
     @Override
     public void start(BlockingQueue<DriverUpdate> updates, se.chalmers.datx02.lib.Service service, StartupState startupState) {
         // Startup
@@ -124,9 +132,20 @@ public class Engine implements se.chalmers.datx02.lib.Engine {
             Storage.save_storage(this.config.getStorageLocation(), node.getState());
         } catch (IOException e) {
             logger.error(String.format("Failed to save state to storage on exit, due to: %s", e));
+        } catch (StoredInMemory storedInMemory) {
+            logger.info("Failed to save storage on exit because it uses memory for storage");
         }
     }
 
+    /**
+     * A helper function to handle different updates
+     * @param update specifies update to be matched
+     * @throws InvalidProtocolBufferException
+     * @throws InvalidMessage
+     * @throws SerializationError
+     * @throws ServiceError
+     * @throws InternalError
+     */
     private void handleUpdate(DriverUpdate update) throws InvalidProtocolBufferException, InvalidMessage, SerializationError, ServiceError, InternalError {
         switch(update.getMessageType()){
             case CONSENSUS_NOTIFY_BLOCK_NEW:
@@ -179,21 +198,36 @@ public class Engine implements se.chalmers.datx02.lib.Engine {
         }
     }
 
+    /**
+     * Stops engine
+     */
     @Override
     public void stop() {
         this.exit.set(true);
     }
 
+    /**
+     * Engine version
+     * @return returns engine version
+     */
     @Override
     public String getVersion() {
         return "1.0";
     }
 
+    /**
+     * Engine name
+     * @return returns engine name
+     */
     @Override
     public String getName() {
         return "PBFT-java";
     }
 
+    /**
+     * Additional protocols
+     * @return returns additional protocols
+     */
     @Override
     public Map<String, String> additionalProtocol() {
         return Collections.emptyMap();
