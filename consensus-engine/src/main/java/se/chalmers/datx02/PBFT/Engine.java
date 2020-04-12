@@ -96,8 +96,9 @@ public class Engine implements se.chalmers.datx02.lib.Engine {
         while (!exit.get()) {
             try {
                 update = updates.poll(10, TimeUnit.MILLISECONDS);
-
-                handleUpdate(update);
+                if (update != null) {
+                    handleUpdate(update);
+                }
 
                 // Try to publish if delay has passed
                 if(block_publishing_ticker.Tick())
