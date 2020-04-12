@@ -140,7 +140,7 @@ public class Config implements Serializable {
             String settingsKey,
             Function<String, R> mapper
     ) throws InternalError {
-        if(settings.containsKey(settingsKey)){
+        if(settings.containsKey(settingsKey) && !"".equals(settings.get(settingsKey))) {
             String setting = settings.get(settingsKey);
 
             return mapper.apply(setting);
