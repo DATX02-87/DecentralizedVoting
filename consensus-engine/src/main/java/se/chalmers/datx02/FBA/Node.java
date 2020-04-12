@@ -28,9 +28,10 @@ import se.chalmers.datx02.lib.exceptions.UnknownBlockException;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static se.chalmers.datx02.PBFT.lib.Hash.verifySha512;
-import static se.chalmers.datx02.PBFT.message.MessageExtension.logMessage;
-import static se.chalmers.datx02.PBFT.message.MessageType.*;
+import static se.chalmers.datx02.FBA.lib.Hash.verifySha512;
+import static se.chalmers.datx02.FBA.message.MessageExtension.logMessage;
+import static se.chalmers.datx02.FBA.message.MessageType.*;
+
 
 /*
 todo:
@@ -100,7 +101,7 @@ public class Node {
         MessageType msg_type = MessageType.from(msg.info().getMsgType());
 
         if(state.getMode() == State.Mode.ViewChanging
-                && msg_type != MessageType.NewView
+                && msg_type != NewView
                 && msg_type != MessageType.ViewChange){
             logger.debug(state + ": Node is view changing: ignoring " + msg_type + " message");
             return;
