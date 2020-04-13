@@ -9,6 +9,9 @@ import se.chalmers.datx02.PBFT.lib.exceptions.InvalidMessage;
 import se.chalmers.datx02.PBFT.lib.exceptions.SerializationError;
 import se.chalmers.datx02.lib.models.PeerMessage;
 
+import java.util.Arrays;
+import java.util.Objects;
+
 public class ParsedMessage {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -60,22 +63,22 @@ public class ParsedMessage {
 
         // Check that they have same msg type
         if(deserialized_message instanceof PbftMessage) {
-            if(((PbftMessage) deserialized_message).getInfo().getMsgType() != message.getHeader().getMessageType())
+            if(!((PbftMessage) deserialized_message).getInfo().getMsgType().equals(message.getHeader().getMessageType()))
                 throw new InvalidMessage("Message type mismatch: received a PeerMessage with type " + message.getHeader().getMessageType()
                         + " that contains a PBFT message with type " + ((PbftMessage) deserialized_message).getInfo().getMsgType());
         }
         else if(deserialized_message instanceof PbftSeal) {
-            if(((PbftSeal) deserialized_message).getInfo().getMsgType() != message.getHeader().getMessageType())
+            if(!((PbftSeal) deserialized_message).getInfo().getMsgType().equals(message.getHeader().getMessageType()))
                 throw new InvalidMessage("Message type mismatch: received a PeerMessage with type " + message.getHeader().getMessageType()
                         + " that contains a PBFT message with type " + ((PbftSeal) deserialized_message).getInfo().getMsgType());
         }
         else if(deserialized_message instanceof PbftNewView) {
-            if(((PbftNewView) deserialized_message).getInfo().getMsgType() != message.getHeader().getMessageType())
+            if(!((PbftNewView) deserialized_message).getInfo().getMsgType().equals(message.getHeader().getMessageType()))
                 throw new InvalidMessage("Message type mismatch: received a PeerMessage with type " + message.getHeader().getMessageType()
                         + " that contains a PBFT message with type " + ((PbftNewView) deserialized_message).getInfo().getMsgType());
         }
 
-        this.from_self = (this.info().getSignerId().toByteArray() == own_id);
+        this.from_self = Arrays.equals(this.info().getSignerId().toByteArray(), own_id);
     }
 
     /**
@@ -214,5 +217,26 @@ public class ParsedMessage {
      */
     public byte[] getMessageBytes(){
         return message_bytes;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        ParsedMessage that = (ParsedMessage) o;
+        return from_self == that.from_self &&
+                Arrays.equals(header_bytes, that.header_bytes) &&
+                Arrays.equals(header_signature, that.header_signature) &&
+                Arrays.equals(message_bytes, that.message_bytes) &&
+                Objects.equals(message, that.message);
+    }
+
+    @Override
+    public int hashCode() {
+        int result = Objects.hash(message);
+        result = 31 * result + Arrays.hashCode(header_bytes);
+        result = 31 * result + Arrays.hashCode(header_signature);
+        result = 31 * result + Arrays.hashCode(message_bytes);
+        return result;
     }
 }

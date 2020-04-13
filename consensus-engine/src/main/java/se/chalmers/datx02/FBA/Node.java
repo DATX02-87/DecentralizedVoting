@@ -47,6 +47,7 @@ Also check for: References to lists (Create new when necessary to not manipulate
  */
 
 public class Node {
+
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     private Service service;
@@ -105,7 +106,7 @@ public class Node {
         MessageType msg_type = MessageType.from(msg.info().getMsgType());
 
         if(state.getMode() == State.Mode.ViewChanging
-                && msg_type != MessageType.NewView
+                && msg_type != NewView
                 && msg_type != MessageType.ViewChange){
             logger.debug(state + ": Node is view changing: ignoring " + msg_type + " message");
             return;

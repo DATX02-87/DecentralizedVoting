@@ -140,7 +140,7 @@ public class Config implements Serializable {
             String settingsKey,
             Function<String, R> mapper
     ) throws InternalError {
-        if(settings.containsKey(settingsKey)){
+        if(settings.containsKey(settingsKey) && !"".equals(settings.get(settingsKey))) {
             String setting = settings.get(settingsKey);
 
             return mapper.apply(setting);
@@ -156,8 +156,7 @@ public class Config implements Serializable {
         String members_setting_value = settings.get("sawtooth.consensus.pbft.members");
 
         if(members_setting_value == null){
-            logger_static.warn("'sawtooth.consensus.pbft.members' is empty; this setting must exist to use PBFT");
-            return null;
+            throw new RuntimeException("sawtooth.consensus.pbft.members' is empty; this setting must exist to use PBFT");
         }
 
         // Parse String to json
@@ -169,8 +168,7 @@ public class Config implements Serializable {
 
             return membersMapped;
         } catch (JsonProcessingException e) {
-            logger_static.error("Unable to parse value at 'sawtooth.consensus.pbft.members' due to error: " + e);
-            return null;
+            throw new RuntimeException(e);
         }
     }
 

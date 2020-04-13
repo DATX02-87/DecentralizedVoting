@@ -22,7 +22,7 @@ public class Ticker {
      * @return returns true if ticked
      */
     public boolean Tick(){
-        Duration elapsed = Duration.between(Instant.now(), last);
+        Duration elapsed = Duration.between(Instant.now(), last).abs();
 
         if(elapsed.compareTo(timeout) >= 0){
             last = Instant.now();

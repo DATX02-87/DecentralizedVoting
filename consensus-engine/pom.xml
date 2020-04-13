@@ -85,6 +85,11 @@
             <version>2.10.1</version>
             <scope>compile</scope>
         </dependency>
+        <dependency>
+            <groupId>org.hyperledger.sawtooth</groupId>
+            <artifactId>sawtooth-sdk-signing</artifactId>
+            <version>v0.1.2</version>
+        </dependency>
     </dependencies>
     <build>
         <extensions>

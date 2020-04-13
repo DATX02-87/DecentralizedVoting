@@ -92,12 +92,14 @@ public class Node {
     public void onPeerMessage(ParsedMessage msg) throws InvalidMessage {
         logger.trace(state + ": Got peer message: " + logMessage(msg.info()));
 
-        if(state.getMembers().contains(msg.info().getSignerId().toByteArray())){
+        boolean isFromMember = state.getMembers().parallelStream()
+                .anyMatch(member -> Arrays.equals(member, msg.info().getSignerId().toByteArray()));
+        if(!isFromMember){
             throw new InvalidMessage("Received message from node (" + HexBin.encode(msg.info().getSignerId().toByteArray())
                     + ") that is not a member of the PBFT network");
         }
 
-        MessageType msg_type = MessageType.from(msg.info().getMsgType());
+        MessageType msg_type = MessageType.valueOf(msg.info().getMsgType());
 
         if(state.getMode() == State.Mode.ViewChanging
                 && msg_type != MessageType.NewView
@@ -136,11 +138,12 @@ public class Node {
         }
         catch(Exception e){
             logger.error(String.format("Node failed to handle a message due to error: %s", e));
+            throw new RuntimeException(e);
         }
     }
 
     public void handlePrePrepare(ParsedMessage msg) throws InvalidMessage, FaultyPrimary {
-        if(msg.info().getSignerId().toByteArray() != state.getPrimaryId()){
+        if(!Arrays.equals(msg.info().getSignerId().toByteArray(), state.getPrimaryId())) {
             logger.warn(String.format("Got PrePrepare from a secondary node {%s}; ignoring message",
                     Arrays.toString(msg.info().getSignerId().toByteArray())));
             return;
@@ -155,7 +158,9 @@ public class Node {
         // Check that no `PrePrepare`s already exist with this view and sequence number but a
         // different block; if this is violated, the primary is faulty so initiate a view change
         List<ParsedMessage> messages = msg_log.getMessageOfTypeSeqView(PrePrepare, msg.info().getSeqNum(), msg.info().getView());
-        List<ParsedMessage> messagesFiltered = messages.stream().filter(msgF -> msgF.getBlockId().toByteArray() == msg.getBlockId().toByteArray()).collect(Collectors.toList());
+        List<ParsedMessage> messagesFiltered = messages.stream()
+                .filter(msgF -> msgF.getBlockId().equals(msg.getBlockId()))
+                .collect(Collectors.toList());
 
         if(!messagesFiltered.isEmpty()){
             startViewChange(state.getView() + 1);
@@ -180,7 +185,7 @@ public class Node {
                     msg.info().getView()));
         }
 
-        if(info.getSignerId().toByteArray() == state.getPrimaryId()){
+        if(Arrays.equals(info.getSignerId().toByteArray(), state.getPrimaryId())){
             startViewChange(state.getView() + 1);
 
             throw new FaultyPrimary(String.format("Received Prepare from primary at view {%d}, seq_num {%d}",
@@ -429,8 +434,8 @@ public class Node {
 
             throw new InternalError(String.format("Received block {%d} / {%s} but node does not have previous block: {%s}",
                     block.getBlockNum(),
-                    HexBin.encode(block.getBlockId().toByteArray()),
-                    HexBin.encode(block.getPreviousId().toByteArray())));
+                    HexBin.encode(block.getBlockId().toByteArray()).substring(0, 6),
+                    HexBin.encode(block.getPreviousId().toByteArray()).substring(0, 6)));
         }
 
         // Make sure that the previous block has the previous block number (enforces that blocks
@@ -467,7 +472,7 @@ public class Node {
 
     public void onBlockValid(byte[] blockId) throws InvalidMessage {
         logger.info(String.format("Got blockvalid: %s",
-                HexBin.encode(blockId)));
+                HexBin.encode(blockId).substring(0, 6)));
 
         ConsensusBlock block = msg_log.blockValidated(blockId);
         if(block == null){
@@ -513,16 +518,15 @@ public class Node {
                 logger.error(String.format("Failed to catchup due: %s", e));
                 return false;
             }
-        }
-        else if(block.getBlockNum() == state.getSeqNum()){
-            if(block.getSignerId().toByteArray() == state.getPeerId() && state.isPrimary()){
+        } else if(block.getBlockNum() == state.getSeqNum()){
+            boolean blockSignedByMe = Arrays.equals(block.getSignerId().toByteArray(), state.getPeerId());
+            if(blockSignedByMe && state.isPrimary()){
                 logger.info("Broadcasting PrePrepares");
                 broadcastPBFTMessage(state.getView(),
                         state.getSeqNum(),
                         PrePrepare,
                         block.getBlockId().toByteArray());
-            }
-            else{
+            } else{
                 tryPreparing(block.getBlockId().toByteArray());
             }
         }
@@ -576,14 +580,14 @@ public class Node {
     }
 
     public void onBlockCommit(byte[] blockId) throws ServiceError {
-        logger.info(String.format("%s: Got BlockCommit for {%s}", state, HexBin.encode(blockId)));
+        logger.info(String.format("%s: Got BlockCommit for {%s}", state, HexBin.encode(blockId).substring(0, 6)));
 
         boolean is_catching_up = (state.getPhase().getFinishing()
                 && state.getPhase() == State.Phase.Finishing);
 
         List<byte[]> invalid_block_ids = msg_log.getBlocksWithNum(state.getSeqNum())
                 .stream().map(x -> {
-                    if(x.getBlockId().toByteArray() != blockId)
+                    if(!Arrays.equals(x.getBlockId().toByteArray(), blockId))
                         return x.getBlockId().toByteArray();
                     else
                         return null;
@@ -681,7 +685,8 @@ public class Node {
 
         List<byte[]> on_chain_members = Config.getMembersFromSettings(settings);
 
-        if(on_chain_members != state.getMembers()){
+        boolean sameMembers = listOfByteArrsEquals(on_chain_members, state.getMembers());
+        if (!sameMembers) {
             logger.info(String.format("Updating membership: %s", on_chain_members));
             state.setMembers(on_chain_members);
 
@@ -694,34 +699,65 @@ public class Node {
         }
     }
 
-    public void tryPreparing(byte[] blockId){
-        ConsensusBlock block = msg_log.getBlockWithId(blockId);
-        if(block != null){
-            if(state.getPhase() == State.Phase.PrePreparing
-                    && msg_log.hashPrePrepare(state.getSeqNum(), state.getView(), blockId)
-                    && block.getBlockNum() == state.getSeqNum()){
-                try {
-                    state.switchPhase(State.Phase.Preparing, false);
-
-                    state.idle_timeout.stop();
-
-                    state.commit_timeout.start();
-
-                    if(!state.isPrimary())
-                        broadcastPBFTMessage(state.getView(),
-                                state.getSeqNum(),
-                                Prepare,
-                                blockId);
-
-                } catch (InternalError internalError) {
-                    logger.error("Failed to switch phase on tryPreparing");
-                }
+    /**
+     * compares two collections of byte arrays, allows for duplicates
+     * @param a one collection of byte arrs
+     * @param b another collection of byte arrs
+     * @return true if they contain the same elements, false otherwise
+     */
+    private static boolean listOfByteArrsEquals(Collection<byte[]> a, Collection<byte[]> b) {
+        Set<ByteString> aSet = new HashSet<>();
+        // put all byte strs from one collection in a set
+        for (byte[] bytes : a) {
+            ByteString bytestr = ByteString.copyFrom(bytes);
+            aSet.add(bytestr);
+        }
+        // remove the found byte strs from the set, if it didnt exist they are not the same
+        for (byte[] bytes : b) {
+            ByteString bytestr = ByteString.copyFrom(bytes);
+            boolean removed = aSet.remove(bytestr);
+            if (!removed) {
+                return false;
             }
         }
+        // if there is elements left in the set, they are not the same
+        return aSet.size() <= 0;
+
+
+    }
+
+    public void tryPreparing(byte[] blockId){
+        ConsensusBlock block = msg_log.getBlockWithId(blockId);
+        if (block == null) {
+            throw new NullPointerException("Block did not exist in the message state when trying to prepare it, state: " + state.toString());
+        }
+
+        if(state.getPhase() == State.Phase.PrePreparing
+                && msg_log.hashPrePrepare(state.getSeqNum(), state.getView(), blockId)
+                && block.getBlockNum() == state.getSeqNum()){
+            try {
+                state.switchPhase(State.Phase.Preparing, false);
+
+                state.idle_timeout.stop();
+
+                state.commit_timeout.start();
+
+                if(!state.isPrimary())
+                    broadcastPBFTMessage(state.getView(),
+                            state.getSeqNum(),
+                            Prepare,
+                            blockId);
+
+            } catch (InternalError internalError) {
+                logger.error("Failed to switch phase on tryPreparing");
+            }
+        }
+
     }
 
     public void onPeerConnected(byte[] peerId){
-        if(!state.getMembers().contains(peerId)
+        boolean peerIsMember = state.getMembers().parallelStream().anyMatch(ba -> Arrays.equals(ba, peerId));
+        if(!peerIsMember
                 || state.getSeqNum() == 1)
             return;
 
@@ -764,25 +800,37 @@ public class Node {
                 .collect(Collectors.toList());
     }
 
-    protected static class DoubleKey<T,F>{
+    protected static class BlockIdView {
+        private final byte[] blockId;
+        private final long view;
 
-        private T key1;
-        private F key2;
-
-        public DoubleKey(T key1, F key2){
-            this.key1 = key1;
-            this.key2 = key2;
+        public BlockIdView(byte[] blockId, long view) {
+            this.blockId = blockId;
+            this.view = view;
         }
+
+        public byte[] getBlockId() {
+            return blockId;
+        }
+
+        public long getView() {
+            return view;
     }
 
-    protected static class DoubleKeyComparator implements Comparator<DoubleKey>{
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+            BlockIdView that = (BlockIdView) o;
+            return view == that.view &&
+                    Arrays.equals(blockId, that.blockId);
+        }
 
         @Override
-        public int compare(DoubleKey o1, DoubleKey o2) {
-            if(o1.key1 == o2.key1 && o1.key2 == o2.key2)
-                return 0;
-            else
-                return -1;
+        public int hashCode() {
+            int result = Objects.hash(view);
+            result = 31 * result + Arrays.hashCode(blockId);
+            return result;
         }
     }
 
@@ -790,10 +838,8 @@ public class Node {
         logger.trace(String.format("%s: Building seal for block %d", state, state.getSeqNum() - 1));
 
         List<ParsedMessage> msgs = msg_log.getMessageOfTypeSeq(Commit, state.getSeqNum() - 1);
-        Map<DoubleKey<byte[], Long>, List<ParsedMessage>> msgsMap = new TreeMap<>(new DoubleKeyComparator());
+        Map<BlockIdView, List<ParsedMessage>> msgsMap = new HashMap<>();
         List<ParsedMessage> messages = null;
-        long view = 0;
-        byte[] block_id = null;
 
         // filter out
         msgs = msgs.stream()
@@ -801,15 +847,16 @@ public class Node {
                 .collect(Collectors.toList());
         // add to map
         for(ParsedMessage msg : msgs){
-            DoubleKey key = new DoubleKey<>(msg.getBlockId().toByteArray(), msg.info().getView());
-
+            BlockIdView key = new BlockIdView(msg.getBlockId().toByteArray(), msg.info().getView());
             msgsMap.computeIfAbsent(key, k -> new ArrayList<>());
             msgsMap.get(key).add(msg);
         }
 
-        for(Map.Entry<DoubleKey<byte[], Long>, List<ParsedMessage>> entry : msgsMap.entrySet()){
+        BlockIdView key = null;
+        for(Map.Entry<BlockIdView, List<ParsedMessage>> entry : msgsMap.entrySet()){
             if(entry.getValue().size() >= 2 * state.getFaultyNodes()) {
                 messages = entry.getValue();
+                key = entry.getKey();
                 break;
             }
         }
@@ -817,18 +864,16 @@ public class Node {
         if(messages == null)
             throw new InternalError("Couldn't find 2f commit messages in the message log for building a seal");
 
+        long view = key.getView();
+        byte[] block_id = key.getBlockId();
+
         PbftSeal.Builder sealBuilder = PbftSeal.newBuilder()
                 .setInfo(
                         MessageExtension.newMessageInfo(Seal, view, state.getSeqNum()-1, state.getPeerId())
                 )
                 .setBlockId(ByteString.copyFrom(block_id));
 
-        int i = 0;
-        for(PbftSignedVote voteSeal : signedVotesFromMessages(messages)){
-            sealBuilder.setCommitVotes(i++, voteSeal);
-        }
-
-        PbftSeal seal = sealBuilder.build();
+        PbftSeal seal = sealBuilder.addAllCommitVotes(signedVotesFromMessages(messages)).build();
 
         logger.trace("Seal created: " + logMessage(seal));
 
@@ -858,14 +903,14 @@ public class Node {
 
         logger.trace(String.format("Verifying vote with PbftMessage: {%s} and header: {%s}", pbft_message, header));
 
-        if(header.getSignerId() != pbft_message.getInfo().getSignerId()){
+        if(!header.getSignerId().equals(pbft_message.getInfo().getSignerId())) {
             throw new InvalidMessage(String.format("Received a vote where PbftMessage's signer ID {%s} " +
                             "and PeerMessage's signer ID {%s} dont match",
                     pbft_message.getInfo().getSignerId(),
                     header.getSignerId()));
         }
 
-        MessageType msg_type = MessageType.from(pbft_message.getInfo().getMsgType());
+        MessageType msg_type = MessageType.valueOf(pbft_message.getInfo().getMsgType());
 
         if(msg_type != expected_type)
             throw new InvalidMessage(String.format("Received a {%s} vote, but expected a {%s}", msg_type, expected_type));
@@ -904,7 +949,10 @@ public class Node {
                     new_view.getInfo().getView()));
         }
 
-        if(new_view.getInfo().getSignerId().toByteArray() != state.getPrimaryIdAtView(new_view.getInfo().getView())){
+        boolean viewPrimariesEquals = Arrays.equals(
+                new_view.getInfo().getSignerId().toByteArray(),
+                state.getPrimaryIdAtView(new_view.getInfo().getView()));
+        if(!viewPrimariesEquals){
             throw new InvalidMessage(String.format("Received NewView message for view {%d} that is not from the primary for that view",
                     new_view.getInfo().getView()));
         }
@@ -931,7 +979,7 @@ public class Node {
 
         List<byte[]> peer_ids = state.getMembers()
                 .stream()
-                .filter(pid -> pid != new_view.getInfo().getSignerId().toByteArray())
+                .filter(pid -> !Arrays.equals(pid, new_view.getInfo().getSignerId().toByteArray()))
                 .collect(Collectors.toList());
 
         logger.trace(String.format("Comparing voter IDs (%s) with member IDs - primary (%s)", voter_ids, peer_ids));
@@ -967,7 +1015,7 @@ public class Node {
 
         logger.trace(String.format("Parsed seal: %s", logMessage(seal)));
 
-        if(seal.getBlockId() != block.getPreviousId())
+        if(!seal.getBlockId().equals(block.getPreviousId()))
             throw new InvalidMessage(String.format("Seal's ID (%s) doesn't match block's previous ID (%s)",
                     HexBin.encode(seal.getBlockId().toByteArray()),
                     HexBin.encode(block.getPreviousId().toByteArray())));
@@ -995,7 +1043,7 @@ public class Node {
             byte[] id;
             try {
                 id = verifyVote(vote, Commit, msg -> {
-                    if (msg.getBlockId() != seal.getBlockId())
+                    if (!msg.getBlockId().equals(seal.getBlockId()))
                         throw new InvalidMessage("Commit vote's block ID (" + msg.getBlockId() + ") doesn't match seal's ID (" + seal.getBlockId() + ")");
 
                     if (msg.getInfo().getView() != seal.getInfo().getView())
@@ -1006,12 +1054,11 @@ public class Node {
 
                     return msg;
                 });
-            } catch (SerializationError | SigningError | InvalidMessage e) {
-                voter_ids = null;
-
-                break;
+            } catch (SerializationError | SigningError e) {
+                throw new RuntimeException(e);
+            } catch (InvalidMessage e) {
+                throw e;
             }
-
             voter_ids.add(id);
         }
 
@@ -1030,17 +1077,23 @@ public class Node {
 
         List<byte[]> members = Config.getMembersFromSettings(settings);
 
-        if(!members.contains(seal.getInfo().getSignerId().toByteArray()))
+
+        boolean sealSignerInMembers = members.parallelStream()
+                .anyMatch(mem -> Arrays.equals(mem, seal.getInfo().getSignerId().toByteArray()));
+        if(!sealSignerInMembers)
             throw new InvalidMessage(String.format("Consensus seal is signed by an unknown peer: %s", seal.getInfo().getSignerId()));
 
         List<byte[]> peer_ids = members
                 .stream()
-                .filter(pid -> pid != seal.getInfo().getSignerId().toByteArray())
+                .filter(pid -> !Arrays.equals(pid, seal.getInfo().getSignerId().toByteArray()))
                 .collect(Collectors.toList());
 
         logger.trace(String.format("Comparing voter IDs (%s) with on-chain member IDs - primary (%s)", voter_ids, peer_ids));
 
-        if(Collections.indexOfSubList(peer_ids, voter_ids) == -1){
+        // check if voter ids is a subset of the peer ids
+        boolean voterIdsAreSubsetOfPeerIds = voter_ids.parallelStream()
+                .allMatch(id -> peer_ids.parallelStream().anyMatch(pi -> Arrays.equals(pi, id)));
+        if(!voterIdsAreSubsetOfPeerIds){
             List<byte[]> newsub = new ArrayList<>(peer_ids); // clone
             throw new InvalidMessage(String.format("Consensus seal contains vote(s) from invalid ID(s): %s",
                     newsub.removeAll(voter_ids)
@@ -1079,7 +1132,7 @@ public class Node {
         try {
             byte[] block_id = service.finalizeBlock(data);
 
-            logger.info(String.format("{%s}: Publishing block {%s}", state, HexBin.encode(block_id)));
+            logger.info(String.format("{%s}: Publishing block {%s}", state, HexBin.encode(block_id).substring(0, 6)));
         } catch (InvalidStateException | UnknownBlockException | ReceiveErrorException | BlockNotReadyException e) {
             throw new ServiceError(String.format("Couldn't finalize block: %s", e));
         }
@@ -1125,7 +1178,7 @@ public class Node {
         try {
             onPeerMessage(msg);
         } catch (InvalidMessage invalidMessage) {
-            logger.error("broadcastMessage failed on onPeerMessage");
+            throw new RuntimeException("Engine failed to handle its own peer message");
         }
     }
 

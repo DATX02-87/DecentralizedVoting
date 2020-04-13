@@ -1,5 +1,6 @@
 package se.chalmers.datx02.PBFT;
 
+import com.google.protobuf.ByteString;
 import com.sun.org.apache.xerces.internal.impl.dv.util.HexBin;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -8,16 +9,13 @@ import sawtooth.sdk.protobuf.ConsensusBlock;
 import se.chalmers.datx02.PBFT.message.MessageType;
 import se.chalmers.datx02.PBFT.message.ParsedMessage;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class MessageLog {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    private HashMap<byte[], ConsensusBlock> unvalidated_blocks;
+    private HashMap<ByteString, ConsensusBlock> unvalidated_blocks;
 
     private HashSet<ConsensusBlock> blocks;
     private HashSet<ParsedMessage> messages;
@@ -71,7 +69,7 @@ public class MessageLog {
      */
     public void addUnvalidatedBlock(ConsensusBlock block){
         logger.trace("Adding unvalidated block to log: " + block.toString());
-        this.unvalidated_blocks.put(block.getBlockId().toByteArray(), block);
+        this.unvalidated_blocks.put(block.getBlockId(), block);
     }
 
     /**
@@ -81,12 +79,13 @@ public class MessageLog {
     public ConsensusBlock blockValidated(byte[] blockId){
         logger.trace("Marking block " + blockId + " as validated");
 
-        ConsensusBlock block = unvalidated_blocks.get(blockId);
+        ByteString blockIdByteString = ByteString.copyFrom(blockId);
+        ConsensusBlock block = unvalidated_blocks.get(blockIdByteString);
         if(block == null)
             return null;
 
         this.blocks.add(block);
-        unvalidated_blocks.remove(blockId);
+        unvalidated_blocks.remove(blockIdByteString);
 
         return block;
     }
@@ -98,10 +97,12 @@ public class MessageLog {
     public boolean blockInvalidated(byte[] blockId){
         logger.trace("Dropping invalited block: " + blockId);
 
-        if(!this.unvalidated_blocks.containsKey(blockId))
+        ByteString blockIdByteString = ByteString.copyFrom(blockId);
+
+        if(!this.unvalidated_blocks.containsKey(blockIdByteString))
             return false;
 
-        this.unvalidated_blocks.remove(blockId);
+        this.unvalidated_blocks.remove(blockIdByteString);
 
         return true;
     }
@@ -128,16 +129,9 @@ public class MessageLog {
      * @return returns all blocks with id
      */
     public ConsensusBlock getBlockWithId(byte[] blockId){
-        ConsensusBlock blockReturn = null;
-
-        for(ConsensusBlock block : blocks){
-            if(block.getBlockId().toByteArray() == blockId){
-                blockReturn = block;
-                break;
-            }
-        }
-
-        return blockReturn;
+        return blocks.parallelStream()
+                .filter(b -> Arrays.equals(blockId, b.getBlockId().toByteArray()))
+                .findAny().orElse(null);
     }
 
     /**
@@ -146,7 +140,8 @@ public class MessageLog {
      * @return returns all unvalidated blocks with id
      */
     public ConsensusBlock getUnvalidatedBlockWithId(byte[] blockId){
-        return this.unvalidated_blocks.get(blockId);
+        ByteString blockIdByteString = ByteString.copyFrom(blockId);
+        return this.unvalidated_blocks.get(blockIdByteString);
     }
 
     /**
@@ -168,12 +163,8 @@ public class MessageLog {
     public boolean hashPrePrepare(long seq_num, long view, byte[] blockId){
         List<ParsedMessage> list = getMessageOfTypeSeqView(MessageType.PrePrepare, seq_num, view);
 
-        for(ParsedMessage msg : list){
-            if(msg.getBlockId().toByteArray() == blockId)
-                return true;
-        }
-
-        return false;
+        return list.parallelStream()
+                .anyMatch(pm -> Arrays.equals(pm.getBlockId().toByteArray(), blockId));
     }
 
     /**
@@ -186,7 +177,7 @@ public class MessageLog {
         List<ParsedMessage> list = new ArrayList<>();
 
         for(ParsedMessage msg : messages){
-            if(msg.info().getMsgType() == msg_type.toString()
+            if(msg.info().getMsgType().equals(msg_type.toString())
                     && msg.info().getSeqNum() == sequence_number)
                 list.add(msg);
         }
@@ -204,7 +195,7 @@ public class MessageLog {
         List<ParsedMessage> list = new ArrayList<>();
 
         for(ParsedMessage msg : messages){
-            if(msg.info().getMsgType() == msg_type.toString()
+            if(msg.info().getMsgType().equals(msg_type.toString())
                     && msg.info().getView() == view)
                 list.add(msg);
         }
@@ -223,7 +214,8 @@ public class MessageLog {
         List<ParsedMessage> list = new ArrayList<>();
 
         for(ParsedMessage msg : messages){
-            if(msg.info().getMsgType() == msg_type.toString()
+            MessageType msgMessageType = MessageType.valueOf(msg.info().getMsgType());
+            if(msgMessageType.equals(msg_type)
                     && msg.info().getSeqNum() == sequence_number
                     && msg.info().getView() == view)
                 list.add(msg);
@@ -244,10 +236,10 @@ public class MessageLog {
         List<ParsedMessage> list = new ArrayList<>();
 
         for(ParsedMessage msg : messages){
-            if(msg.info().getMsgType() == msg_type.toString()
+            if(msg.info().getMsgType().equals(msg_type.toString())
                     && msg.info().getSeqNum() == sequence_number
                     && msg.info().getView() == view
-                    && msg.getBlockId().toByteArray() == blockId)
+                    && Arrays.equals(msg.getBlockId().toByteArray(), blockId))
                 list.add(msg);
         }
 
