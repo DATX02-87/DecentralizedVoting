@@ -129,16 +129,9 @@ public class MessageLog {
      * @return returns all blocks with id
      */
     public ConsensusBlock getBlockWithId(byte[] blockId){
-        ConsensusBlock blockReturn = null;
-
-        for(ConsensusBlock block : blocks){
-            if(Arrays.equals(block.getBlockId().toByteArray(), blockId)){
-                blockReturn = block;
-                break;
-            }
-        }
-
-        return blockReturn;
+        return blocks.parallelStream()
+                .filter(b -> Arrays.equals(blockId, b.getBlockId().toByteArray()))
+                .findAny().orElse(null);
     }
 
     /**
@@ -170,12 +163,8 @@ public class MessageLog {
     public boolean hashPrePrepare(long seq_num, long view, byte[] blockId){
         List<ParsedMessage> list = getMessageOfTypeSeqView(MessageType.PrePrepare, seq_num, view);
 
-        for(ParsedMessage msg : list){
-            if(Arrays.equals(msg.getBlockId().toByteArray(), blockId))
-                return true;
-        }
-
-        return false;
+        return list.parallelStream()
+                .anyMatch(pm -> Arrays.equals(pm.getBlockId().toByteArray(), blockId));
     }
 
     /**
@@ -225,7 +214,8 @@ public class MessageLog {
         List<ParsedMessage> list = new ArrayList<>();
 
         for(ParsedMessage msg : messages){
-            if(msg.info().getMsgType().equals(msg_type.toString())
+            MessageType msgMessageType = MessageType.valueOf(msg.info().getMsgType());
+            if(msgMessageType.equals(msg_type)
                     && msg.info().getSeqNum() == sequence_number
                     && msg.info().getView() == view)
                 list.add(msg);

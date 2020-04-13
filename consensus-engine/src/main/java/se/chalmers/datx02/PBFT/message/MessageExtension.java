@@ -71,7 +71,7 @@ public class MessageExtension {
     public static PbftMessageInfo newMessageInfo(MessageType msg_type, long view, long seq_num, byte[] signer_id){
         PbftMessageInfo.Builder messageInfo = PbftMessageInfo.newBuilder();
 
-        messageInfo.setMsgType(msg_type.toCorrectString());
+        messageInfo.setMsgType(msg_type.name());
         messageInfo.setView(view);
         messageInfo.setSeqNum(seq_num);
         messageInfo.setSignerId(ByteString.copyFrom(signer_id));

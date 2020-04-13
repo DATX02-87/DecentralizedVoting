@@ -78,7 +78,7 @@ public class ParsedMessage {
                         + " that contains a PBFT message with type " + ((PbftNewView) deserialized_message).getInfo().getMsgType());
         }
 
-        this.from_self = (this.info().getSignerId().toByteArray() == own_id);
+        this.from_self = Arrays.equals(this.info().getSignerId().toByteArray(), own_id);
     }
 
     /**

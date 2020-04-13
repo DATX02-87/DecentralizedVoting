@@ -99,7 +99,7 @@ public class Node {
                     + ") that is not a member of the PBFT network");
         }
 
-        MessageType msg_type = MessageType.from(msg.info().getMsgType());
+        MessageType msg_type = MessageType.valueOf(msg.info().getMsgType());
 
         if(state.getMode() == State.Mode.ViewChanging
                 && msg_type != MessageType.NewView
@@ -138,11 +138,12 @@ public class Node {
         }
         catch(Exception e){
             logger.error(String.format("Node failed to handle a message due to error: %s", e));
+            throw new RuntimeException(e);
         }
     }
 
     public void handlePrePrepare(ParsedMessage msg) throws InvalidMessage, FaultyPrimary {
-        if(msg.info().getSignerId().toByteArray() != state.getPrimaryId()){
+        if(!Arrays.equals(msg.info().getSignerId().toByteArray(), state.getPrimaryId())) {
             logger.warn(String.format("Got PrePrepare from a secondary node {%s}; ignoring message",
                     Arrays.toString(msg.info().getSignerId().toByteArray())));
             return;
@@ -157,7 +158,9 @@ public class Node {
         // Check that no `PrePrepare`s already exist with this view and sequence number but a
         // different block; if this is violated, the primary is faulty so initiate a view change
         List<ParsedMessage> messages = msg_log.getMessageOfTypeSeqView(PrePrepare, msg.info().getSeqNum(), msg.info().getView());
-        List<ParsedMessage> messagesFiltered = messages.stream().filter(msgF -> msgF.getBlockId().toByteArray() == msg.getBlockId().toByteArray()).collect(Collectors.toList());
+        List<ParsedMessage> messagesFiltered = messages.stream()
+                .filter(msgF -> msgF.getBlockId().equals(msg.getBlockId()))
+                .collect(Collectors.toList());
 
         if(!messagesFiltered.isEmpty()){
             startViewChange(state.getView() + 1);
@@ -182,7 +185,7 @@ public class Node {
                     msg.info().getView()));
         }
 
-        if(info.getSignerId().toByteArray() == state.getPrimaryId()){
+        if(Arrays.equals(info.getSignerId().toByteArray(), state.getPrimaryId())){
             startViewChange(state.getView() + 1);
 
             throw new FaultyPrimary(String.format("Received Prepare from primary at view {%d}, seq_num {%d}",
@@ -432,7 +435,7 @@ public class Node {
             throw new InternalError(String.format("Received block {%d} / {%s} but node does not have previous block: {%s}",
                     block.getBlockNum(),
                     HexBin.encode(block.getBlockId().toByteArray()).substring(0, 6),
-                    HexBin.encode(block.getPreviousId().toByteArray())).substring(0, 6));
+                    HexBin.encode(block.getPreviousId().toByteArray()).substring(0, 6)));
         }
 
         // Make sure that the previous block has the previous block number (enforces that blocks
@@ -469,7 +472,7 @@ public class Node {
 
     public void onBlockValid(byte[] blockId) throws InvalidMessage {
         logger.info(String.format("Got blockvalid: %s",
-                HexBin.encode(blockId)));
+                HexBin.encode(blockId).substring(0, 6)));
 
         ConsensusBlock block = msg_log.blockValidated(blockId);
         if(block == null){
@@ -515,16 +518,15 @@ public class Node {
                 logger.error(String.format("Failed to catchup due: %s", e));
                 return false;
             }
-        }
-        else if(block.getBlockNum() == state.getSeqNum()){
-            if(block.getSignerId().toByteArray() == state.getPeerId() && state.isPrimary()){
+        } else if(block.getBlockNum() == state.getSeqNum()){
+            boolean blockSignedByMe = Arrays.equals(block.getSignerId().toByteArray(), state.getPeerId());
+            if(blockSignedByMe && state.isPrimary()){
                 logger.info("Broadcasting PrePrepares");
                 broadcastPBFTMessage(state.getView(),
                         state.getSeqNum(),
                         PrePrepare,
                         block.getBlockId().toByteArray());
-            }
-            else{
+            } else{
                 tryPreparing(block.getBlockId().toByteArray());
             }
         }
@@ -578,7 +580,7 @@ public class Node {
     }
 
     public void onBlockCommit(byte[] blockId) throws ServiceError {
-        logger.info(String.format("%s: Got BlockCommit for {%s}", state, HexBin.encode(blockId)));
+        logger.info(String.format("%s: Got BlockCommit for {%s}", state, HexBin.encode(blockId).substring(0, 6)));
 
         boolean is_catching_up = (state.getPhase().getFinishing()
                 && state.getPhase() == State.Phase.Finishing);
@@ -726,28 +728,31 @@ public class Node {
 
     public void tryPreparing(byte[] blockId){
         ConsensusBlock block = msg_log.getBlockWithId(blockId);
-        if(block != null){
-            if(state.getPhase() == State.Phase.PrePreparing
-                    && msg_log.hashPrePrepare(state.getSeqNum(), state.getView(), blockId)
-                    && block.getBlockNum() == state.getSeqNum()){
-                try {
-                    state.switchPhase(State.Phase.Preparing, false);
+        if (block == null) {
+            throw new NullPointerException("Block did not exist in the message state when trying to prepare it, state: " + state.toString());
+        }
 
-                    state.idle_timeout.stop();
+        if(state.getPhase() == State.Phase.PrePreparing
+                && msg_log.hashPrePrepare(state.getSeqNum(), state.getView(), blockId)
+                && block.getBlockNum() == state.getSeqNum()){
+            try {
+                state.switchPhase(State.Phase.Preparing, false);
 
-                    state.commit_timeout.start();
+                state.idle_timeout.stop();
 
-                    if(!state.isPrimary())
-                        broadcastPBFTMessage(state.getView(),
-                                state.getSeqNum(),
-                                Prepare,
-                                blockId);
+                state.commit_timeout.start();
 
-                } catch (InternalError internalError) {
-                    logger.error("Failed to switch phase on tryPreparing");
-                }
+                if(!state.isPrimary())
+                    broadcastPBFTMessage(state.getView(),
+                            state.getSeqNum(),
+                            Prepare,
+                            blockId);
+
+            } catch (InternalError internalError) {
+                logger.error("Failed to switch phase on tryPreparing");
             }
         }
+
     }
 
     public void onPeerConnected(byte[] peerId){
@@ -896,7 +901,7 @@ public class Node {
                     header.getSignerId()));
         }
 
-        MessageType msg_type = MessageType.from(pbft_message.getInfo().getMsgType());
+        MessageType msg_type = MessageType.valueOf(pbft_message.getInfo().getMsgType());
 
         if(msg_type != expected_type)
             throw new InvalidMessage(String.format("Received a {%s} vote, but expected a {%s}", msg_type, expected_type));
@@ -1116,7 +1121,7 @@ public class Node {
         try {
             byte[] block_id = service.finalizeBlock(data);
 
-            logger.info(String.format("{%s}: Publishing block {%s}", state, HexBin.encode(block_id)));
+            logger.info(String.format("{%s}: Publishing block {%s}", state, HexBin.encode(block_id).substring(0, 6)));
         } catch (InvalidStateException | UnknownBlockException | ReceiveErrorException | BlockNotReadyException e) {
             throw new ServiceError(String.format("Couldn't finalize block: %s", e));
         }
@@ -1162,7 +1167,7 @@ public class Node {
         try {
             onPeerMessage(msg);
         } catch (InvalidMessage invalidMessage) {
-            logger.error("broadcastMessage failed on onPeerMessage");
+            throw new RuntimeException("Engine failed to handle its own peer message");
         }
     }
 
