@@ -506,6 +506,11 @@ public class Node {
         try {
             seal = verifyConsensusSealFromBlock(block);
         } catch (InvalidMessage | SerializationError | InternalError e) {
+            try {
+                service.failBlock(block.getBlockId().toByteArray());
+            } catch (UnknownBlockException | ReceiveErrorException ex) {
+                throw new RuntimeException("Couldn't fail block due to error", e);
+            }
             throw new InvalidMessage("Consensus seal failed verification - Error was:" + e);
         }
 
