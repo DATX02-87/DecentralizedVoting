@@ -963,25 +963,32 @@ public class Node {
                     new_view.getInfo().getView()));
         }
 
-        List<byte[]> voter_ids = null;
-        for(PbftSignedVote vote : new_view.getViewChangesList()){
-            byte[] id;
+        List<byte[]> voter_ids = new_view.getViewChangesList().parallelStream()
+                .reduce(new HashSet<>(), (acc, item) -> {
+                    // accumulating an item into the set
+                    Set<ByteString> set = new HashSet<>(acc);
+
+                    byte[] voterId = null;
             try {
-                id = verifyVote(vote, ViewChange, msg -> {
+                        voterId = verifyVote(item, ViewChange, msg -> {
                     if (msg.getInfo().getView() != new_view.getInfo().getView()) {
                         throw new InvalidMessage(String.format("ViewChange's view number (%d) doesn't match NewView's view number (%d)",
                                 msg.getInfo().getView(),
                                 new_view.getInfo().getView()));
                     }
-                    return msg;
                 });
-            } catch (SerializationError | SigningError | InvalidMessage e) {
-                voter_ids = null;
-                break;
+                    } catch (SerializationError | InvalidMessage | SigningError e) {
+                        logger.error("Error in verify vote", e);
             }
-
-            voter_ids.add(id);
+                    // if no id received back, do not add it
+                    if (voterId == null) {
+                        return set;
         }
+                    set.add(ByteString.copyFrom(voterId));
+                    return set;
+                }, setCombiner).parallelStream()
+                .map(ByteString::toByteArray)
+                .collect(Collectors.toList());
 
         List<byte[]> peer_ids = state.getMembers()
                 .stream()
@@ -990,11 +997,15 @@ public class Node {
 
         logger.trace(String.format("Comparing voter IDs (%s) with member IDs - primary (%s)", voter_ids, peer_ids));
 
-        if(Collections.indexOfSubList(peer_ids, voter_ids) == -1){
-            List<byte[]> newsub = new ArrayList<>(peer_ids); // clone
-            throw new InvalidMessage(String.format("NewView contains vote(s) from invalid IDs: %s",
-                    newsub.removeAll(voter_ids)
-                    ));
+        // ensure that the voter ids are a subset of the peer ids
+        Set<ByteString> peerIds = peer_ids.parallelStream()
+                .map(ByteString::copyFrom)
+                .collect(Collectors.toSet());
+        boolean voterIdsIsSubsetOfPeerIds = voter_ids.parallelStream()
+                .map(ByteString::copyFrom)
+                .allMatch(peerIds::contains);
+        if (!voterIdsIsSubsetOfPeerIds) {
+            throw new InvalidMessage("NewView contains vote(s) from invalid IDs");
         }
 
         if(voter_ids.size() < 2 * state.getFaultyNodes()){
@@ -1003,6 +1014,13 @@ public class Node {
                     voter_ids.size()));
         }
     }
+
+    private static BinaryOperator<Set<ByteString>> setCombiner = (set1, set2) -> {
+        // combining two sets
+        Set<ByteString> set = new HashSet<>(set1);
+        set.addAll(set2);
+        return set;
+    };
 
     public PbftSeal verifyConsensusSealFromBlock(ConsensusBlock block) throws InvalidMessage, SerializationError, InternalError {
 
@@ -1043,30 +1061,47 @@ public class Node {
     }
 
     public void verifyConsensusSeal(PbftSeal seal, byte[] previousId) throws InvalidMessage {
-        List<byte[]> voter_ids = new ArrayList<>();
-
-        for(PbftSignedVote vote : seal.getCommitVotesList()){
-            byte[] id;
+        List<byte[]> voter_ids = seal.getCommitVotesList().parallelStream()
+                .reduce(new HashSet<>(), (acc, curr) -> {
+                    Set<ByteString> set = new HashSet<>();
+                    byte[] voterId = null;
             try {
-                id = verifyVote(vote, Commit, msg -> {
-                    if (!msg.getBlockId().equals(seal.getBlockId()))
-                        throw new InvalidMessage("Commit vote's block ID (" + msg.getBlockId() + ") doesn't match seal's ID (" + seal.getBlockId() + ")");
-
-                    if (msg.getInfo().getView() != seal.getInfo().getView())
-                        throw new InvalidMessage("Commit vote's view (" + msg.getInfo().getView() + ") doesn't match seal's view (" + seal.getInfo().getView() + ")");
-
-                    if (msg.getInfo().getSeqNum() != seal.getInfo().getSeqNum())
-                        throw new InvalidMessage("Commit vote's seqnum (" + msg.getInfo().getSeqNum() + ") doesn't match seal's seqnum (" + seal.getInfo().getSeqNum() + ")");
-
-                    return msg;
+                        voterId = verifyVote(curr, Commit, msg -> {
+                            if (!msg.getBlockId().equals(seal.getBlockId())) {
+                                throw new InvalidMessage(String.format(
+                                        "Commit vote's block ID %s doesnt match seal ID %s",
+                                        HexBin.encode(msg.getBlockId().toByteArray()).substring(0, 6),
+                                        HexBin.encode(seal.getBlockId().toByteArray()).substring(0, 6)
+                                ));
+                            }
+                            if (msg.getInfo().getView() != seal.getInfo().getView()) {
+                                throw new InvalidMessage(String.format(
+                                        "Commit vote's view %s doesn't match seal's view %s",
+                                        msg.getInfo().getView(),
+                                        seal.getInfo().getView()
+                                        ));
+                            }
+                            if (msg.getInfo().getSeqNum() != seal.getInfo().getSeqNum()) {
+                                throw new InvalidMessage(String.format(
+                                        "Commit vote's seq_num %s doesn't match seal's seq_num %s",
+                                        msg.getInfo().getSeqNum(),
+                                        seal.getInfo().getSeqNum()
+                                ));
+                            }
                 });
-            } catch (SerializationError | SigningError e) {
-                throw new RuntimeException(e);
-            } catch (InvalidMessage e) {
-                throw e;
+                    } catch (SerializationError | InvalidMessage | SigningError e) {
+                        logger.error("Error verifying commit vote", e);
             }
-            voter_ids.add(id);
+
+                    if (voterId == null) {
+                        return set;
         }
+                    set.add(ByteString.copyFrom(voterId));
+                    return set;
+                }, setCombiner)
+                .parallelStream()
+                .map(ByteString::toByteArray)
+                .collect(Collectors.toList());
 
         logger.trace("Getting on-chain list of members to verify seal");
 
@@ -1097,9 +1132,13 @@ public class Node {
         logger.trace(String.format("Comparing voter IDs (%s) with on-chain member IDs - primary (%s)", voter_ids, peer_ids));
 
         // check if voter ids is a subset of the peer ids
-        boolean voterIdsAreSubsetOfPeerIds = voter_ids.parallelStream()
-                .allMatch(id -> peer_ids.parallelStream().anyMatch(pi -> Arrays.equals(pi, id)));
-        if(!voterIdsAreSubsetOfPeerIds){
+        Set<ByteString> peerIds = peer_ids.parallelStream()
+                .map(ByteString::copyFrom)
+                .collect(Collectors.toSet());
+        boolean voterIdsIsSubsetOfPeerIds = voter_ids.parallelStream()
+                .map(ByteString::copyFrom)
+                .allMatch(peerIds::contains);
+        if (!voterIdsIsSubsetOfPeerIds) {
             List<byte[]> newsub = new ArrayList<>(peer_ids); // clone
             throw new InvalidMessage(String.format("Consensus seal contains vote(s) from invalid ID(s): %s",
                     newsub.removeAll(voter_ids)
