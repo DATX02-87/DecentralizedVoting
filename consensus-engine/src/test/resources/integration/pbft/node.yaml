@@ -51,7 +51,7 @@ services:
           -o config-genesis.batch && \
         sawset proposal create \
           -k /shared_data/keys/settings.priv \
-          sawtooth.consensus.algorithm.name=pbft \
+          sawtooth.consensus.algorithm.name=PBFT-java \
           sawtooth.consensus.algorithm.version=1.0 \
           sawtooth.consensus.pbft.members=\\['\\\"'$$(cd /shared_data/validators && paste $$(ls -1) -d , | sed s/,/\\\\\\\",\\\\\\\"/g)'\\\"'\\] \
           sawtooth.gossip.time_to_live=1 \
