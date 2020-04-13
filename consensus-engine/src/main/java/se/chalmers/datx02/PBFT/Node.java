@@ -734,7 +734,8 @@ public class Node {
     public void tryPreparing(byte[] blockId){
         ConsensusBlock block = msg_log.getBlockWithId(blockId);
         if (block == null) {
-            throw new NullPointerException("Block did not exist in the message state when trying to prepare it, state: " + state.toString());
+            logger.warn("Block did not exist in the message state when trying to prepare it, state: " + state.toString());
+            return;
         }
 
         if(state.getPhase() == State.Phase.PrePreparing
