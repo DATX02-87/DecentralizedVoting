@@ -51,6 +51,7 @@ public class Engine implements se.chalmers.datx02.lib.Engine {
     @Override
     public void start(BlockingQueue<DriverUpdate> updates, se.chalmers.datx02.lib.Service service, StartupState startupState) {
         // Startup
+        /*
         logger.info(startupState.toString());
 
         this.service = service;
@@ -126,6 +127,7 @@ public class Engine implements se.chalmers.datx02.lib.Engine {
         } catch (StoredInMemory storedInMemory) {
             logger.info("Failed to save storage on exit because it uses memory for storage");
         }
+        */
     }
 
     /**
@@ -138,6 +140,7 @@ public class Engine implements se.chalmers.datx02.lib.Engine {
      * @throws InternalError
      */
     private void handleUpdate(DriverUpdate update) throws InvalidProtocolBufferException, InvalidMessage, SerializationError, ServiceError, InternalError {
+        /*
         switch(update.getMessageType()){
             case CONSENSUS_NOTIFY_BLOCK_NEW:
                 node.onBlockNew(ConsensusBlock.parseFrom((byte[]) update.getData()));
@@ -187,6 +190,7 @@ public class Engine implements se.chalmers.datx02.lib.Engine {
                 logger.error("Received undefined messagetype: " + update.getMessageType());
                 break;
         }
+        */
     }
 
     /**

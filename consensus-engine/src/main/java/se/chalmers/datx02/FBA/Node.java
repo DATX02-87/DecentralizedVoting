@@ -47,7 +47,7 @@ Also check for: References to lists (Create new when necessary to not manipulate
  */
 
 public class Node {
-
+    /*
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     private Service service;
@@ -1177,5 +1177,7 @@ public class Node {
     public State getState(){
         return state;
     }
+    
+     */
 }
 

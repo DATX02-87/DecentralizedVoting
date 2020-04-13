@@ -115,10 +115,13 @@ public class State implements Serializable {
 
         if(is_next_phase){
             logger.debug(this.toString() + " Changing to phase: " + desired_phase);
+            /*
             if(desired_phase == Phase.Finishing)
                 this.phase = Phase.setAndCreateFinishing(newFinishing); // Set finishing
             else
                 this.phase = desired_phase;
+
+             */
         }
         else{
             throw new InternalError("Node is in " + this.phase + " phase; attempted to switch to " + desired_phase);
@@ -177,6 +180,7 @@ public class State implements Serializable {
     public String toString(){
         String phase = "";
 
+        /*
         if(this.getPhase() == Phase.Finishing)
             phase = String.format("Fi(%b)", this.getPhase().getFinishing());
         else
@@ -192,6 +196,7 @@ public class State implements Serializable {
                     break;
             }
 
+         */
         return String.format("(%s, seq %d%s), ID: %s",
                 phase,
                 this.getSeqNum(),
