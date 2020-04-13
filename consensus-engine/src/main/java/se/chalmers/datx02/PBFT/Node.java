@@ -587,7 +587,7 @@ public class Node {
 
         List<byte[]> invalid_block_ids = msg_log.getBlocksWithNum(state.getSeqNum())
                 .stream().map(x -> {
-                    if(x.getBlockId().toByteArray() != blockId)
+                    if(!Arrays.equals(x.getBlockId().toByteArray(), blockId))
                         return x.getBlockId().toByteArray();
                     else
                         return null;
@@ -800,25 +800,37 @@ public class Node {
                 .collect(Collectors.toList());
     }
 
-    protected static class DoubleKey<T,F>{
+    protected static class BlockIdView {
+        private final byte[] blockId;
+        private final long view;
 
-        private T key1;
-        private F key2;
-
-        public DoubleKey(T key1, F key2){
-            this.key1 = key1;
-            this.key2 = key2;
+        public BlockIdView(byte[] blockId, long view) {
+            this.blockId = blockId;
+            this.view = view;
         }
+
+        public byte[] getBlockId() {
+            return blockId;
+        }
+
+        public long getView() {
+            return view;
     }
 
-    protected static class DoubleKeyComparator implements Comparator<DoubleKey>{
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+            BlockIdView that = (BlockIdView) o;
+            return view == that.view &&
+                    Arrays.equals(blockId, that.blockId);
+        }
 
         @Override
-        public int compare(DoubleKey o1, DoubleKey o2) {
-            if(o1.key1 == o2.key1 && o1.key2 == o2.key2)
-                return 0;
-            else
-                return -1;
+        public int hashCode() {
+            int result = Objects.hash(view);
+            result = 31 * result + Arrays.hashCode(blockId);
+            return result;
         }
     }
 
@@ -826,10 +838,8 @@ public class Node {
         logger.trace(String.format("%s: Building seal for block %d", state, state.getSeqNum() - 1));
 
         List<ParsedMessage> msgs = msg_log.getMessageOfTypeSeq(Commit, state.getSeqNum() - 1);
-        Map<DoubleKey<byte[], Long>, List<ParsedMessage>> msgsMap = new TreeMap<>(new DoubleKeyComparator());
+        Map<BlockIdView, List<ParsedMessage>> msgsMap = new HashMap<>();
         List<ParsedMessage> messages = null;
-        long view = 0;
-        byte[] block_id = null;
 
         // filter out
         msgs = msgs.stream()
@@ -837,15 +847,16 @@ public class Node {
                 .collect(Collectors.toList());
         // add to map
         for(ParsedMessage msg : msgs){
-            DoubleKey key = new DoubleKey<>(msg.getBlockId().toByteArray(), msg.info().getView());
-
+            BlockIdView key = new BlockIdView(msg.getBlockId().toByteArray(), msg.info().getView());
             msgsMap.computeIfAbsent(key, k -> new ArrayList<>());
             msgsMap.get(key).add(msg);
         }
 
-        for(Map.Entry<DoubleKey<byte[], Long>, List<ParsedMessage>> entry : msgsMap.entrySet()){
+        BlockIdView key = null;
+        for(Map.Entry<BlockIdView, List<ParsedMessage>> entry : msgsMap.entrySet()){
             if(entry.getValue().size() >= 2 * state.getFaultyNodes()) {
                 messages = entry.getValue();
+                key = entry.getKey();
                 break;
             }
         }
@@ -853,18 +864,16 @@ public class Node {
         if(messages == null)
             throw new InternalError("Couldn't find 2f commit messages in the message log for building a seal");
 
+        long view = key.getView();
+        byte[] block_id = key.getBlockId();
+
         PbftSeal.Builder sealBuilder = PbftSeal.newBuilder()
                 .setInfo(
                         MessageExtension.newMessageInfo(Seal, view, state.getSeqNum()-1, state.getPeerId())
                 )
                 .setBlockId(ByteString.copyFrom(block_id));
 
-        int i = 0;
-        for(PbftSignedVote voteSeal : signedVotesFromMessages(messages)){
-            sealBuilder.setCommitVotes(i++, voteSeal);
-        }
-
-        PbftSeal seal = sealBuilder.build();
+        PbftSeal seal = sealBuilder.addAllCommitVotes(signedVotesFromMessages(messages)).build();
 
         logger.trace("Seal created: " + logMessage(seal));
 
@@ -894,7 +903,7 @@ public class Node {
 
         logger.trace(String.format("Verifying vote with PbftMessage: {%s} and header: {%s}", pbft_message, header));
 
-        if(header.getSignerId() != pbft_message.getInfo().getSignerId()){
+        if(!header.getSignerId().equals(pbft_message.getInfo().getSignerId())) {
             throw new InvalidMessage(String.format("Received a vote where PbftMessage's signer ID {%s} " +
                             "and PeerMessage's signer ID {%s} dont match",
                     pbft_message.getInfo().getSignerId(),
@@ -940,7 +949,10 @@ public class Node {
                     new_view.getInfo().getView()));
         }
 
-        if(new_view.getInfo().getSignerId().toByteArray() != state.getPrimaryIdAtView(new_view.getInfo().getView())){
+        boolean viewPrimariesEquals = Arrays.equals(
+                new_view.getInfo().getSignerId().toByteArray(),
+                state.getPrimaryIdAtView(new_view.getInfo().getView()));
+        if(!viewPrimariesEquals){
             throw new InvalidMessage(String.format("Received NewView message for view {%d} that is not from the primary for that view",
                     new_view.getInfo().getView()));
         }
@@ -968,7 +980,6 @@ public class Node {
         List<byte[]> peer_ids = state.getMembers()
                 .stream()
                 .filter(pid -> !Arrays.equals(pid, new_view.getInfo().getSignerId().toByteArray()))
-//                .filter(pid -> pid != new_view.getInfo().getSignerId().toByteArray())
                 .collect(Collectors.toList());
 
         logger.trace(String.format("Comparing voter IDs (%s) with member IDs - primary (%s)", voter_ids, peer_ids));
@@ -1004,7 +1015,7 @@ public class Node {
 
         logger.trace(String.format("Parsed seal: %s", logMessage(seal)));
 
-        if(seal.getBlockId() != block.getPreviousId())
+        if(!seal.getBlockId().equals(block.getPreviousId()))
             throw new InvalidMessage(String.format("Seal's ID (%s) doesn't match block's previous ID (%s)",
                     HexBin.encode(seal.getBlockId().toByteArray()),
                     HexBin.encode(block.getPreviousId().toByteArray())));
@@ -1074,7 +1085,7 @@ public class Node {
 
         List<byte[]> peer_ids = members
                 .stream()
-                .filter(pid -> pid != seal.getInfo().getSignerId().toByteArray())
+                .filter(pid -> !Arrays.equals(pid, seal.getInfo().getSignerId().toByteArray()))
                 .collect(Collectors.toList());
 
         logger.trace(String.format("Comparing voter IDs (%s) with on-chain member IDs - primary (%s)", voter_ids, peer_ids));
