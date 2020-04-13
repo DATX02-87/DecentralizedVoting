@@ -431,8 +431,8 @@ public class Node {
 
             throw new InternalError(String.format("Received block {%d} / {%s} but node does not have previous block: {%s}",
                     block.getBlockNum(),
-                    HexBin.encode(block.getBlockId().toByteArray()),
-                    HexBin.encode(block.getPreviousId().toByteArray())));
+                    HexBin.encode(block.getBlockId().toByteArray()).substring(0, 6),
+                    HexBin.encode(block.getPreviousId().toByteArray())).substring(0, 6));
         }
 
         // Make sure that the previous block has the previous block number (enforces that blocks
@@ -683,8 +683,8 @@ public class Node {
 
         List<byte[]> on_chain_members = Config.getMembersFromSettings(settings);
 
-        // TODO this will not work, reference comparison
-        if(on_chain_members != state.getMembers()){
+        boolean sameMembers = listOfByteArrsEquals(on_chain_members, state.getMembers());
+        if (!sameMembers) {
             logger.info(String.format("Updating membership: %s", on_chain_members));
             state.setMembers(on_chain_members);
 
@@ -695,6 +695,33 @@ public class Node {
 
             state.setFaultyNodes(faulty_nodes);
         }
+    }
+
+    /**
+     * compares two collections of byte arrays, allows for duplicates
+     * @param a one collection of byte arrs
+     * @param b another collection of byte arrs
+     * @return true if they contain the same elements, false otherwise
+     */
+    private static boolean listOfByteArrsEquals(Collection<byte[]> a, Collection<byte[]> b) {
+        Set<ByteString> aSet = new HashSet<>();
+        // put all byte strs from one collection in a set
+        for (byte[] bytes : a) {
+            ByteString bytestr = ByteString.copyFrom(bytes);
+            aSet.add(bytestr);
+        }
+        // remove the found byte strs from the set, if it didnt exist they are not the same
+        for (byte[] bytes : b) {
+            ByteString bytestr = ByteString.copyFrom(bytes);
+            boolean removed = aSet.remove(bytestr);
+            if (!removed) {
+                return false;
+            }
+        }
+        // if there is elements left in the set, they are not the same
+        return aSet.size() <= 0;
+
+
     }
 
     public void tryPreparing(byte[] blockId){
