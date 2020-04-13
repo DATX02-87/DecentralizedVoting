@@ -4,6 +4,7 @@ import se.chalmers.datx02.PBFT.lib.exceptions.SigningError;
 
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.Arrays;
 
 public class Hash {
 
@@ -13,18 +14,14 @@ public class Hash {
      * @return returns the hashed SHA-512 byte
      */
     public static byte[] hashSha512(byte[] bytes){
-        byte[] hashedBytes = null;
         try {
             MessageDigest md = MessageDigest.getInstance("SHA-512");
+            md.reset();
+            return md.digest(bytes);
 
-            md.update(bytes);
-
-            hashedBytes = md.digest();
         } catch (NoSuchAlgorithmException e) {
-            e.printStackTrace();
+            throw new RuntimeException(e);
         }
-
-        return hashedBytes;
     }
 
     /**
@@ -36,7 +33,7 @@ public class Hash {
     public static void verifySha512(byte[] content, byte[] content_hash) throws SigningError {
         byte[] computed_sha = hashSha512(content);
 
-        if(computed_sha != content_hash)
+        if (!Arrays.equals(computed_sha, content_hash))
             throw new SigningError(String.format("Hash verification failed - Content: %s Hash: %s", content, content_hash));
     }
 }

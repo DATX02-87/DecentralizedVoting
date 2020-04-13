@@ -51,7 +51,7 @@ public class RetryUntilOk {
      * Compares the delay to the max value to see if the max value has been bypassed
      */
     private void check(){
-        if(delay.compareTo(max) == -1){
+        if(delay.compareTo(max) < 0){
             try {
                 delay = delay.multipliedBy(2);
             }
@@ -60,7 +60,7 @@ public class RetryUntilOk {
                 delay = ChronoUnit.FOREVER.getDuration();
             }
 
-            if(delay.compareTo(max) == 1){
+            if(delay.compareTo(max) > 0){
                 delay = max;
             }
         }

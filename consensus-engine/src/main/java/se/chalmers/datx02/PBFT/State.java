@@ -7,6 +7,7 @@ import se.chalmers.datx02.PBFT.lib.exceptions.InternalError;
 
 import java.io.Serializable;
 import java.time.Duration;
+import java.util.Arrays;
 import java.util.List;
 
 public class State implements Serializable {
@@ -112,11 +113,11 @@ public class State implements Serializable {
 
 
     public boolean isPrimary(){
-        return (this.peerId == getPrimaryId());
+        return Arrays.equals(this.peerId, getPrimaryId());
     }
 
     public boolean isPrimaryAtView(long view){
-        return (this.peerId == getPrimaryIdAtView(view));
+        return Arrays.equals(this.peerId, getPrimaryIdAtView(view));
     }
 
     /**
