@@ -92,7 +92,9 @@ public class Node {
     public void onPeerMessage(ParsedMessage msg) throws InvalidMessage {
         logger.trace(state + ": Got peer message: " + logMessage(msg.info()));
 
-        if(state.getMembers().contains(msg.info().getSignerId().toByteArray())){
+        boolean isFromMember = state.getMembers().parallelStream()
+                .anyMatch(member -> Arrays.equals(member, msg.info().getSignerId().toByteArray()));
+        if(!isFromMember){
             throw new InvalidMessage("Received message from node (" + HexBin.encode(msg.info().getSignerId().toByteArray())
                     + ") that is not a member of the PBFT network");
         }
@@ -681,6 +683,7 @@ public class Node {
 
         List<byte[]> on_chain_members = Config.getMembersFromSettings(settings);
 
+        // TODO this will not work, reference comparison
         if(on_chain_members != state.getMembers()){
             logger.info(String.format("Updating membership: %s", on_chain_members));
             state.setMembers(on_chain_members);
@@ -721,7 +724,8 @@ public class Node {
     }
 
     public void onPeerConnected(byte[] peerId){
-        if(!state.getMembers().contains(peerId)
+        boolean peerIsMember = state.getMembers().parallelStream().anyMatch(ba -> Arrays.equals(ba, peerId));
+        if(!peerIsMember
                 || state.getSeqNum() == 1)
             return;
 
@@ -931,7 +935,8 @@ public class Node {
 
         List<byte[]> peer_ids = state.getMembers()
                 .stream()
-                .filter(pid -> pid != new_view.getInfo().getSignerId().toByteArray())
+                .filter(pid -> !Arrays.equals(pid, new_view.getInfo().getSignerId().toByteArray()))
+//                .filter(pid -> pid != new_view.getInfo().getSignerId().toByteArray())
                 .collect(Collectors.toList());
 
         logger.trace(String.format("Comparing voter IDs (%s) with member IDs - primary (%s)", voter_ids, peer_ids));
@@ -995,7 +1000,7 @@ public class Node {
             byte[] id;
             try {
                 id = verifyVote(vote, Commit, msg -> {
-                    if (msg.getBlockId() != seal.getBlockId())
+                    if (!msg.getBlockId().equals(seal.getBlockId()))
                         throw new InvalidMessage("Commit vote's block ID (" + msg.getBlockId() + ") doesn't match seal's ID (" + seal.getBlockId() + ")");
 
                     if (msg.getInfo().getView() != seal.getInfo().getView())
@@ -1006,12 +1011,11 @@ public class Node {
 
                     return msg;
                 });
-            } catch (SerializationError | SigningError | InvalidMessage e) {
-                voter_ids = null;
-
-                break;
+            } catch (SerializationError | SigningError e) {
+                throw new RuntimeException(e);
+            } catch (InvalidMessage e) {
+                throw e;
             }
-
             voter_ids.add(id);
         }
 
@@ -1030,7 +1034,10 @@ public class Node {
 
         List<byte[]> members = Config.getMembersFromSettings(settings);
 
-        if(!members.contains(seal.getInfo().getSignerId().toByteArray()))
+
+        boolean sealSignerInMembers = members.parallelStream()
+                .anyMatch(mem -> Arrays.equals(mem, seal.getInfo().getSignerId().toByteArray()));
+        if(!sealSignerInMembers)
             throw new InvalidMessage(String.format("Consensus seal is signed by an unknown peer: %s", seal.getInfo().getSignerId()));
 
         List<byte[]> peer_ids = members
@@ -1040,7 +1047,10 @@ public class Node {
 
         logger.trace(String.format("Comparing voter IDs (%s) with on-chain member IDs - primary (%s)", voter_ids, peer_ids));
 
-        if(Collections.indexOfSubList(peer_ids, voter_ids) == -1){
+        // check if voter ids is a subset of the peer ids
+        boolean voterIdsAreSubsetOfPeerIds = voter_ids.parallelStream()
+                .allMatch(id -> peer_ids.parallelStream().anyMatch(pi -> Arrays.equals(pi, id)));
+        if(!voterIdsAreSubsetOfPeerIds){
             List<byte[]> newsub = new ArrayList<>(peer_ids); // clone
             throw new InvalidMessage(String.format("Consensus seal contains vote(s) from invalid ID(s): %s",
                     newsub.removeAll(voter_ids)

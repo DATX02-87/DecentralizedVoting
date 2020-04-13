@@ -60,17 +60,17 @@ public class ParsedMessage {
 
         // Check that they have same msg type
         if(deserialized_message instanceof PbftMessage) {
-            if(((PbftMessage) deserialized_message).getInfo().getMsgType() != message.getHeader().getMessageType())
+            if(!((PbftMessage) deserialized_message).getInfo().getMsgType().equals(message.getHeader().getMessageType()))
                 throw new InvalidMessage("Message type mismatch: received a PeerMessage with type " + message.getHeader().getMessageType()
                         + " that contains a PBFT message with type " + ((PbftMessage) deserialized_message).getInfo().getMsgType());
         }
         else if(deserialized_message instanceof PbftSeal) {
-            if(((PbftSeal) deserialized_message).getInfo().getMsgType() != message.getHeader().getMessageType())
+            if(!((PbftSeal) deserialized_message).getInfo().getMsgType().equals(message.getHeader().getMessageType()))
                 throw new InvalidMessage("Message type mismatch: received a PeerMessage with type " + message.getHeader().getMessageType()
                         + " that contains a PBFT message with type " + ((PbftSeal) deserialized_message).getInfo().getMsgType());
         }
         else if(deserialized_message instanceof PbftNewView) {
-            if(((PbftNewView) deserialized_message).getInfo().getMsgType() != message.getHeader().getMessageType())
+            if(!((PbftNewView) deserialized_message).getInfo().getMsgType().equals(message.getHeader().getMessageType()))
                 throw new InvalidMessage("Message type mismatch: received a PeerMessage with type " + message.getHeader().getMessageType()
                         + " that contains a PBFT message with type " + ((PbftNewView) deserialized_message).getInfo().getMsgType());
         }

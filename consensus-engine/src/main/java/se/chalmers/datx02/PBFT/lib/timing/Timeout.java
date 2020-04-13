@@ -35,7 +35,8 @@ public class Timeout implements Serializable  {
      * @return returns true if expired
      */
     public boolean checkExpired(){
-        if(this.state == TimeoutState.Active && Duration.between(Instant.now(), this.start).compareTo(this.duration) == 1)
+        if(this.state == TimeoutState.Active &&
+                Duration.between(Instant.now(), this.start).abs().compareTo(this.duration) > 0)
             this.state = TimeoutState.Expired;
 
         return (this.state == TimeoutState.Expired);

@@ -5,6 +5,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import pbft.sdk.protobuf.PbftMessageInfo;
 import sawtooth.sdk.protobuf.ConsensusBlock;
+import sawtooth.sdk.protobuf.ConsensusPeerInfo;
 import se.chalmers.datx02.PBFT.lib.Storage;
 import se.chalmers.datx02.PBFT.lib.exceptions.*;
 import se.chalmers.datx02.PBFT.lib.exceptions.InternalError;
@@ -124,7 +125,8 @@ public class Engine implements se.chalmers.datx02.lib.Engine {
                 }
 
             } catch (InterruptedException | InvalidProtocolBufferException | InvalidMessage | SerializationError | ServiceError | InternalError e) {
-                logger.error("Main loop received exception: " + e);
+                logger.error("Main loop received exception: ", e);
+                throw new RuntimeException(e);
             }
         }
 
@@ -168,7 +170,8 @@ public class Engine implements se.chalmers.datx02.lib.Engine {
                 ParsedMessage parsedMessage = new ParsedMessage(peerMessage, node.getState().getPeerId());
                 byte[] pbft_signer_id = parsedMessage.info().getSignerId().toByteArray();
 
-                if(pbft_signer_id != verified_signer_id)
+
+                if(!Arrays.equals(pbft_signer_id, verified_signer_id))
                     throw new InvalidMessage(String.format("Mismatch between PbftMessage's signer ID %s and PeerMessage's " +
                                     "signer ID %s of peer message: %s",
                             Arrays.toString(pbft_signer_id),
@@ -183,8 +186,9 @@ public class Engine implements se.chalmers.datx02.lib.Engine {
                 this.stop();
                 break;
             case CONSENSUS_NOTIFY_PEER_CONNECTED:
-                logger.info("Received PeerConnected with peer info: ");
-                node.onPeerConnected(((PbftMessageInfo) update.getData()).getSignerId().toByteArray());
+                ConsensusPeerInfo peerInfo = ConsensusPeerInfo.parseFrom((byte[]) update.getData());
+                logger.info("Received PeerConnected with peer info: " + peerInfo.getPeerId());
+                node.onPeerConnected(peerInfo.getPeerId().toByteArray());
                 break;
             case CONSENSUS_NOTIFY_PEER_DISCONNECTED:
                 logger.info("Received PeerDisconnected for peer ID: " + update.getData());
