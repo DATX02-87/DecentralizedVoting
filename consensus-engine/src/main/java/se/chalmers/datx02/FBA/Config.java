@@ -5,11 +5,14 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sun.org.apache.xerces.internal.impl.dv.util.HexBin;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import se.chalmers.datx02.FBA.lib.Storage;
 import se.chalmers.datx02.FBA.lib.exceptions.InternalError;
+import se.chalmers.datx02.FBA.lib.exceptions.StoredInMemory;
 import se.chalmers.datx02.FBA.lib.timing.RetryUntilOk;
 import se.chalmers.datx02.lib.exceptions.ReceiveErrorException;
 import se.chalmers.datx02.lib.exceptions.UnknownBlockException;
 
+import java.io.IOException;
 import java.io.Serializable;
 import java.time.Duration;
 import java.util.ArrayList;
@@ -25,8 +28,13 @@ public class Config implements Serializable {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
     private static final Logger logger_static = LoggerFactory.getLogger(Config.class.getClass());
 
-    private List<byte[]> members;
+    private List<byte[]> members; // List of all members in peer network
+
+    private List<byte[]> UNL; // List of all "trusted" members in peer network
+
     private Map<String, String> settings;
+
+    private String name; // Name of node
 
     protected Duration
             blockPublishingDelay,   // How long to wait in between trying to publish blocks
@@ -79,34 +87,34 @@ public class Config implements Serializable {
         RetryUntilOk retryUntilOk = new RetryUntilOk(exponentialRetryBase, exponentialRetryMax);
 
         List<String> inSettings = Arrays.asList(
-                "sawtooth.consensus.pbft.members",
-                "sawtooth.consensus.pbft.block_publishing_delay",
-                "sawtooth.consensus.pbft.idle_timeout",
-                "sawtooth.consensus.pbft.commit_timeout",
-                "sawtooth.consensus.pbft.view_change_duration",
-                "sawtooth.consensus.pbft.forced_view_change_interval");
+                "sawtooth.consensus.fba.members",
+                "sawtooth.consensus.fba.block_publishing_delay",
+                "sawtooth.consensus.fba.idle_timeout",
+                "sawtooth.consensus.fba.commit_timeout",
+                "sawtooth.consensus.fba.view_change_duration",
+                "sawtooth.consensus.fba.forced_view_change_interval");
 
         this.settings = retryUntilOk.run(() -> service.getSettings(blockId, inSettings));
 
         this.members = getMembersFromSettings(settings);
 
         try {
-            blockPublishingDelay = mergeMillisSettingIfSet("sawtooth.consensus.pbft.block_publishing_delay");
+            blockPublishingDelay = mergeMillisSettingIfSet("sawtooth.consensus.fba.block_publishing_delay");
         } catch (InternalError e) {
             logger.error(String.valueOf(e));
         }
         try{
-            idleTimeout = mergeMillisSettingIfSet("sawtooth.consensus.pbft.idle_timeout");
+            idleTimeout = mergeMillisSettingIfSet("sawtooth.consensus.fba.idle_timeout");
         } catch (InternalError e) {
             logger.error(String.valueOf(e));
         }
         try{
-            commitTimeout = mergeMillisSettingIfSet("sawtooth.consensus.pbft.commit_timeout");
+            commitTimeout = mergeMillisSettingIfSet("sawtooth.consensus.fba.commit_timeout");
         } catch (InternalError e) {
             logger.error(String.valueOf(e));
         }
         try{
-            viewChangeDuration = mergeMillisSettingIfSet("sawtooth.consensus.pbft.view_change_duration");
+            viewChangeDuration = mergeMillisSettingIfSet("sawtooth.consensus.fba.view_change_duration");
         } catch (InternalError e) {
             logger.error(String.valueOf(e));
         }
@@ -116,7 +124,7 @@ public class Config implements Serializable {
                     "than the idle timeout " + idleTimeout.toString());
 
         try{
-            forcedViewChangeInterval = mergeSettingIfSet("sawtooth.consensus.pbft.forced_view_change_interval");
+            forcedViewChangeInterval = mergeSettingIfSet("sawtooth.consensus.fba.forced_view_change_interval");
         } catch (InternalError e) {
             logger.error(String.valueOf(e));
         }
@@ -152,10 +160,10 @@ public class Config implements Serializable {
     }
 
     public static List<byte[]> getMembersFromSettings(Map<String, String> settings) {
-        String members_setting_value = settings.get("sawtooth.consensus.pbft.members");
+        String members_setting_value = settings.get("sawtooth.consensus.fba.members");
 
         if(members_setting_value == null){
-            logger_static.warn("'sawtooth.consensus.pbft.members' is empty; this setting must exist to use PBFT");
+            logger_static.warn("'sawtooth.consensus.fba.members' is empty; this setting must exist to use PBFT");
             return null;
         }
 
@@ -168,7 +176,7 @@ public class Config implements Serializable {
 
             return membersMapped;
         } catch (JsonProcessingException e) {
-            logger_static.error("Unable to parse value at 'sawtooth.consensus.pbft.members' due to error: " + e);
+            logger_static.error("Unable to parse value at 'sawtooth.consensus.fba.members' due to error: " + e);
             return null;
         }
     }
@@ -197,8 +205,27 @@ public class Config implements Serializable {
         return members.size();
     }
 
+    public void loadUNL() throws InternalError {
+        try {
+            Storage.get_storage("", "UNLlist");
+        } catch (IOException | ClassNotFoundException | StoredInMemory e) {
+            throw new InternalError("Could not load UNL due to error: " + e);
+        }
+    }
+
     public List<byte[]> getMembers(){
         return members;
+    }
+
+    public void setName(String name){
+        this.name = name;
+    }
+
+    public void setName(byte[] peerId){
+        // try to set peer id as name if name is empty
+        if("".equals(name)){
+            name = "FBA Node: " + HexBin.encode(peerId);
+        }
     }
 }
 

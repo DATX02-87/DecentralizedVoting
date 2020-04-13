@@ -18,13 +18,14 @@ public class Main {
                         update_recv_timeout = -1,
                         max_log_size = -1;
     private static String storage_location = "";
+    private static String name = "";
 
     /**
      * Main method that consensus engine uses to start
      * @param args specifies the arguments to be used in the engine start up
      */
     public static void main(String[] args) {
-        logger.info("Sawtooth PBFT Engine");
+        logger.info("Sawtooth FBA Engine");
 
         // Try to parse args
         if(!parseArgs(args)) {
@@ -53,14 +54,14 @@ public class Main {
         if(max_log_size > 0)
             pbft_config.setMaxLogSize(max_log_size);
 
-        // Start up engine
-        Engine pbft_engine = new Engine(pbft_config);
+        pbft_config.setName(name);
 
-        ZmqDriver driver = new ZmqDriver(pbft_engine);
+        // Start up engine
+        Engine fba_engine = new Engine(pbft_config);
+
+        ZmqDriver driver = new ZmqDriver(fba_engine);
 
         driver.start(endpoint);
-
-
     }
 
     /**
@@ -84,18 +85,20 @@ public class Main {
                         log_level = Level.TRACE;
                         break;
                 }
-            if (args.length >= 2)
-                endpoint = args[1];
+            if(args.length >= 2)
+                endpoint = args[2];
             if (args.length >= 3)
-                exponential_retry_base = Long.parseLong(args[2]);
+                name = args[3];
             if (args.length >= 4)
-                exponential_retry_max = Long.parseLong(args[3]);
+                exponential_retry_base = Long.parseLong(args[3]);
             if (args.length >= 5)
-                update_recv_timeout = Long.parseLong(args[4]);
+                exponential_retry_max = Long.parseLong(args[4]);
             if (args.length >= 6)
-                max_log_size = Long.parseLong(args[5]);
+                update_recv_timeout = Long.parseLong(args[5]);
             if (args.length >= 7)
-                storage_location = args[6];
+                max_log_size = Long.parseLong(args[6]);
+            if (args.length >= 8)
+                storage_location = args[7];
         }
         catch(Exception e){
             return false;

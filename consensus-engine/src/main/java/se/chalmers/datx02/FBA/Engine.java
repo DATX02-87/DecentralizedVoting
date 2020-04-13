@@ -74,6 +74,17 @@ public class Engine implements se.chalmers.datx02.lib.Engine {
             );
         }
 
+        // Load UNL
+        try {
+            this.config.loadUNL();
+        } catch (InternalError e) {
+            logger.error(String.valueOf(e));
+            return;
+        }
+
+        // Set name if empty
+        this.config.setName(pbft_state.getPeerId());
+
         logger.info("PBFT state created: " + pbft_state);
 
         // Init node
@@ -101,25 +112,6 @@ public class Engine implements se.chalmers.datx02.lib.Engine {
                 // Try to publish if delay has passed
                 if(block_publishing_ticker.Tick())
                     node.tryPublish();
-
-                if(node.checkIdleTimeoutExpired()){
-                    logger.warn("Idle timeout expired; proposing view change");
-                    node.startViewChange(node.getState().getView() + 1);
-                }
-
-                if(node.checkCommitTimeoutExpired()){
-                    logger.warn("Commit timeout expired; proposing view change");
-                    node.startViewChange(node.getState().getView() + 1);
-                }
-
-                if(node.getState().getMode() == State.Mode.ViewChanging){
-                    if(node.checkViewChangeTimeoutExpired()){
-                        long newView = node.getState().getMode().getViewChanging() + 1;
-                        logger.warn("View change timeout expired; proposing view change for view" + newView);
-
-                        node.startViewChange(newView);
-                    }
-                }
 
             } catch (InterruptedException | InvalidProtocolBufferException | InvalidMessage | SerializationError | ServiceError | InternalError e) {
                 logger.error("Main loop received exception: " + e);

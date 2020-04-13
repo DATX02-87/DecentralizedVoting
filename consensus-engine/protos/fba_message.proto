@@ -13,7 +13,6 @@
 // limitations under the License.
 // -----------------------------------------------------------------------------
 
-// TODO: Add our Proto messages for FBA
 syntax = "proto3";
 option java_multiple_files = true;
 option java_package = "fba.sdk.protobuf";
@@ -24,14 +23,14 @@ message FBAMessageInfo {
     // Type of the message
     string msg_type = 1;
 
-    // View number
-    uint64 view = 2;
-
     // Sequence number
-    uint64 seq_num = 3;
+    uint64 seq_num = 2;
 
     // Node who signed the message
-    bytes signer_id = 4;
+    bytes signer_id = 3;
+
+    // List of all UNL that this is meant for
+    repeated bytes unl_id = 4;
 }
 
 
@@ -42,17 +41,6 @@ message FBAMessage {
 
     // The block this message is for
     bytes block_id = 2;
-}
-
-// A message sent by the new primary to signify that the new view should be
-// started
-message FBANewView {
-    // Message information
-    FBAMessageInfo info = 1;
-
-    // A list of ViewChange messages to prove this view change (must contain at
-    // least 2f messages)
-    repeated FBASignedVote view_changes = 2;
 }
 
 message FBASignedVote {

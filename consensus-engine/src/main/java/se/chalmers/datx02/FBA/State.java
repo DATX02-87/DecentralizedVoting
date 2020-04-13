@@ -1,5 +1,6 @@
 package se.chalmers.datx02.FBA;
 
+import com.sun.org.apache.xerces.internal.impl.dv.util.HexBin;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import se.chalmers.datx02.FBA.lib.exceptions.InternalError;
@@ -14,66 +15,62 @@ public class State implements Serializable {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
+    /**
+     * Hold the phase that the node is currently at
+     */
     public enum Phase{
         PrePreparing,
         Preparing,
-        Commiting,
+        Voting,
+        Commiting, // todo: Add our phases
         Finishing;
 
-        private boolean finishing;
+        private votingThreshold thresHold;
 
-        public boolean getFinishing(){
-            return finishing;
+        public votingThreshold getThresHold(){
+            return thresHold;
         }
 
-        public void setFinishing(boolean newFinishing){
-            if(this == Finishing)
-                finishing = newFinishing;
+        private void setThresHold(votingThreshold thresHold){
+            this.thresHold = thresHold;
         }
 
-        public static Phase setAndCreateFinishing(boolean newFinishing){
-            Phase returnValue = Phase.Finishing;
-            returnValue.setFinishing(newFinishing);
+        public static Phase changeToVoting(votingThreshold thresHold){
+            Phase returnValue = Phase.Voting;
+            returnValue.setThresHold(thresHold);
 
             return returnValue;
         }
     }
 
-    public enum Mode{
-        Normal,
-        ViewChanging;
+    public enum votingThreshold{
+        FIRST(0.5),
+        SECOND(0.6),
+        THIRD(0.7),
+        FOURTH(0.8);
 
-        private long viewChanging;
+        private double percentage;
 
-        public long getViewChanging(){
-            return viewChanging;
+        votingThreshold(double percentage){
+            this.percentage = percentage;
         }
 
-        private void setViewChanging(long viewChanging){
-            this.viewChanging = viewChanging;
-        }
-
-        public static Mode changeToView(long viewChanging){
-            Mode returnValue = Mode.ViewChanging;
-            returnValue.setViewChanging(viewChanging);
-
-            return returnValue;
-        }
-
-        public static Mode changeToNormal(){
-            return Mode.Normal;
+        public double getPercentage(){
+            return percentage;
         }
     }
 
     private byte[] peerId;
-    private long seq_num, view;
+    private long seq_num;
     private byte[] chain_head;
     private Phase phase;
-    private Mode mode;
     private List<byte[]> member_ids;
     private long faulty_nodes;
     protected Timeout idle_timeout, commit_timeout, view_change_timeout;
     protected Duration view_change_duration, exponential_retry_base, exponential_retry_max;
+
+    protected Timeout voting_timeout;
+
 
     private long forced_view_changed_interval;
 
@@ -85,10 +82,8 @@ public class State implements Serializable {
 
         this.peerId = peerId;
         this.seq_num = head_block_num + 1;
-        this.view = 0;
         this.chain_head = null;
         this.phase = Phase.PrePreparing;
-        this.mode = Mode.Normal;
         this.faulty_nodes = faultyNodes;
         this.member_ids = config.getMembers();
         this.idle_timeout = new Timeout(config.idleTimeout);
@@ -98,25 +93,6 @@ public class State implements Serializable {
         this.exponential_retry_base = config.exponentialRetryBase;
         this.exponential_retry_max = config.exponentialRetryMax;
         this.forced_view_changed_interval = config.forcedViewChangeInterval;
-    }
-
-    public byte[] getPrimaryId(){
-        int primary_index = ((int) this.view) % this.member_ids.size();
-        return member_ids.get(primary_index);
-    }
-
-    public byte[] getPrimaryIdAtView(long view){
-        int primary_index = ((int) view) % this.member_ids.size();
-        return member_ids.get(primary_index);
-    }
-
-
-    public boolean isPrimary(){
-        return (this.peerId == getPrimaryId());
-    }
-
-    public boolean isPrimaryAtView(long view){
-        return (this.peerId == getPrimaryIdAtView(view));
     }
 
     /**
@@ -157,14 +133,6 @@ public class State implements Serializable {
         return seq_num;
     }
 
-    public long getView(){
-        return view;
-    }
-
-    public void setView(long view){
-        this.view = view;
-    }
-
     public void setSeqNum(long seq_num){
         this.seq_num = seq_num;
     }
@@ -175,10 +143,6 @@ public class State implements Serializable {
 
     public void setMembers(List<byte[]> member_ids){
         this.member_ids = member_ids;
-    }
-
-    public Mode getMode(){
-        return mode;
     }
 
     public byte[] getPeerId(){
@@ -205,41 +169,32 @@ public class State implements Serializable {
         this.faulty_nodes = faulty_nodes;
     }
 
-    public void setModeNormal(){
-        mode = Mode.changeToNormal();
-    }
-
-    public void setModeViewChanging(long view){
-        mode = Mode.changeToView(view);
+    public void setPhaseVoting(votingThreshold thresHold){
+        phase = phase.changeToVoting(thresHold);
     }
 
     @Override
     public String toString(){
-        String is_primary = (isPrimary()) ? " *" : "";
         String phase = "";
 
-        if(this.getMode() == Mode.ViewChanging)
-            phase = String.format("V(%d)", this.getMode().getViewChanging());
-        else{
-            if(this.getPhase() == Phase.Finishing)
-                phase = String.format("Fi(%b)", this.getPhase().getFinishing());
-            else
-                switch(this.getPhase()){
-                    case PrePreparing:
-                        phase = "PP";
-                        break;
-                    case Preparing:
-                        phase = "Pr";
-                        break;
-                    case Commiting:
-                        phase = "Co";
-                        break;
-                }
-        }
-        return String.format("(%s, view %d, seq %d%s)",
+        if(this.getPhase() == Phase.Finishing)
+            phase = String.format("Fi(%b)", this.getPhase().getFinishing());
+        else
+            switch(this.getPhase()){
+                case PrePreparing:
+                    phase = "PP";
+                    break;
+                case Preparing:
+                    phase = "Pr";
+                    break;
+                case Commiting:
+                    phase = "Co";
+                    break;
+            }
+
+        return String.format("(%s, seq %d%s), ID: %s",
                 phase,
-                this.getView(),
                 this.getSeqNum(),
-                is_primary);
+                HexBin.encode(peerId));
     }
 }

@@ -9,6 +9,7 @@ import pbft.sdk.protobuf.*;
 import sawtooth.sdk.protobuf.ConsensusBlock;
 import sawtooth.sdk.protobuf.ConsensusPeerInfo;
 import sawtooth.sdk.protobuf.ConsensusPeerMessageHeader;
+import sawtooth.sdk.protobuf.Transaction;
 import sawtooth.sdk.signing.Context;
 import sawtooth.sdk.signing.CryptoFactory;
 import sawtooth.sdk.signing.Secp256k1PublicKey;
@@ -28,9 +29,9 @@ import se.chalmers.datx02.lib.exceptions.UnknownBlockException;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static se.chalmers.datx02.PBFT.lib.Hash.verifySha512;
-import static se.chalmers.datx02.PBFT.message.MessageExtension.logMessage;
-import static se.chalmers.datx02.PBFT.message.MessageType.*;
+import static se.chalmers.datx02.FBA.lib.Hash.verifySha512;
+import static se.chalmers.datx02.FBA.message.MessageExtension.logMessage;
+import static se.chalmers.datx02.FBA.message.MessageType.*;
 
 /*
 todo:
@@ -51,6 +52,10 @@ public class Node {
     private Service service;
     private State state;
     private MessageLog msg_log;
+
+    private List<Transaction> candidateSet;
+    private List<Transaction> failedTransactions;
+
 
     public Node(Config config, ConsensusBlock chainHead, List<ConsensusPeerInfo> connected_peers, Service service, State state){
         this.service = service;
@@ -1025,7 +1030,7 @@ public class Node {
         // block previous to the one this seal verifies, since that represents the state of the
         // network at the time this block was voted on.
         Map<String, String> settings = retryUntilOk.run(() -> service.getSettings(previousId,
-                Arrays.asList("sawtooth.consensus.pbft.members")
+                Arrays.asList("sawtooth.consensus.fba.members")
         ));
 
         List<byte[]> members = Config.getMembersFromSettings(settings);

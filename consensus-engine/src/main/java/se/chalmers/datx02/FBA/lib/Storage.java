@@ -32,10 +32,14 @@ public class Storage {
      * @param storage_location specifies the location of storage
      */
     public static Object get_storage(String storage_location) throws IOException, ClassNotFoundException, StoredInMemory {
+        return get_storage(storage_location, stored_fileName);
+    }
+
+    public static Object get_storage(String storage_location, String filename) throws IOException, ClassNotFoundException, StoredInMemory {
         if(storage_location == "memory")
             throw new StoredInMemory("Object is stored in memory, skipping get_storage");
 
-        File file = new File(storage_location + "/" + stored_fileName + stored_fileSuffix);
+        File file = new File(storage_location + "/" + filename + stored_fileSuffix);
         FileInputStream fileIn = new FileInputStream(file);
         ObjectInputStream objectIn = new ObjectInputStream(fileIn);
         Object obj = objectIn.readObject();
