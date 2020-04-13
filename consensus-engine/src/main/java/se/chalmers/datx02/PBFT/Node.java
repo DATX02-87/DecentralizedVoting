@@ -887,11 +887,11 @@ public class Node {
     }
 
     @FunctionalInterface
-    public interface InvalidMessageFunction<T, R> {
-        R apply(T t) throws InvalidMessage;
+    public interface InvalidMessageFunction<T> {
+        void apply(T t) throws InvalidMessage;
     }
 
-    public <R> byte[] verifyVote(PbftSignedVote vote, MessageType expected_type, InvalidMessageFunction<PbftMessage,R> validation_criteria) throws SerializationError, InvalidMessage, SigningError {
+    public byte[] verifyVote(PbftSignedVote vote, MessageType expected_type, InvalidMessageFunction<PbftMessage> validation_criteria) throws SerializationError, InvalidMessage, SigningError {
         PbftMessage pbft_message;
         ConsensusPeerMessageHeader header;
 
