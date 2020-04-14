@@ -138,6 +138,10 @@ public class Node {
                     logger.warn("Received message with unknown type: " + msg_type);
                     break;
             }
+        } catch (InvalidMessage e) {
+            logger.error("Node received invalid message", e);
+        } catch (InternalError e) {
+            logger.error("Node received internal error ", e);
         } catch (Exception e) {
             logger.error(String.format("Node failed to handle a message due to error: %s", e));
             throw new RuntimeException(e);
@@ -325,7 +329,7 @@ public class Node {
 
         state.setModeNormal();
         if (state.getPhase() != State.Phase.Finishing) {
-            state.switchPhase(State.Phase.PrePreparing, false);
+            state.forceSwitchPhase(State.Phase.PrePreparing, false);
         }
         state.idle_timeout.start();
 
@@ -353,12 +357,8 @@ public class Node {
     public void handleSealResponse(ParsedMessage msg) throws InvalidMessage {
         PbftSeal seal = msg.getSeal();
 
-        try {
-            state.switchPhase(State.Phase.Finishing, false);
-
+        if (state.getPhase() == State.Phase.Finishing) {
             return;
-        } catch (InternalError internalError) {
-            logger.error("Failed to switch phase on handleSealResponse");
         }
 
         ConsensusBlock previous_idBlock = msg_log.getBlockWithId(seal.getBlockId().toByteArray());
@@ -571,11 +571,7 @@ public class Node {
         }
 
         state.idle_timeout.stop();
-        try {
-            state.switchPhase(State.Phase.Finishing, catchup_again);
-        } catch (InternalError e) {
-            logger.error("Failed to switch phase due: " + e);
-        }
+        state.forceSwitchPhase(State.Phase.Finishing, catchup_again);
     }
 
     public void onBlockCommit(byte[] blockId) throws ServiceError {
@@ -602,11 +598,8 @@ public class Node {
 
         state.setSeqNum(state.getSeqNum() + 1);
         state.setModeNormal();
-        try {
-            state.switchPhase(State.Phase.PrePreparing, false);
-        } catch (InternalError e) {
-            logger.error("Failed to switch phase on onBlockCommit", e);
-        }
+        state.forceSwitchPhase(State.Phase.PrePreparing, false);
+
         state.setChainHead(blockId);
 
         List<byte[]> requesters = msg_log.getMessageOfTypeSeq(SealRequest, state.getSeqNum() - 1)

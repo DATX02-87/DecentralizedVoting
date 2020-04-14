@@ -149,6 +149,14 @@ public class State implements Serializable {
         }
     }
 
+    public void forceSwitchPhase(Phase desiredPhase, boolean newFinishing) {
+        if (desiredPhase == Phase.Finishing) {
+            this.phase = Phase.setAndCreateFinishing(newFinishing);
+        } else {
+            this.phase = desiredPhase;
+        }
+    }
+
     public boolean atForcedViewChange() {
         return ((this.seq_num % this.forced_view_changed_interval) == 0);
     }
