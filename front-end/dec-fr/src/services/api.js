@@ -18,24 +18,14 @@ export const getElections = async (privateKey) => {
       active: true,
       hasVoted: false,
       eligible: true,
-      candidates: {
-        kalle: 12,
-        kula: 11,
-        petter: 8,
-        nicklas: 15,
-      },
+      candidates: ['kalle', 'kula', 'petter', 'nicklas'],
     },
     {
       name: 'TestVal2',
       active: true,
       hasVoted: true,
       eligible: true,
-      candidates: {
-        kalle: 12,
-        kula: 11,
-        petter: 8,
-        nicklas: 15,
-      },
+      candidates: ['kalle', 'kula', 'petter', 'nicklas'],
     },
   ];
 };

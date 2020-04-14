@@ -13,7 +13,6 @@ const Votations = () => {
     const getElections = async () => {
       if (key) {
         const data = await getEligibleElections(key);
-        console.log(data);
         setVotations(data);
       }
     };
