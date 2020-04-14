@@ -1,17 +1,17 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import Card from 'react-bootstrap/Card';
+import { Link } from 'react-router-dom';
 
 const VotationItem = ({ votation: { name, active, hasVoted } }) => {
   return (
     <div>
-      <Card style={{ width: '18rem' }}>
+      <Card style={{ width: '30rem' }}>
         <Card.Body>
           <Card.Title>{name}</Card.Title>
-          <Card.Subtitle className='mb-2 text-muted'>
-            Active: {active}
-          </Card.Subtitle>
-          <Card.Text>Voted: {hasVoted}</Card.Text>
+          <Card.Text>Active: {active.toString()}</Card.Text>
+          <Card.Text>Voted: {hasVoted.toString()}</Card.Text>
+          <Link to={`/votation/${name}`}>Go to Election</Link>
         </Card.Body>
       </Card>
     </div>

@@ -22,10 +22,10 @@ const Votations = () => {
 
   return (
     <div>
-      <h1>Render all available votations here</h1>
+      <h3>Render all available votations here</h3>
       <ListGroup>
         {votations.map((votation) => (
-          <VotationItem votation={votation} />
+          <VotationItem key={votation.name} votation={votation} />
         ))}
       </ListGroup>
     </div>
