@@ -3,6 +3,7 @@ package se.chalmers.datx02.PBFT;
 import com.google.protobuf.ByteString;
 import com.google.protobuf.InvalidProtocolBufferException;
 import com.sun.org.apache.xerces.internal.impl.dv.util.HexBin;
+import org.bitcoinj.core.Utils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import pbft.sdk.protobuf.*;
@@ -286,18 +287,12 @@ public class Node {
 
         if (state.isPrimaryAtView(msg_view)
                 && messages_from_other_nodes.size() >= 2 * state.getFaultyNodes()) {
-            PbftNewView.Builder new_viewBuilder = PbftNewView.newBuilder()
+            PbftNewView new_view = PbftNewView.newBuilder()
                     .setInfo(
                             MessageExtension.newMessageInfo(NewView, msg_view, state.getSeqNum() - 1, state.getPeerId())
-                    );
-
-            // Add votes
-            int i = 0;
-            for (PbftSignedVote vote : signedVotesFromMessages(messages_from_other_nodes)) {
-                new_viewBuilder.setViewChanges(i++, vote);
-            }
-
-            PbftNewView new_view = new_viewBuilder.build();
+                    )
+                    .clearViewChanges()
+                    .addAllViewChanges(signedVotesFromMessages(messages_from_other_nodes)).build();
 
             logger.trace(String.format("Created NewView message {%s}", new_view));
 
@@ -639,7 +634,6 @@ public class Node {
                 if (tryHandlingBlock(block))
                     return;
             }
-            return; // return if succeded
         } catch (InvalidMessage invalidMessage) {
         } // ignore
 
@@ -670,7 +664,7 @@ public class Node {
         if (state.isPrimary()) {
             logger.info(String.format("%s: Initializing block on top of %s",
                     state,
-                    HexBin.encode(blockId)));
+                    HexBin.encode(blockId).substring(0, 6)));
 
             try {
                 service.initializeBlock(blockId);
@@ -683,7 +677,6 @@ public class Node {
     public void updateMembership(byte[] blockId) {
         RetryUntilOk retryUntilOk = new RetryUntilOk(state.exponential_retry_base, state.exponential_retry_max);
 
-        // TODO checkl this out
         Map<String, String> settings = retryUntilOk.run(() -> service.getSettings(blockId, Collections.singletonList("sawtooth.consensus.pbft.members")));
 
 
@@ -867,19 +860,20 @@ public class Node {
             }
         }
 
-        if (messages == null)
+        if (messages == null || key == null)
             throw new InternalError("Couldn't find 2f commit messages in the message log for building a seal");
 
         long view = key.getView();
         byte[] block_id = key.getBlockId();
 
-        PbftSeal.Builder sealBuilder = PbftSeal.newBuilder()
+        PbftSeal seal = PbftSeal.newBuilder()
                 .setInfo(
                         MessageExtension.newMessageInfo(Seal, view, state.getSeqNum() - 1, state.getPeerId())
                 )
-                .setBlockId(ByteString.copyFrom(block_id));
-
-        PbftSeal seal = sealBuilder.addAllCommitVotes(signedVotesFromMessages(messages)).build();
+                .setBlockId(ByteString.copyFrom(block_id))
+                .clearCommitVotes()
+                .addAllCommitVotes(signedVotesFromMessages(messages))
+                .build();
 
         logger.trace("Seal created: " + logMessage(seal));
 
@@ -921,11 +915,12 @@ public class Node {
         if (msg_type != expected_type)
             throw new InvalidMessage(String.format("Received a {%s} vote, but expected a {%s}", msg_type, expected_type));
 
-        Secp256k1PublicKey key = Secp256k1PublicKey.fromHex(HexBin.encode(header.getSignerId().toByteArray()));
+        Secp256k1PublicKey key = new Secp256k1PublicKey(header.getSignerId().toByteArray());
 
         Context context = CryptoFactory.createContext("secp256k1");
 
-        if (!context.verify(HexBin.encode(vote.getHeaderSignature().toByteArray()),
+        String hexSignature = Utils.HEX.encode(vote.getHeaderSignature().toByteArray());
+        if (!context.verify(hexSignature,
                 vote.getHeaderBytes().toByteArray(),
                 key)) {
             throw new SigningError(String.format("Vote (%s) failed signature verification", vote));

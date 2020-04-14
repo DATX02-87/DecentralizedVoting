@@ -3,10 +3,10 @@
     <turboFilter class="ch.qos.logback.classic.turbo.DynamicThresholdFilter">
         <Key>context</Key>
         <!-- You can set default threshold as you like -->
-        <DefaultThreshold>info</DefaultThreshold>
+        <DefaultThreshold>TRACE</DefaultThreshold>
         <MDCValueLevelPair>
             <value>driver</value>
-            <level>warn</level>
+            <level>TRACE</level>
         </MDCValueLevelPair>
     </turboFilter>
 

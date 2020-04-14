@@ -1,11 +1,15 @@
 package se.chalmers.datx02.PBFT.lib.timing;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.time.Duration;
 import java.time.temporal.ChronoUnit;
 import java.util.concurrent.Callable;
 
 public class RetryUntilOk {
-    private Duration base, max, delay;
+    private final static Logger logger = LoggerFactory.getLogger(RetryUntilOk.class);
+    private Duration max, delay;
 
     /**
      * Initializes a new RetryUntilOk object
@@ -13,7 +17,6 @@ public class RetryUntilOk {
      * @param max the max duration
      */
     public RetryUntilOk(Duration base, Duration max){
-        this.base = base;
         this.max = max;
         this.delay = base;
     }
@@ -29,6 +32,7 @@ public class RetryUntilOk {
             try {
                 return func.call();
             } catch (Exception e) {
+                logger.info("Caught exception in RetryUntilOk", e);
                 try {
                     Thread.sleep(this.getDelay());
                 } catch (InterruptedException ex) {
@@ -52,13 +56,7 @@ public class RetryUntilOk {
      */
     private void check(){
         if(delay.compareTo(max) < 0){
-            try {
-                delay = delay.multipliedBy(2);
-            }
-            // Overflow
-            catch(Exception e){
-                delay = ChronoUnit.FOREVER.getDuration();
-            }
+            delay = delay.multipliedBy(2);
 
             if(delay.compareTo(max) > 0){
                 delay = max;
