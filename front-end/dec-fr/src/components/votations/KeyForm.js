@@ -2,8 +2,9 @@ import React, { useState } from 'react';
 import Form from 'react-bootstrap/Form';
 import FormGroup from 'react-bootstrap/FormGroup';
 import Button from 'react-bootstrap/Button';
-import Container from 'react-bootstrap/Container';
+import Card from 'react-bootstrap/Card';
 import { withRouter } from 'react-router-dom';
+import '../../App.css';
 
 const KeyForm = (props) => {
   const [key, setKey] = useState('');
@@ -20,11 +21,12 @@ const KeyForm = (props) => {
   };
 
   return (
-    <Container>
+    <Card border='light' className='card'>
       <Form onSubmit={onSubmit}>
         <FormGroup controlId='formPrivateKey'>
-          <Form.Label>Enter private key to join voting</Form.Label>
+          <Card.Title>Log in to find elections</Card.Title>
           <Form.Control
+            size='sm'
             type='text'
             placeholder='private key'
             value={key}
@@ -35,7 +37,7 @@ const KeyForm = (props) => {
           Submit
         </Button>
       </Form>
-    </Container>
+    </Card>
   );
 };
 

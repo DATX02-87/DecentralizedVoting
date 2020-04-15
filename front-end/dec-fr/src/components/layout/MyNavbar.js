@@ -4,7 +4,7 @@ import Navbar from 'react-bootstrap/Navbar';
 const MyNavbar = () => {
   return (
     <Fragment>
-      <Navbar bg='dark' variant='dark'>
+      <Navbar bg='white' variant='light'>
         <Navbar.Brand href='/'>Decentralised Voting System</Navbar.Brand>
       </Navbar>
     </Fragment>

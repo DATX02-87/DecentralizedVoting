@@ -13,7 +13,7 @@ const App = () => {
   return (
     <KeyProvider>
       <Router>
-        <div className='App'>
+        <div className='App' style={{ backgroundColor: '#F0F0F7' }}>
           <MyNavbar />
           <div className='container'>
             <Switch>

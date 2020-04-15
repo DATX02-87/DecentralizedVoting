@@ -21,7 +21,7 @@ const Votations = () => {
 
   return (
     <div>
-      <h3>Render all available votations here</h3>
+      <h4>Available Votations</h4>
       <ListGroup>
         {votations.map((votation) => (
           <VotationItem key={votation.name} votation={votation} />
