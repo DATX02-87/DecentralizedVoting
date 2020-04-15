@@ -2,12 +2,11 @@ package se.chalmers.datx02.pbft;
 
 import com.palantir.docker.compose.DockerComposeManager;
 import com.palantir.docker.compose.configuration.DockerComposeFiles;
-import com.palantir.docker.compose.execution.DockerComposeExecArgument;
-import com.palantir.docker.compose.execution.DockerComposeExecOption;
 import com.palantir.docker.compose.execution.DockerComposeExecutable;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
 import org.junit.jupiter.api.extension.AfterAllCallback;
 import org.junit.jupiter.api.extension.BeforeAllCallback;
 import org.junit.jupiter.api.extension.RegisterExtension;
@@ -16,13 +15,20 @@ import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
 import se.chalmers.datx02.PBFT.Config;
 import se.chalmers.datx02.PBFT.Engine;
-import se.chalmers.datx02.PBFT.Main;
 import se.chalmers.datx02.lib.Driver;
 import se.chalmers.datx02.lib.impl.ZmqDriver;
-import se.chalmers.datx02.testutils.*;
+import se.chalmers.datx02.testutils.DockerExecutor;
+import se.chalmers.datx02.testutils.MultipleExtension;
+import se.chalmers.datx02.testutils.Response;
+import se.chalmers.datx02.testutils.SawtoothComposeExtension;
 
+import java.io.IOException;
 import java.util.*;
+import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
 @Tag(value = "integration")
@@ -65,6 +71,7 @@ public class PbftProgressIntegrationTest {
     ));
 
     @Test
+    @Timeout(value = 300)
     public void testProgress() throws Exception {
 
         System.out.println("Starting consensus engines");
@@ -98,10 +105,37 @@ public class PbftProgressIntegrationTest {
             numBlocks = res.getData().size();
             Thread.sleep(1000);
         }
+        // get the chain
+        assertTrue(allChainsApproxEqual(), "All chains have approximately same length");
+
         workload.after();
         System.out.println("Stopping consensus engines");
         stopConsensusEngines();
         System.out.println("DONE with progress test");
+    }
+
+    private boolean allChainsApproxEqual() throws IOException {
+        int max = Integer.MIN_VALUE;
+        int min = Integer.MAX_VALUE;
+
+        List<Integer> blockSizes = IntStream.range(1, 5).boxed()
+                .map(i -> nodes.getExtension(i))
+                .map(n -> {
+                    try {
+                        return n.getRequest(n.buildUri("rest-api", 8008, "blocks"), Response.class).getData().size();
+                    } catch (IOException e) {
+                        throw new RuntimeException(e);
+                    }
+                }).collect(Collectors.toList());
+        for (Integer blockSize : blockSizes) {
+            if (blockSize > max) {
+                max = blockSize;
+            }
+            if (blockSize < min) {
+                min = blockSize;
+            }
+        }
+        return max - min <= 3;
     }
 
     private void stopConsensusEngines() throws InterruptedException {
