@@ -32,7 +32,6 @@ const Votation = ({ match }) => {
 
     castVote(key, votation.name);
   };
-  console.log(voteContext);
   if (loading || votation === {}) return <Spinner />;
   return (
     <Card as='div' className='card grid-2'>
