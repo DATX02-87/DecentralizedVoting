@@ -4,9 +4,7 @@ import KeyContext from './keyContext';
 import { SET_KEY } from '../types';
 
 const KeyState = (props) => {
-  const initialState = {
-    key: '',
-  };
+  const initialState = '';
 
   const [state, dispatch] = useReducer(KeyReducer, initialState);
 
