@@ -1,13 +1,18 @@
-import React, { useState } from 'react';
+import React, { useContext } from 'react';
 import Form from 'react-bootstrap/Form';
 import FormGroup from 'react-bootstrap/FormGroup';
 import Button from 'react-bootstrap/Button';
 import Card from 'react-bootstrap/Card';
-import { withRouter } from 'react-router-dom';
 import '../../App.css';
+// import KeyContext from '../context/key/keyContext';
+import VoteContext from '../context/vote/voteContext';
+import KeyContext from '../context/key/keyContext';
 
-const KeyForm = (props) => {
-  const [key, setKey] = useState('');
+const KeyForm = () => {
+  // const keyContext = useContext(KeyContext);
+  const voteContext = useContext(VoteContext);
+  const keyContext = useContext(KeyContext);
+  const { key, setKey } = keyContext;
 
   const onChange = (e) => setKey(e.target.value);
 
@@ -16,7 +21,7 @@ const KeyForm = (props) => {
     if (key === '') {
       alert('enter a key');
     } else {
-      props.history.push('/votations');
+      voteContext.getEligibleElectionsFromApi(key);
     }
   };
 
@@ -25,6 +30,7 @@ const KeyForm = (props) => {
       <Form onSubmit={onSubmit}>
         <FormGroup controlId='formPrivateKey'>
           <Card.Title>Log in to find elections</Card.Title>
+          <Form.Label></Form.Label>
           <Form.Control
             size='sm'
             type='text'
@@ -41,4 +47,4 @@ const KeyForm = (props) => {
   );
 };
 
-export default withRouter(KeyForm);
+export default KeyForm;

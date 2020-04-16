@@ -1,34 +1,28 @@
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useContext } from 'react';
 import ListGroup from 'react-bootstrap/ListGroup';
-import { KeyContext } from '../context/KeyContext';
+
 import VotationItem from './VotationItem';
 
-import { getEligibleElections } from '../../services/api';
+import { Spinner } from 'react-bootstrap';
+import VoteContext from '../context/vote/voteContext';
 
 const Votations = () => {
-  const [key] = useContext(KeyContext);
-  const [votations, setVotations] = useState([]);
+  const voteContext = useContext(VoteContext);
+  const { loading, votations } = voteContext;
 
-  useEffect(() => {
-    const getElections = async () => {
-      if (key) {
-        const data = await getEligibleElections(key);
-        setVotations(data);
-      }
-    };
-    getElections();
-  }, [key]);
-
-  return (
-    <div>
-      <h4>Available Votations</h4>
-      <ListGroup>
-        {votations.map((votation) => (
-          <VotationItem key={votation.name} votation={votation} />
-        ))}
-      </ListGroup>
-    </div>
-  );
+  if (loading) {
+    return <Spinner />;
+  } else {
+    return (
+      <div>
+        <ListGroup>
+          {votations.map((votation) => (
+            <VotationItem key={votation.name} votation={votation} />
+          ))}
+        </ListGroup>
+      </div>
+    );
+  }
 };
 
 export default Votations;

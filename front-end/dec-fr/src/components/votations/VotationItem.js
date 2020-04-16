@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import Card from 'react-bootstrap/Card';
 import { Link } from 'react-router-dom';
-import { Container, Row, Col } from 'react-bootstrap';
+import { Row, Col } from 'react-bootstrap';
 
 const VotationItem = ({ votation: { name, active, hasVoted } }) => {
   return (
@@ -16,7 +16,10 @@ const VotationItem = ({ votation: { name, active, hasVoted } }) => {
               <Card.Text>Voted: {hasVoted.toString()}</Card.Text>
             </Col>
             <Col>
-              <Link className='btn btn-primary' to={`/votation/${name}`}>
+              <Link
+                className='btn btn-dark btn-sm my-1'
+                to={`/votation/${name}`}
+              >
                 Go to Election
               </Link>
             </Col>

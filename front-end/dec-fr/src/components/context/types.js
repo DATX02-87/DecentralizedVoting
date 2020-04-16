@@ -1,0 +1,6 @@
+export const GET_ELECTIONS_FROM_API = 'GET_ELECTIONS';
+export const CAST_VOTE_ON_API = 'CAST_VOTE';
+export const GET_ELIGIBLE_ELECTIONS_FROM_API = 'GET_ELIGIBLE_ELECTIONS';
+export const SET_KEY = 'SET_KEY';
+export const GET_KEY = 'GET_KEY';
+export const SET_LOADING = 'SET_LOADING';

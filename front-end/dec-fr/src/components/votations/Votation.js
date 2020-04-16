@@ -1,28 +1,25 @@
-import React, { useContext, useEffect, useState } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import React, { useContext, useState } from 'react';
+import { Link } from 'react-router-dom';
 import Card from 'react-bootstrap/Card';
-import { getElection, castVote } from '../../services/api';
-import { KeyContext } from '../context/KeyContext';
 import Col from 'react-bootstrap/Col';
 import Form from 'react-bootstrap/Form';
 import Button from 'react-bootstrap/Button';
-import { Row, ButtonGroup } from 'react-bootstrap';
+import { Row, ButtonGroup, Spinner } from 'react-bootstrap';
 
-const Votation = () => {
+import { castVote } from '../../services/api';
+import VoteContext from '../context/vote/voteContext';
+import KeyContext from '../context/key/keyContext';
+
+const Votation = ({ match }) => {
+  const voteContext = useContext(VoteContext);
+  const { loading, getElection } = voteContext;
+
   const keyContext = useContext(KeyContext);
   const { key } = keyContext;
-  const { name } = useParams();
+  const [vote, setVote] = useState({});
+  const votation = getElection(match.params.name, key);
 
-  const [votation, setVotation] = useState();
-  const [vote, setVote] = useState();
-
-  useEffect(() => {
-    const getCurrentElection = async () => {
-      const data = await getElection(name, key);
-      setVotation(data);
-    };
-    getCurrentElection();
-  }, [name, key]);
+  const { name, active, hasVoted, candidates } = votation;
 
   const onChange = (e) => setVote(e.target.value);
 
@@ -35,15 +32,16 @@ const Votation = () => {
 
     castVote(key, votation.name);
   };
-
-  return votation ? (
+  console.log(voteContext);
+  if (loading || votation === {}) return <Spinner />;
+  return (
     <Card as='div' className='card grid-2'>
       <Row>
         <Col as='div' className='all-center'>
           <Card.Title>Election name: {name}</Card.Title>
           <Card.Body>
-            <Card.Text>Active: {votation.active.toString()}</Card.Text>
-            <Card.Text>Voted: {votation.hasVoted.toString()}</Card.Text>
+            <Card.Text>Active: {active.toString()}</Card.Text>
+            <Card.Text>Voted: {hasVoted.toString()}</Card.Text>
           </Card.Body>
         </Col>
         <Col as='div' className='all-center'>
@@ -53,7 +51,7 @@ const Votation = () => {
                 <fieldset>
                   <Form.Group controlId='voteForm'>
                     <Form.Label as='h5'>Candidates</Form.Label>
-                    {votation.candidates.map((candidate) => (
+                    {candidates.map((candidate) => (
                       <div key={candidate} className='mb-3'>
                         <Form.Check
                           type='radio'
@@ -83,7 +81,7 @@ const Votation = () => {
         </Col>
       </Row>
     </Card>
-  ) : null;
+  );
 };
 
 export default Votation;
