@@ -49,7 +49,8 @@ public class RestController {
     }
 
     @GET(value = "/transaction/{batchId}/status")
-    public TransactionStatusResponse getTransactionStatus(String batchId) throws IOException {
+    public TransactionStatusResponse getTransactionStatus(Req req, Resp resp, String batchId) throws IOException {
+        resp.header("Access-Control-Allow-Origin", "*");
         BatchStatus status = validatorService.getStatus(batchId);
         return new TransactionStatusResponse(status.getStatus());
     }
