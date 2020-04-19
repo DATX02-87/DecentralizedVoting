@@ -1,14 +1,24 @@
-import React, { useContext } from 'react';
+import React, { useContext, useState, useEffect } from 'react';
 import ListGroup from 'react-bootstrap/ListGroup';
 
 import VotationItem from './VotationItem';
 
 import { Spinner } from 'react-bootstrap';
-import VoteContext from '../context/vote/voteContext';
+import KeyContext from '../context/key/keyContext';
+import { getEligibleElections } from '../../services/api';
 
 const Votations = () => {
-  const voteContext = useContext(VoteContext);
-  const { loading, votations } = voteContext;
+  const [ votations, setVotations ] = useState([]);
+  const [ loading, setLoading ] = useState(false);
+  const { key } = useContext(KeyContext);
+
+  useEffect(() => {
+    setLoading(true);
+    getEligibleElections(key).then(votations => {
+      setVotations(votations);
+      setLoading(false);
+    });
+  }, [ key ]);
 
   if (loading) {
     return <Spinner />;

@@ -18,7 +18,7 @@ const VotationItem = ({ votation: { name, active, hasVoted } }) => {
             <Col>
               <Link
                 className='btn btn-dark btn-sm my-1'
-                to={`/votation/${name}`}
+                to={`/votations/${name}`}
               >
                 Go to Election
               </Link>
