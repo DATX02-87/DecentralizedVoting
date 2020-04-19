@@ -83,7 +83,6 @@ export const getElections = async (privateKey) => {
   }
   const publicKey = context.getPublicKey(privateKeyObj).asHex();
   const { data } = await axios.get(`${baseUrl}/rest/state`);
-  console.log(data);
   return Object.entries(data.elections).map(el => ({
     name: el[0],
     active: el[1].active,
