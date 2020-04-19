@@ -1,3 +1,66 @@
+const { createContext, CryptoFactory } = require('sawtooth-sdk/signing')
+const { Secp256k1PrivateKey } = require('sawtooth-sdk/signing/secp256k1');
+
+const axios = require('axios').default;
+const context = createContext('secp256k1');
+const baseUrl = 'http://decentralizedvoting-api.vltmn.io';
+
+const getTransactionResult = async (batchId, transactionId) => {
+  let status = '';
+  while (status !== 'INVALID' && status !== 'COMMITTED') {
+    const { data } = await axios.get(`${baseUrl}/transaction/${batchId}/status`);
+    status = data.status;
+  }
+
+  if (status === 'INVALID') {
+    throw new Error('Transaction invalid');
+  }
+  return;
+};
+
+const sendPayload = async (payload, signer) => {
+  const publicKey = signer.getPublicKey().asHex();
+  const response = await axios.post(baseUrl + '/rpc/get-transaction-data-to-sign', {
+      transactionPayload: payload,
+      publicKey
+  });
+  const toSign = response.data.dataToSign;
+  const signature = signer.sign(Buffer.from(toSign, 'base64'));
+  const transaction = {
+      signature,
+      header: toSign,
+      payload
+  };
+  try {
+      const transactionResp = await axios.post(baseUrl + '/rest/transaction', transaction);
+      return {
+        transactionId: transactionResp.data.transactionId,
+        batchId: transactionResp.data.batchId
+      }
+  } catch (e) {
+      console.error(e.response.data);
+      throw e;
+  }
+}
+
+const buildCastVote = (candidateName, electionName) => ({
+  action: 'CAST_VOTE',
+  data: JSON.stringify({
+      candidate: candidateName,
+      electionName: electionName
+  })
+})
+
+export const castVote = async (privateKey, electionName, candidateName) => {
+  const privateKeyObj = Secp256k1PrivateKey.fromHex(privateKey);
+  const signer = new CryptoFactory(context).newSigner(privateKeyObj);
+  const transaction = buildCastVote(candidateName, electionName);
+  const resp = await sendPayload(transaction, signer);
+  // do this asynchronous if the blockchain is too slow. it is not currently but might be in the future
+  await getTransactionResult(resp.batchId, resp.transactionId);
+  return resp;
+};
+
 export const getEligibleElections = async (privateKey) => {
   const allElections = await getElections(privateKey);
   return allElections.filter((e) => e.eligible);
@@ -11,36 +74,22 @@ export const getElection = async (name, privateKey) => {
 };
 
 export const getElections = async (privateKey) => {
-  // TODO
-  return [
-    {
-      name: 'TestVal',
-      active: true,
-      hasVoted: false,
-      eligible: true,
-      candidates: ['kalle', 'kula', 'petter', 'nicklas'],
-    },
-    {
-      name: 'TestVal2',
-      active: true,
-      hasVoted: true,
-      eligible: true,
-      candidates: ['kalle', 'kula', 'petter', 'nicklas'],
-    },
-  ];
-};
-
-const getCastResult = async (batchId, transactionId) => {
-  return;
-};
-
-export const castVote = async (privateKey, electionName, candidateName) => {
-  // TODO
-  const batchId = '';
-  const transactionId = '';
-  return {
-    transactionId,
-    batchId,
-    result: getCastResult(batchId, transactionId),
-  };
+  let privateKeyObj;
+  try {
+    privateKeyObj = Secp256k1PrivateKey.fromHex(privateKey);
+  } catch (e) {
+    console.log('Invalid key');
+    return [];
+  }
+  const publicKey = context.getPublicKey(privateKeyObj).asHex();
+  const { data } = await axios.get(`${baseUrl}/rest/state`);
+  console.log(data);
+  return Object.entries(data.elections).map(el => ({
+    name: el[0],
+    active: el[1].active,
+    eligible: new Set(Object.keys(el[1].voters)).has(publicKey),
+    hasVoted: Object.entries(el[1].voters)
+      .filter(obj => obj[0] === publicKey).some(obj => obj[1]),
+    candidates: Object.keys(el[1].candidates)
+  }));
 };
