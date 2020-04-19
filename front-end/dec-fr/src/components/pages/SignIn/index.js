@@ -3,7 +3,7 @@ import Card from 'react-bootstrap/Card';
 import KeyForm from "./KeyForm";
 
 const SignIn = () => (
-  <Card className='mt-4'>
+  <Card>
     <Card.Body>
       <Card.Title>Welcome to the voting system</Card.Title>
       <Card.Text>

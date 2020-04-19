@@ -25,7 +25,7 @@ const App = () => {
       <Router>
         <div className='app'>
           <MyNavbar />
-          <Container>
+          <Container className='mt-4 mb-4'>
             <Switch>
               <Route exact path='/sign-in' component={SignIn} />
               <AuthenticatedRoute exact path='/votations' component={Votations} />
