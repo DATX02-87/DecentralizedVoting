@@ -5,6 +5,7 @@ import Form from 'react-bootstrap/Form';
 import Button from 'react-bootstrap/Button';
 import ButtonGroup from 'react-bootstrap/ButtonGroup';
 import { Link } from 'react-router-dom';
+import VotationStats from './VotationStats';
 
 const SelectCandidateForm = ({candidates, selectedCandidate, onChange, onSubmit, castingVote}) => (
     <Form onSubmit={onSubmit}>
@@ -53,7 +54,7 @@ const VotationDisplay = ({name, active, hasVoted, candidates, castingVote, onVot
                     You have successfully voted in this votation, results will be posted after the end of this votation.
                 </Card.Text>
                 ) : (
-                    <p>SHOW STATS HERE</p>
+                    <VotationStats votationName={name} />
                 )}
                 
                 <Link to='/' className='btn btn-light'>Back</Link>

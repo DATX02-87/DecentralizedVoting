@@ -93,3 +93,17 @@ export const getElections = async (privateKey) => {
     candidates: Object.keys(el[1].candidates)
   }));
 };
+
+export const getElectionStatistics = async (electionName) => {
+  const { data } = await axios.get(`${baseUrl}/rest/state`);
+  const electionEntry = Object.entries(data.elections).filter(e => e[0] === electionName)[0]
+  if (!electionEntry) {
+    console.error('No election was found in api for ' + electionName);
+    return [];
+  }
+  const election = electionEntry[1];
+  return Object.entries(election.candidates).map(entry => ({
+    name: entry[0],
+    votes: entry[1]
+  }));
+}
