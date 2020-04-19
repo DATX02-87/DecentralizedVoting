@@ -4,8 +4,8 @@ import ListGroup from 'react-bootstrap/ListGroup';
 import VotationItem from './VotationItem';
 
 import { Spinner } from 'react-bootstrap';
-import KeyContext from '../context/key/keyContext';
-import { getEligibleElections } from '../../services/api';
+import KeyContext from 'components/context/key/keyContext';
+import { getEligibleElections } from 'services/api';
 
 const Votations = () => {
   const [ votations, setVotations ] = useState([]);

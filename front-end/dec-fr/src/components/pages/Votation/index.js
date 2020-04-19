@@ -6,8 +6,8 @@ import Form from 'react-bootstrap/Form';
 import Button from 'react-bootstrap/Button';
 import { Row, ButtonGroup, Spinner } from 'react-bootstrap';
 
-import { castVote, getElection } from '../../services/api';
-import KeyContext from '../context/key/keyContext';
+import { castVote, getElection } from '../../../services/api';
+import KeyContext from '../../context/key/keyContext';
 
 const Votation = ({ match }) => {
   const { key } = useContext(KeyContext);
@@ -24,22 +24,16 @@ const Votation = ({ match }) => {
     return true;
   };
 
-  const [loading, setLoading] = useState(true);
   const [votation, setVotation] = useState(undefined);
   const votationName = match.params.name;
   useEffect(() => {
-    setLoading(true);
     getElection(votationName, key).then(votation => {
       setVotation(votation);
-      setLoading(false);
     });
   }, [votationName, key]);
 
-  if (loading) {
-    return <Spinner />;
-  }
   if (!votation) {
-    console.error('An error has occured, component is not loading and there is no votation received');
+    return <Spinner />;
   }
   const { name, active, hasVoted, candidates } = votation;
   return (

@@ -1,6 +1,6 @@
 import React from "react";
 import Card from 'react-bootstrap/Card';
-import KeyForm from "../votations/KeyForm";
+import KeyForm from "./KeyForm";
 
 const SignIn = () => (
   <Card className='mt-4'>

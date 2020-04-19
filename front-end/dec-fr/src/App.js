@@ -3,8 +3,8 @@ import { BrowserRouter as Router, Switch, Route, Redirect } from 'react-router-d
 import Container from 'react-bootstrap/Container';
 import SignIn from './components/pages/SignIn';
 import MyNavbar from './components/layout/MyNavbar';
-import Votations from './components/votations/Votations';
-import Votation from './components/votations/Votation';
+import Votations from './components/pages/Votations';
+import Votation from './components/pages/Votation';
 import KeyState from './components/context/key/keyState';
 import KeyContext from './components/context/key/keyContext';
 
