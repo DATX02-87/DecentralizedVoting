@@ -8,7 +8,8 @@ const baseUrl = 'http://decentralizedvoting-api.vltmn.io';
 const getTransactionResult = async (batchId, transactionId) => {
   let status = '';
   while (status !== 'INVALID' && status !== 'COMMITTED') {
-    const { data } = await axios.get(`${baseUrl}/transaction/${batchId}/status`);
+    const { data } = await axios.get(`${baseUrl}/rest/transaction/${batchId}/status`);
+    await new Promise((res) => setTimeout(res, 100));
     status = data.status;
   }
 
