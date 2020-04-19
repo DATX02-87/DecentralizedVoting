@@ -82,7 +82,7 @@ public class ValidatorService {
         return requestFactory.buildPostRequest(
                 new GenericUrl(validatorURI + "/batches"),
                 new ByteArrayContent("application/octet-stream", batchList)
-        ).execute().parseAs(BatchListResponse.class).getLink();
+        ).execute().parseAs(BatchListResponse.class).getLink().split("=")[1];
     }
 
     /**

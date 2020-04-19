@@ -14,6 +14,8 @@ import sawtooth.sdk.signing.*;
 import se.chalmers.datx02.api.exception.HttpException;
 import se.chalmers.datx02.api.model.api.PostTransactionRequest;
 import se.chalmers.datx02.api.model.api.PostTransactionResponse;
+import se.chalmers.datx02.api.model.api.TransactionStatusResponse;
+import se.chalmers.datx02.api.model.validator.BatchStatus;
 import se.chalmers.datx02.model.DataUtil;
 import se.chalmers.datx02.model.exception.ReducerException;
 import se.chalmers.datx02.model.state.Election;
@@ -44,6 +46,12 @@ public class RestController {
                 .build();
         String batchId = validatorService.postTransaction(transaction);
         return new PostTransactionResponse(request.getSignature(), batchId);
+    }
+
+    @GET(value = "/transaction/{batchId}/status")
+    public TransactionStatusResponse getTransactionStatus(String batchId) throws IOException {
+        BatchStatus status = validatorService.getStatus(batchId);
+        return new TransactionStatusResponse(status.getStatus());
     }
 
     @GET(value = "/state")
