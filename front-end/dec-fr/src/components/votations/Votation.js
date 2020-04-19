@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext, useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import Card from 'react-bootstrap/Card';
 import Col from 'react-bootstrap/Col';
@@ -6,33 +6,42 @@ import Form from 'react-bootstrap/Form';
 import Button from 'react-bootstrap/Button';
 import { Row, ButtonGroup, Spinner } from 'react-bootstrap';
 
-import { castVote } from '../../services/api';
-import VoteContext from '../context/vote/voteContext';
+import { castVote, getElection } from '../../services/api';
 import KeyContext from '../context/key/keyContext';
 
 const Votation = ({ match }) => {
-  const voteContext = useContext(VoteContext);
-  const { loading, getElection } = voteContext;
+  const { key } = useContext(KeyContext);
 
-  const keyContext = useContext(KeyContext);
-  const { key } = keyContext;
-  const [vote, setVote] = useState({});
-  const votation = getElection(match.params.name, key);
-
-  const { name, active, hasVoted, candidates } = votation;
-
-  const onChange = (e) => setVote(e.target.value);
-
+  const [selectedCandidate, setSelectedCandidate] = useState(undefined);
+  const onChange = (e) => setSelectedCandidate(e.target.value);
   const onSubmit = (e) => {
     e.preventDefault();
-    if (vote) {
-      castVote(key, votation.name, vote);
-      console.log(key + ' has voted on ' + vote + ' in ' + votation.name);
+    if (!selectedCandidate) {
+      throw new Error('A candidate should be selected')
     }
-
-    castVote(key, votation.name);
+    // TODO 
+    castVote(key, votation.name, selectedCandidate);
+    return true;
   };
-  if (loading || votation === {}) return <Spinner />;
+
+  const [loading, setLoading] = useState(true);
+  const [votation, setVotation] = useState(undefined);
+  const votationName = match.params.name;
+  useEffect(() => {
+    setLoading(true);
+    getElection(votationName, key).then(votation => {
+      setVotation(votation);
+      setLoading(false);
+    });
+  }, [votationName, key]);
+
+  if (loading) {
+    return <Spinner />;
+  }
+  if (!votation) {
+    console.error('An error has occured, component is not loading and there is no votation received');
+  }
+  const { name, active, hasVoted, candidates } = votation;
   return (
     <Card as='div' className='card grid-2'>
       <Row>
