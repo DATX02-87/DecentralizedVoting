@@ -1,11 +1,14 @@
 import React, { Fragment } from 'react';
 import Navbar from 'react-bootstrap/Navbar';
+import { Link } from 'react-router-dom';
 
 const MyNavbar = () => {
   return (
     <Fragment>
       <Navbar bg='white' variant='light'>
-        <Navbar.Brand href='/'>Decentralised Voting System</Navbar.Brand>
+        <Navbar.Brand>
+          <Link to='/'>Decentralised Voting System</Link>
+        </Navbar.Brand>
       </Navbar>
     </Fragment>
   );
