@@ -182,10 +182,11 @@ public class DevmodeService {
     }
 
     public void cancelBlock(){
-        logger.info("Canceling block ");
+
 
         try{
             this.service.cancelBlock();
+            logger.info("Cancelled block ");
             stateLog.setState(DevmodeState.CANCELLED);
         }
         catch (InvalidStateException e) {
