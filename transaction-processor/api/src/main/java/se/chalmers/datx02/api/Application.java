@@ -16,7 +16,14 @@ public class Application {
         App.bootstrap(new String[]{});
         On.error(HttpException.class).handler((req, resp, error) -> {
             HttpException exc = (HttpException) error;
+            resp.header("Access-Control-Allow-Origin", "*");
             return resp.code(exc.getStatusCode()).result(exc.getMessage()).done();
+        });
+        On.options("/*").plain((req, resp) -> {
+            resp.header("Access-Control-Allow-Origin", "*");
+            resp.header("Access-Control-Allow-Headers", "*");
+            resp.body(new byte[]{});
+            return resp;
         });
     }
 }

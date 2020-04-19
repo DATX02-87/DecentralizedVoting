@@ -29,7 +29,7 @@ public class RestController {
 
     @POST(value = "/transaction")
     public PostTransactionResponse postTransaction(Req req, Resp resp, PostTransactionRequest request) throws IOException {
-
+        resp.header("Access-Control-Allow-Origin", "*");
         TransactionHeader header = TransactionHeader.parseFrom(request.getHeader());
         try {
             validatorService.testTransaction(new se.chalmers.datx02.model.Transaction(request.getPayload(), header.getSignerPublicKey()));
@@ -47,7 +47,8 @@ public class RestController {
     }
 
     @GET(value = "/state")
-    public GlobalState getGlobalState() throws IOException {
+    public GlobalState getGlobalState(Req req, Resp resp) throws IOException {
+        resp.header("Access-Control-Allow-Origin", "*");
         return validatorService.getState();
     }
 
