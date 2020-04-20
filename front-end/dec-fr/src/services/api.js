@@ -3,7 +3,7 @@ const { Secp256k1PrivateKey } = require('sawtooth-sdk/signing/secp256k1');
 
 const axios = require('axios').default;
 const context = createContext('secp256k1');
-const baseUrl = 'http://decentralizedvoting-api.vltmn.io';
+const baseUrl = 'https://decentralizedvoting-api.vltmn.io';
 
 const getTransactionResult = async (batchId, transactionId) => {
   let status = '';
