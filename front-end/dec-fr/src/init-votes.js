@@ -39,7 +39,12 @@ const buildCastVoteOnElection = electionName => candidateName => ({
         candidate: candidateName,
         electionName: electionName
     })
+const buildEndElection = electionName => ({
+    action: 'END_ELECTION',
+    data: JSON.stringify({
+        electionName
 })
+});
 
 const generateKeys = (amount) => {
     const data = new Array(amount).fill()
