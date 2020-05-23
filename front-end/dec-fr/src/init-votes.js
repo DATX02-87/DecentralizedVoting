@@ -3,7 +3,7 @@ const axios = require('axios').default;
 const fs = require('fs');
 
 const context = createContext('secp256k1');
-const baseUrl = 'http://decentralizedvoting-api.vltmn.io';
+const baseUrl = process.env.API_URL_INTERNAL;
 
 const privateKey = context.newRandomPrivateKey();
 const privKeyHex = privateKey.asHex();
@@ -39,14 +39,16 @@ const buildCastVoteOnElection = electionName => candidateName => ({
         candidate: candidateName,
         electionName: electionName
     })
+});
+
 const buildEndElection = electionName => ({
     action: 'END_ELECTION',
     data: JSON.stringify({
         electionName
-})
+    })
 });
 
-const generateKeys = (amount) => {
+const generateKeys = (amount, saveFiles) => {
     const data = new Array(amount).fill()
         .map((_, i) => {
             const privateKey = context.newRandomPrivateKey();
@@ -58,7 +60,11 @@ const generateKeys = (amount) => {
                 publicKey
             };
         });
-    
+    if (!saveFiles) {
+        console.log('Voter keys');
+        console.table(data.map(d => d.privateKey))
+        return data;
+    }
     const fileContent = data.map(e => 
 `${e.index}
 ${e.privateKey}`)
@@ -93,21 +99,27 @@ const sendPayload = async (payload, signer) => {
     }
     await new Promise(res => setTimeout(res, 2000));
 }
+const sleep = (time) => new Promise(res => setTimeout(res, time));
 const main = async () => {
     const initPayload = buildInitPayload(publicKey);
     await sendPayload(initPayload, signer);
+    
+    console.log('Admin private key:', privKeyHex);
     const voters = generateKeys(20);
-    const elecitonName = 'Demo val';
-    const buildAddCandidatePayload = buildAddCandidateToElectionPayload(elecitonName);
-    // const buildCastVote = buildCastVoteOnElection(elecitonName)
+    const electionName = 'Demo val 1';
+    await sleep(1000);
     await sendPayload(buildAddElectionPayload(
-        elecitonName,
+        electionName,
         voters.map(d => d.publicKey),
         [publicKey]
     ), signer);
-    await sendPayload(buildAddCandidatePayload('kalle'), signer)
-    await sendPayload(buildAddCandidatePayload('kula'), signer)
-    await sendPayload(buildAddCandidatePayload('markus'), signer)
+    const buildAddCandidatePayload = buildAddCandidateToElectionPayload(electionName);
+    // const buildCastVote = buildCastVoteOnElection(electionName)
+    await sendPayload(buildAddCandidatePayload('Kandidat 1'), signer)
+    await sendPayload(buildAddCandidatePayload('Kandidat 2'), signer)
+    await sendPayload(buildAddCandidatePayload('Kandidat 3'), signer)
+    await sendPayload(buildAddCandidatePayload('Kandidat 4'), signer)
     // await sendPayload(buildCastVote('kalle'), signer);
+    // await sendPayload(buildEndElection(electionName), signer);
 }
 main();
