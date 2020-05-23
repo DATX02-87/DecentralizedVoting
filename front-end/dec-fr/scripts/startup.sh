@@ -1,4 +1,7 @@
 #!/bin/bash
+
+npm run-script build
+
 if [ -z "$INIT" ]
 then
     echo "Not running init scripts"
@@ -7,4 +10,3 @@ else
     sleep 20
     node src/init-votes.js
 fi
-npm run-script build

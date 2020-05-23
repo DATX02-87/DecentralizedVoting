@@ -1,0 +1,20 @@
+FROM maven:3-jdk-8-slim AS BUILDER
+WORKDIR /run
+
+COPY ./model/pom.xml /run/model/
+RUN ["/bin/bash", "-c", "pushd model && mvn dependency:go-offline && popd"]
+COPY ./model /run/model/
+RUN ["/bin/bash", "-c", "pushd model && mvn install && popd"]
+
+COPY ./api/pom.xml /run/api/
+RUN ["/bin/bash", "-c", "pushd api && mvn dependency:go-offline && popd"]
+COPY ./api /run/api/
+RUN ["/bin/bash", "-c", "pushd api && mvn install && popd"]
+
+FROM openjdk:8-jre-slim
+
+EXPOSE 8080
+COPY --from=BUILDER /run/api/target/dependency-jars /run/dependency-jars
+COPY --from=BUILDER /run/api/target/api-1.0-SNAPSHOT.jar /run/application.jar
+WORKDIR /run
+ENTRYPOINT java -jar application.jar ${VALIDATOR_URI} ${MASTER_STATE_NAME}
