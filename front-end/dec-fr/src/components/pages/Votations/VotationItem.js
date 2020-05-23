@@ -4,7 +4,7 @@ import Card from 'react-bootstrap/Card';
 import { Link } from 'react-router-dom';
 import { Row, Col } from 'react-bootstrap';
 
-const VotationItem = ({ votation: { name, active, hasVoted } }) => {
+const VotationItem = ({ votation: { name, active, hasVoted, eligible, admin } }) => {
   return (
     <div>
       <Card className='card'>
@@ -13,7 +13,8 @@ const VotationItem = ({ votation: { name, active, hasVoted } }) => {
             <Col>
               <Card.Title>{name}</Card.Title>
               <Card.Text>Active: {active.toString()}</Card.Text>
-              <Card.Text>Voted: {hasVoted.toString()}</Card.Text>
+              {eligible ? <Card.Text>Voted: {hasVoted.toString()}</Card.Text> : null}
+              {admin ? <Card.Text>Administrator</Card.Text> : null}
             </Col>
             <Col>
               <Link

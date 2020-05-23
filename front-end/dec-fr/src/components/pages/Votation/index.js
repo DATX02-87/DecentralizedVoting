@@ -1,7 +1,7 @@
 import React, { useContext, useState, useEffect, useCallback } from 'react';
 import { Spinner } from 'react-bootstrap';
 
-import { castVote, getElection } from 'services/api';
+import { castVote, getElection, endElection } from 'services/api';
 import KeyContext from 'components/context/key/keyContext';
 import VotationDisplay from './VotationDisplay';
 
@@ -26,12 +26,19 @@ const Votation = ({ match }) => {
       .then(() => getElectionData())
       .then(() => setCastingVote(false));
   }
+  const [endingVotation, setEndingVotation] = useState(false)
+  const onEndVotation = () => {
+    setEndingVotation(true);
+    endElection(key, votation.name)
+      .then(() => getElectionData())
+      .then(() => setEndingVotation(false));
+  }
   if (!votation) {
     return <Spinner />;
   }
   
   return (
-    <VotationDisplay {...votation} castingVote={castingVote} onVote={onVote}/>
+    <VotationDisplay {...votation} castingVote={castingVote} onVote={onVote} endingVotation={endingVotation} onEndVotation={onEndVotation}/>
   );
 };
 

@@ -3,7 +3,7 @@ const { Secp256k1PrivateKey } = require('sawtooth-sdk/signing/secp256k1');
 
 const axios = require('axios').default;
 const context = createContext('secp256k1');
-const baseUrl = 'https://decentralizedvoting-api.vltmn.io';
+const baseUrl = process.env.REACT_APP_API_URL_EXTERNAL || 'https://decentralizedvoting-api.vltmn.io';
 
 const getTransactionResult = async (batchId, transactionId) => {
   let status = '';
@@ -52,6 +52,13 @@ const buildCastVote = (candidateName, electionName) => ({
   })
 })
 
+const buildEndElection = electionName => ({
+  action: 'END_ELECTION',
+  data: JSON.stringify({
+      electionName
+  })
+});
+
 export const castVote = async (privateKey, electionName, candidateName) => {
   const privateKeyObj = Secp256k1PrivateKey.fromHex(privateKey);
   const signer = new CryptoFactory(context).newSigner(privateKeyObj);
@@ -62,9 +69,18 @@ export const castVote = async (privateKey, electionName, candidateName) => {
   return resp;
 };
 
+export const endElection = async (privateKey, electionName) => {
+  const privateKeyObj = Secp256k1PrivateKey.fromHex(privateKey);
+  const signer = new CryptoFactory(context).newSigner(privateKeyObj);
+  const transaction = buildEndElection(electionName);
+  const resp = await sendPayload(transaction, signer);
+  await getTransactionResult(resp.batchId, resp.transactionId);
+  return resp;
+}
+
 export const getEligibleElections = async (privateKey) => {
   const allElections = await getElections(privateKey);
-  return allElections.filter((e) => e.eligible);
+  return allElections.filter((e) => e.eligible || e.admin);
 };
 
 export const getElection = async (name, privateKey) => {
@@ -88,6 +104,7 @@ export const getElections = async (privateKey) => {
     name: el[0],
     active: el[1].active,
     eligible: new Set(Object.keys(el[1].voters)).has(publicKey),
+    admin: new Set(el[1].admins).has(publicKey),
     hasVoted: Object.entries(el[1].voters)
       .filter(obj => obj[0] === publicKey).some(obj => obj[1]),
     candidates: Object.keys(el[1].candidates)

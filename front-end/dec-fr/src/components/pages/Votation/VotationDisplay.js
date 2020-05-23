@@ -13,20 +13,19 @@ const SelectCandidateForm = ({candidates, selectedCandidate, onChange, onSubmit,
             <Form.Label>Please pick an option below</Form.Label>
             <Form.Control as="select" value={selectedCandidate} custom onChange={onChange} disabled={castingVote}>
                 <option></option>
-                {candidates.map((candidate) => (
+                {candidates.sort().map((candidate) => (
                     <option key={candidate}>{candidate}</option>
                 ))}
             </Form.Control>
         </Form.Group>
-        <ButtonGroup>
-            <Button variant='primary' type='submit' disabled={selectedCandidate === '' || !selectedCandidate || castingVote}>
-                Cast vote
-            </Button>
-            <Link to='/' className='btn btn-light'>Back</Link>
-        </ButtonGroup>
+        
+        <Button variant='primary' type='submit' disabled={selectedCandidate === '' || !selectedCandidate || castingVote}>
+            Cast vote
+        </Button>
+        
     </Form>
 );
-const VotationDisplay = ({name, active, hasVoted, candidates, castingVote, onVote}) => {
+const VotationDisplay = ({name, active, hasVoted, candidates, castingVote, onVote, eligible, admin, endingVotation, onEndVotation}) => {
     const [selectedCandidate, setSelectedCandidate] = useState(undefined);
     const onChange = (evt) => {
         setSelectedCandidate(evt.target.value);
@@ -38,6 +37,11 @@ const VotationDisplay = ({name, active, hasVoted, candidates, castingVote, onVot
         }
         onVote(selectedCandidate);
     }
+
+    const onEndElection = (evt) => {
+        evt.preventDefault();
+        onEndVotation();
+    }
     return (
     <Card>
         <Card.Body>
@@ -47,7 +51,32 @@ const VotationDisplay = ({name, active, hasVoted, candidates, castingVote, onVot
             ) : (
                 <Card.Subtitle className="text-muted">Ended</Card.Subtitle>
             )}
-            {hasVoted ? (
+            {active ? 
+                eligible ? 
+                    hasVoted ?
+                        <Card.Text>
+                            You have successfully voted in this votation, results will be posted after the end of this votation.
+                        </Card.Text> 
+                        :
+                        <SelectCandidateForm
+                        candidates={candidates}
+                        selectedCandidate={selectedCandidate}
+                        onChange={onChange}
+                        onSubmit={onSubmit}
+                        castingVote={castingVote}
+                        />
+                    : 
+                    admin ? 
+                        <Button variant='primary' type='button' disabled={endingVotation} onClick={onEndElection}>
+                            End votation
+                        </Button> 
+                        :
+                        <Card.Text>Invalid state</Card.Text>
+                :
+                <VotationStats votationName={name} />
+            }
+            <Link to='/' className='btn btn-light'>Back</Link>
+            {/* {hasVoted ? (
             <>
                 {active ? (
                 <Card.Text>
@@ -67,7 +96,7 @@ const VotationDisplay = ({name, active, hasVoted, candidates, castingVote, onVot
                 onSubmit={onSubmit}
                 castingVote={castingVote}
             />
-            )}
+            )} */}
         </Card.Body>
     </Card>
     );
