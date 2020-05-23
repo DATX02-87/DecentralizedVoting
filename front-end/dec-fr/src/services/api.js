@@ -122,5 +122,5 @@ export const getElectionStatistics = async (electionName) => {
   return Object.entries(election.candidates).map(entry => ({
     name: entry[0],
     votes: entry[1]
-  }));
+  })).sort((a, b) => a.name.localeCompare(b.name));
 }
