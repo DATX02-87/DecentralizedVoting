@@ -106,7 +106,7 @@ const main = async () => {
     
     console.log('Admin private key:', privKeyHex);
     const voters = generateKeys(20);
-    const electionName = 'Demo val 1';
+    const electionName = 'Demo votation 1';
     await sleep(1000);
     await sendPayload(buildAddElectionPayload(
         electionName,
@@ -115,10 +115,10 @@ const main = async () => {
     ), signer);
     const buildAddCandidatePayload = buildAddCandidateToElectionPayload(electionName);
     // const buildCastVote = buildCastVoteOnElection(electionName)
-    await sendPayload(buildAddCandidatePayload('Kandidat 1'), signer)
-    await sendPayload(buildAddCandidatePayload('Kandidat 2'), signer)
-    await sendPayload(buildAddCandidatePayload('Kandidat 3'), signer)
-    await sendPayload(buildAddCandidatePayload('Kandidat 4'), signer)
+    await sendPayload(buildAddCandidatePayload('Candidate 1'), signer)
+    await sendPayload(buildAddCandidatePayload('Candidate 2'), signer)
+    await sendPayload(buildAddCandidatePayload('Candidate 3'), signer)
+    await sendPayload(buildAddCandidatePayload('Candidate 4'), signer)
     // await sendPayload(buildCastVote('kalle'), signer);
     // await sendPayload(buildEndElection(electionName), signer);
 }
