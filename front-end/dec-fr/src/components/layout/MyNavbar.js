@@ -7,7 +7,7 @@ const MyNavbar = () => {
     <Fragment>
       <Navbar bg='white' variant='light'>
         <Navbar.Brand>
-          <Link to='/'>Decentralised Voting System</Link>
+          <Link to='/'>Decentralized Voting System</Link>
         </Navbar.Brand>
       </Navbar>
     </Fragment>

@@ -21,7 +21,7 @@ const VotationItem = ({ votation: { name, active, hasVoted, eligible, admin } })
                 className='btn btn-dark btn-sm my-1'
                 to={`/votations/${name}`}
               >
-                Go to Election
+                Go to votation
               </Link>
             </Col>
           </Row>
